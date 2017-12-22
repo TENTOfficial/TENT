@@ -1,2 +1,2 @@
 # Snowgem
-Snowgem source code
+Snowgem source code will be avaiabled soon
