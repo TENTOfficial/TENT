@@ -1,57 +1,19 @@
-Snowgem 1.0.13
+Snowgem 1.0.0
 =============
 
-What is Snowgem?
---------------
+SOLO MINING:
 
-[Snowgem](https://snowgem.org/) is an implementation of the "Zerocash" protocol.
-Based on Bitcoin's code, it intends to offer a far higher standard of privacy
-through a sophisticated zero-knowledge proving scheme that preserves
-confidentiality of transaction metadata. Technical details are available
-in our [Protocol Specification](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf).
-
-This software is the Snowgem client. It downloads and stores the entire history
-of Snowgem transactions; depending on the speed of your computer and network
-connection, the synchronization process could take a day or more once the
-blockchain has reached a significant size.
-
-Security Warnings
------------------
-
-See important security warnings on the
-[Security Information page](https://snowgem.org/support/security/).
-
-**Snowgem is experimental and a work-in-progress.** Use at your own risk.
-
-Deprecation Policy
-------------------
-
-This release is considered deprecated 16 weeks after the release day. There
-is an automatic deprecation shutdown feature which will halt the node some
-time after this 16 week time period. The automatic feature is based on block
-height and can be explicitly disabled.
-
-Where do I begin?
------------------
-We have a guide for joining the main Snowgem network:
-https://github.com/snowgem/snowgem/wiki/1.0-User-Guide
-
-### Need Help?
-
-* See the documentation at the [Snowgem Wiki](https://github.com/snowgem/snowgem/wiki)
-  for help and more information.
-* Ask for help on the [Snowgem](https://forum.snowgem.org/) forum.
-
-Participation in the Snowgem project is subject to a
-[Code of Conduct](code_of_conduct.md).
-
-Building
---------
-
-Build Snowgem along with most dependencies from source by running
-./zcutil/build.sh. Currently only Linux is officially supported.
-
-License
--------
-
-For license information see the file [COPYING](COPYING).
+    1.   Download the command wallet at: https://snowgem.org/downloads/snowgem-1.0.0-linux64.tar.gz
+          The swing wallet and params files is at: https://github.com/Snowgem/snowgem-swing-wallet/releases
+          You can use the snowgem.conf file as bellow
+          
+          server=1
+          listen=1
+          daemon=1
+          rpcuser=x
+          rpcpassword=q
+          rpcallowip=localhost
+          rpcport=16112
+          
+    2.   Go to the https://github.com/Snowgem/snowgem-solo-mining and follow README.md
+    3.   Run your equihash solver program to start mining
