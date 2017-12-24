@@ -1,0 +1,73 @@
+TESTS += snowgem-gtest
+noinst_PROGRAMS += snowgem-gtest
+
+# tool for generating our public parameters.
+# test_checktransaction.cpp MUST be before
+# any test that calls SelectParams().
+snowgem_gtest_SOURCES = \
+	gtest/main.cpp \
+	gtest/utils.cpp \
+	gtest/test_checktransaction.cpp \
+	gtest/json_test_vectors.cpp \
+	gtest/json_test_vectors.h \
+	gtest/test_foundersreward.cpp
+# These tests are order-dependent, because they
+# depend on global state (see #1539)
+if ENABLE_WALLET
+snowgem_gtest_SOURCES += \
+	wallet/gtest/test_wallet_zkeys.cpp
+endif
+snowgem_gtest_SOURCES += \
+	gtest/test_tautology.cpp \
+	gtest/test_deprecation.cpp \
+	gtest/test_equihash.cpp \
+	gtest/test_httprpc.cpp \
+	gtest/test_joinsplit.cpp \
+	gtest/test_keystore.cpp \
+	gtest/test_noteencryption.cpp \
+	gtest/test_mempool.cpp \
+	gtest/test_merkletree.cpp \
+	gtest/test_metrics.cpp \
+	gtest/test_miner.cpp \
+	gtest/test_pow.cpp \
+	gtest/test_random.cpp \
+	gtest/test_rpc.cpp \
+	gtest/test_transaction.cpp \
+	gtest/test_validation.cpp \
+	gtest/test_circuit.cpp \
+	gtest/test_txid.cpp \
+	gtest/test_libsnowgem_utils.cpp \
+	gtest/test_proofs.cpp \
+	gtest/test_paymentdisclosure.cpp \
+	gtest/test_checkblock.cpp
+if ENABLE_WALLET
+snowgem_gtest_SOURCES += \
+	wallet/gtest/test_wallet.cpp
+endif
+
+snowgem_gtest_CPPFLAGS = $(AM_CPPFLAGS) -DMULTICORE -fopenmp -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DSTATIC $(BITCOIN_INCLUDES)
+snowgem_gtest_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+
+snowgem_gtest_LDADD = -lgtest -lgmock $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
+  $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1)
+if ENABLE_ZMQ
+snowgem_gtest_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
+endif
+if ENABLE_WALLET
+snowgem_gtest_LDADD += $(LIBBITCOIN_WALLET)
+endif
+
+snowgem_gtest_LDADD += $(LIBSNOWGEM_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBSNOWGEM) $(LIBSNARK) $(LIBSNOWGEM_LIBS)
+
+if ENABLE_PROTON
+snowgem_gtest_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
+endif
+
+
+snowgem_gtest_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
+
+snowgem-gtest_check: snowgem-gtest FORCE
+	./snowgem-gtest
+
+snowgem-gtest-expected-failures: snowgem-gtest FORCE
+	./snowgem-gtest --gtest_filter=*DISABLED_* --gtest_also_run_disabled_tests

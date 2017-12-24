@@ -1,0 +1,28 @@
+noinst_PROGRAMS += \
+  snowgem/GenerateParams \
+  snowgem/CreateJoinSplit
+
+# tool for generating our public parameters
+snowgem_GenerateParams_SOURCES = snowgem/GenerateParams.cpp
+snowgem_GenerateParams_CPPFLAGS = $(AM_CPPFLAGS)
+snowgem_GenerateParams_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+snowgem_GenerateParams_LDADD = \
+  $(BOOST_LIBS) \
+  $(LIBSNOWGEM) \
+  $(LIBSNARK) \
+  $(LIBBITCOIN_UTIL) \
+  $(LIBBITCOIN_CRYPTO) \
+  $(LIBSNOWGEM_LIBS)
+
+# tool for profiling the creation of joinsplits
+snowgem_CreateJoinSplit_SOURCES = snowgem/CreateJoinSplit.cpp
+snowgem_CreateJoinSplit_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+snowgem_CreateJoinSplit_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+snowgem_CreateJoinSplit_LDADD = \
+  $(LIBBITCOIN_COMMON) \
+  $(LIBSNOWGEM) \
+  $(LIBSNARK) \
+  $(LIBBITCOIN_UTIL) \
+  $(LIBBITCOIN_CRYPTO) \
+  $(BOOST_LIBS) \
+  $(LIBSNOWGEM_LIBS)

@@ -8,7 +8,7 @@ What is Snowgem?
 Based on Bitcoin's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
-in our [Protocol Specification](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf).
+in our [Protocol Specification](https://github.com/snowgem/zips/raw/master/protocol/protocol.pdf).
 
 This software is the Snowgem client. It downloads and stores the entire history
 of Snowgem transactions; depending on the speed of your computer and network

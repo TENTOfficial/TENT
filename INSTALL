@@ -1,0 +1,5 @@
+Building Snowgem
+
+See the Snowgem github wiki (https://github.com/snowgem/snowgem/wiki) for instructions on building snowgemd,
+the intended-for-services, no-graphical-interface, reference
+implementation of Snowgem.
