@@ -1,4 +1,4 @@
-Snowgem 1.0.13
+Snowgem 1.0.0
 =============
 
 What is Snowgem?
