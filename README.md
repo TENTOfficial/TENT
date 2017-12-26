@@ -42,7 +42,7 @@ On Ubuntu/Debian-based systems:
 $ sudo apt-get install \
       build-essential pkg-config libc6-dev m4 g++-multilib \
       autoconf libtool ncurses-dev unzip git python python-zmq \
-      zlib1g-dev wget bsdmainutils automake
+      zlib1g-dev wget bsdmainutils automake curl
 ```
 
 On Fedora-based systems:
@@ -50,7 +50,7 @@ On Fedora-based systems:
 ```
 $ sudo dnf install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch curl
 ```
 
 ### Check GCC version
