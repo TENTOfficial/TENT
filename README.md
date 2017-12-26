@@ -38,9 +38,9 @@ https://github.com/snowgem/snowgem/wiki/1.0-User-Guide
 
 ### Need Help?
 
-* See the documentation at the [Snowgem Wiki](https://github.com/snowgem/snowgem/wiki)
+* See the documentation at the [refer from Zcash Wiki](https://github.com/zcash/zcash/wiki/1.0-User-Guide)
   for help and more information.
-* Ask for help on the [Snowgem](https://forum.snowgem.org/) forum.
+* Ask for help on the [Snowgem](https://forum.snowgem.org/) forum or contact us via email support@snowgem.org
 
 Participation in the Snowgem project is subject to a
 [Code of Conduct](code_of_conduct.md).
