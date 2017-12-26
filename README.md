@@ -34,7 +34,7 @@ height and can be explicitly disabled.
 Where do I begin?
 -----------------
 We have a guide for joining the main Snowgem network:
-https://github.com/snowgem/snowgem/wiki/1.0-User-Guide
+https://github.com/zcash/zcash/wiki/1.0-User-Guide
 
 ### Need Help?
 
