@@ -75,6 +75,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
+$ chmod +x zcutil/build.sh
 $ ./zcutil/build.sh --disable-rust -j$(nproc)
 ```
 
@@ -85,6 +86,7 @@ This should compile our dependencies and build zcashd. (Note: if you don't have 
 Fetch our repository with git and run ```fetch-params.sh``` like so:
 
 ```
+$ chmod +x zcutil/fetch-params.sh
 $ ./zcutil/fetch-params.sh
 ```
 This will fetch our Sprout proving and verifying keys (the final ones created in the [Parameter Generation Ceremony](https://github.com/zcash/mpc)), and place them into ```~/.snowgem-params/```. These keys are just under 911MB in size, so it may take some time to download them.
