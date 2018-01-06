@@ -75,7 +75,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh
+$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub
 $ ./zcutil/build.sh --disable-rust -j$(nproc)
 ```
 
