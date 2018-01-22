@@ -202,7 +202,7 @@ inline bigint<m> bigint<n>::shorten(const bigint<m>& q, const char *msg) const
         }
     }
     bigint<m> res;
-    mpn_copyi(res.data, data, m);
+    mpn_copyi(res.data, data, n);
     res.limit(q, msg);
     return res;
 }
