@@ -950,9 +950,15 @@ public:
     //! Load spending key metadata (used by LoadWallet)
     bool LoadZKeyMetadata(const libsnowgem::PaymentAddress &addr, const CKeyMetadata &meta);
     //! Adds an encrypted spending key to the store, without saving it to disk (used by LoadWallet)
-    bool LoadCryptedZKey(const libsnowgem::PaymentAddress &addr, const libsnowgem::ViewingKey &vk, const std::vector<unsigned char> &vchCryptedSecret);
+    bool LoadCryptedZKey(const libsnowgem::PaymentAddress &addr, const libsnowgem::ReceivingKey &rk, const std::vector<unsigned char> &vchCryptedSecret);
     //! Adds an encrypted spending key to the store, and saves it to disk (virtual method, declared in crypter.h)
-    bool AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address, const libsnowgem::ViewingKey &vk, const std::vector<unsigned char> &vchCryptedSecret);
+    bool AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address, const libsnowgem::ReceivingKey &rk, const std::vector<unsigned char> &vchCryptedSecret);
+
+    //! Adds a viewing key to the store, and saves it to disk.
+    bool AddViewingKey(const libsnowgem::ViewingKey &vk);
+    bool RemoveViewingKey(const libsnowgem::ViewingKey &vk);
+    //! Adds a viewing key to the store, without saving it to disk (used by LoadWallet)
+    bool LoadViewingKey(const libsnowgem::ViewingKey &dest);
 
     /** 
      * Increment the next transaction order id
@@ -1115,7 +1121,11 @@ public:
     void SetBroadcastTransactions(bool broadcast) { fBroadcastTransactions = broadcast; }
     
     /* Find notes filtered by payment address, min depth, ability to spend */
-    void GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, std::string address, int minDepth=1, bool ignoreSpent=true);
+    void GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries,
+                          std::string address,
+                          int minDepth=1,
+                          bool ignoreSpent=true,
+                          bool ignoreUnspendable=true);
     
 };
 

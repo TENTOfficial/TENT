@@ -89,6 +89,40 @@ bool CBasicKeyStore::AddSpendingKey(const libsnowgem::SpendingKey &sk)
     LOCK(cs_SpendingKeyStore);
     auto address = sk.address();
     mapSpendingKeys[address] = sk;
-    mapNoteDecryptors.insert(std::make_pair(address, ZCNoteDecryption(sk.viewing_key())));
+    mapNoteDecryptors.insert(std::make_pair(address, ZCNoteDecryption(sk.receiving_key())));
     return true;
+}
+
+bool CBasicKeyStore::AddViewingKey(const libsnowgem::ViewingKey &vk)
+{
+    LOCK(cs_SpendingKeyStore);
+    auto address = vk.address();
+    mapViewingKeys[address] = vk;
+    mapNoteDecryptors.insert(std::make_pair(address, ZCNoteDecryption(vk.sk_enc)));
+    return true;
+}
+
+bool CBasicKeyStore::RemoveViewingKey(const libsnowgem::ViewingKey &vk)
+{
+    LOCK(cs_SpendingKeyStore);
+    mapViewingKeys.erase(vk.address());
+    return true;
+}
+
+bool CBasicKeyStore::HaveViewingKey(const libsnowgem::PaymentAddress &address) const
+{
+    LOCK(cs_SpendingKeyStore);
+    return mapViewingKeys.count(address) > 0;
+}
+
+bool CBasicKeyStore::GetViewingKey(const libsnowgem::PaymentAddress &address,
+                                   libsnowgem::ViewingKey &vkOut) const
+{
+    LOCK(cs_SpendingKeyStore);
+    ViewingKeyMap::const_iterator mi = mapViewingKeys.find(address);
+    if (mi != mapViewingKeys.end()) {
+        vkOut = mi->second;
+        return true;
+    }
+    return false;
 }

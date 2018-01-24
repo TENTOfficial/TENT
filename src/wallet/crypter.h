@@ -201,7 +201,7 @@ public:
         }
     }
     virtual bool AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address,
-                                       const libsnowgem::ViewingKey &vk,
+                                       const libsnowgem::ReceivingKey &rk,
                                        const std::vector<unsigned char> &vchCryptedSecret);
     bool AddSpendingKey(const libsnowgem::SpendingKey &sk);
     bool HaveSpendingKey(const libsnowgem::PaymentAddress &address) const

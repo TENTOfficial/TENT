@@ -323,67 +323,60 @@ bool CBitcoinSecret::SetString(const std::string& strSecret)
     return SetString(strSecret.c_str());
 }
 
-bool CZCPaymentAddress::Set(const libsnowgem::PaymentAddress& addr)
+template<class DATA_TYPE, CChainParams::Base58Type PREFIX, size_t SER_SIZE>
+bool CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Set(const DATA_TYPE& addr)
 {
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << addr;
     std::vector<unsigned char> addrSerialized(ss.begin(), ss.end());
-    assert(addrSerialized.size() == libsnowgem::SerializedPaymentAddressSize);
-    SetData(Params().Base58Prefix(CChainParams::ZCPAYMENT_ADDRRESS), &addrSerialized[0], libsnowgem::SerializedPaymentAddressSize);
+    assert(addrSerialized.size() == SER_SIZE);
+    SetData(Params().Base58Prefix(PREFIX), &addrSerialized[0], SER_SIZE);
     return true;
 }
 
-libsnowgem::PaymentAddress CZCPaymentAddress::Get() const
+template<class DATA_TYPE, CChainParams::Base58Type PREFIX, size_t SER_SIZE>
+DATA_TYPE CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Get() const
 {
-    if (vchData.size() != libsnowgem::SerializedPaymentAddressSize) {
+    if (vchData.size() != SER_SIZE) {
         throw std::runtime_error(
-            "payment address is invalid"
+            PrependName(" is invalid")
         );
     }
 
-    if (vchVersion != Params().Base58Prefix(CChainParams::ZCPAYMENT_ADDRRESS)) {
+    if (vchVersion != Params().Base58Prefix(PREFIX)) {
         throw std::runtime_error(
-            "payment address is for wrong network type"
+            PrependName(" is for wrong network type")
         );
     }
 
     std::vector<unsigned char> serialized(vchData.begin(), vchData.end());
 
     CDataStream ss(serialized, SER_NETWORK, PROTOCOL_VERSION);
-    libsnowgem::PaymentAddress ret;
+    DATA_TYPE ret;
     ss >> ret;
     return ret;
 }
 
-bool CZCSpendingKey::Set(const libsnowgem::SpendingKey& addr)
-{
-    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-    ss << addr;
-    std::vector<unsigned char> addrSerialized(ss.begin(), ss.end());
-    assert(addrSerialized.size() == libsnowgem::SerializedSpendingKeySize);
-    SetData(Params().Base58Prefix(CChainParams::ZCSPENDING_KEY), &addrSerialized[0], libsnowgem::SerializedSpendingKeySize);
-    return true;
-}
+// Explicit instantiations for libsnowgem::PaymentAddress
+template bool CZCEncoding<libsnowgem::PaymentAddress,
+                          CChainParams::ZCPAYMENT_ADDRRESS,
+                          libsnowgem::SerializedPaymentAddressSize>::Set(const libsnowgem::PaymentAddress& addr);
+template libsnowgem::PaymentAddress CZCEncoding<libsnowgem::PaymentAddress,
+                                              CChainParams::ZCPAYMENT_ADDRRESS,
+                                              libsnowgem::SerializedPaymentAddressSize>::Get() const;
 
-libsnowgem::SpendingKey CZCSpendingKey::Get() const
-{
-    if (vchData.size() != libsnowgem::SerializedSpendingKeySize) {
-        throw std::runtime_error(
-            "spending key is invalid"
-        );
-    }
+// Explicit instantiations for libsnowgem::ViewingKey
+template bool CZCEncoding<libsnowgem::ViewingKey,
+                          CChainParams::ZCVIEWING_KEY,
+                          libsnowgem::SerializedViewingKeySize>::Set(const libsnowgem::ViewingKey& vk);
+template libsnowgem::ViewingKey CZCEncoding<libsnowgem::ViewingKey,
+                                          CChainParams::ZCVIEWING_KEY,
+                                          libsnowgem::SerializedViewingKeySize>::Get() const;
 
-    if (vchVersion != Params().Base58Prefix(CChainParams::ZCSPENDING_KEY)) {
-        throw std::runtime_error(
-            "spending key is for wrong network type"
-        );
-    }
-
-    std::vector<unsigned char> serialized(vchData.begin(), vchData.end());
-
-    CDataStream ss(serialized, SER_NETWORK, PROTOCOL_VERSION);
-    libsnowgem::SpendingKey ret;
-    ss >> ret;
-    return ret;
-}
-
+// Explicit instantiations for libsnowgem::SpendingKey
+template bool CZCEncoding<libsnowgem::SpendingKey,
+                          CChainParams::ZCSPENDING_KEY,
+                          libsnowgem::SerializedSpendingKeySize>::Set(const libsnowgem::SpendingKey& sk);
+template libsnowgem::SpendingKey CZCEncoding<libsnowgem::SpendingKey,
+                                           CChainParams::ZCSPENDING_KEY,
+                                           libsnowgem::SerializedSpendingKeySize>::Get() const;

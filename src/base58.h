@@ -96,26 +96,48 @@ public:
     bool operator> (const CBase58Data& b58) const { return CompareTo(b58) >  0; }
 };
 
-class CZCPaymentAddress : public CBase58Data {
+template<class DATA_TYPE, CChainParams::Base58Type PREFIX, size_t SER_SIZE>
+class CZCEncoding : public CBase58Data {
+protected:
+    virtual std::string PrependName(const std::string& s) const = 0;
+
 public:
-    bool Set(const libsnowgem::PaymentAddress& addr);
+    bool Set(const DATA_TYPE& addr);
+
+    DATA_TYPE Get() const;
+};
+
+class CZCPaymentAddress : public CZCEncoding<libsnowgem::PaymentAddress, CChainParams::ZCPAYMENT_ADDRRESS, libsnowgem::SerializedPaymentAddressSize> {
+protected:
+    std::string PrependName(const std::string& s) const { return "payment address" + s; }
+
+public:
     CZCPaymentAddress() {}
 
     CZCPaymentAddress(const std::string& strAddress) { SetString(strAddress.c_str(), 2); }
     CZCPaymentAddress(const libsnowgem::PaymentAddress& addr) { Set(addr); }
-
-    libsnowgem::PaymentAddress Get() const;
 };
 
-class CZCSpendingKey : public CBase58Data {
+class CZCViewingKey : public CZCEncoding<libsnowgem::ViewingKey, CChainParams::ZCVIEWING_KEY, libsnowgem::SerializedViewingKeySize> {
+protected:
+    std::string PrependName(const std::string& s) const { return "viewing key" + s; }
+
 public:
-    bool Set(const libsnowgem::SpendingKey& addr);
+    CZCViewingKey() {}
+
+    CZCViewingKey(const std::string& strViewingKey) { SetString(strViewingKey.c_str(), 3); }
+    CZCViewingKey(const libsnowgem::ViewingKey& vk) { Set(vk); }
+};
+
+class CZCSpendingKey : public CZCEncoding<libsnowgem::SpendingKey, CChainParams::ZCSPENDING_KEY, libsnowgem::SerializedSpendingKeySize> {
+protected:
+    std::string PrependName(const std::string& s) const { return "spending key" + s; }
+
+public:
     CZCSpendingKey() {}
 
     CZCSpendingKey(const std::string& strAddress) { SetString(strAddress.c_str(), 2); }
     CZCSpendingKey(const libsnowgem::SpendingKey& addr) { Set(addr); }
-
-    libsnowgem::SpendingKey Get() const;
 };
 
 /** base58-encoded Bitcoin addresses.

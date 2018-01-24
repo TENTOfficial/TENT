@@ -190,10 +190,10 @@ bool CWallet::AddCryptedKey(const CPubKey &vchPubKey,
 
 
 bool CWallet::AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address,
-                                    const libsnowgem::ViewingKey &vk,
+                                    const libsnowgem::ReceivingKey &rk,
                                     const std::vector<unsigned char> &vchCryptedSecret)
 {
-    if (!CCryptoKeyStore::AddCryptedSpendingKey(address, vk, vchCryptedSecret))
+    if (!CCryptoKeyStore::AddCryptedSpendingKey(address, rk, vchCryptedSecret))
         return false;
     if (!fFileBacked)
         return true;
@@ -201,12 +201,12 @@ bool CWallet::AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address,
         LOCK(cs_wallet);
         if (pwalletdbEncryption) {
             return pwalletdbEncryption->WriteCryptedZKey(address,
-                                                         vk,
+                                                         rk,
                                                          vchCryptedSecret,
                                                          mapZKeyMetadata[address]);
         } else {
             return CWalletDB(strWalletFile).WriteCryptedZKey(address,
-                                                             vk,
+                                                             rk,
                                                              vchCryptedSecret,
                                                              mapZKeyMetadata[address]);
         }
@@ -236,14 +236,46 @@ bool CWallet::LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigne
     return CCryptoKeyStore::AddCryptedKey(vchPubKey, vchCryptedSecret);
 }
 
-bool CWallet::LoadCryptedZKey(const libsnowgem::PaymentAddress &addr, const libsnowgem::ViewingKey &vk, const std::vector<unsigned char> &vchCryptedSecret)
+bool CWallet::LoadCryptedZKey(const libsnowgem::PaymentAddress &addr, const libsnowgem::ReceivingKey &rk, const std::vector<unsigned char> &vchCryptedSecret)
 {
-    return CCryptoKeyStore::AddCryptedSpendingKey(addr, vk, vchCryptedSecret);
+    return CCryptoKeyStore::AddCryptedSpendingKey(addr, rk, vchCryptedSecret);
 }
 
 bool CWallet::LoadZKey(const libsnowgem::SpendingKey &key)
 {
     return CCryptoKeyStore::AddSpendingKey(key);
+}
+
+bool CWallet::AddViewingKey(const libsnowgem::ViewingKey &vk)
+{
+    if (!CCryptoKeyStore::AddViewingKey(vk)) {
+        return false;
+    }
+    nTimeFirstKey = 1; // No birthday information for viewing keys.
+    if (!fFileBacked) {
+        return true;
+    }
+    return CWalletDB(strWalletFile).WriteViewingKey(vk);
+}
+
+bool CWallet::RemoveViewingKey(const libsnowgem::ViewingKey &vk)
+{
+    AssertLockHeld(cs_wallet);
+    if (!CCryptoKeyStore::RemoveViewingKey(vk)) {
+        return false;
+    }
+    if (fFileBacked) {
+        if (!CWalletDB(strWalletFile).EraseViewingKey(vk)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CWallet::LoadViewingKey(const libsnowgem::ViewingKey &vk)
+{
+    return CCryptoKeyStore::AddViewingKey(vk);
 }
 
 bool CWallet::AddCScript(const CScript& redeemScript)
@@ -946,7 +978,8 @@ void CWallet::MarkDirty()
 }
 
 /**
- * Ensure that every note in the wallet has a cached nullifier.
+ * Ensure that every note in the wallet (for which we possess a spending key)
+ * has a cached nullifier.
  */
 bool CWallet::UpdateNullifierNoteMap()
 {
@@ -960,16 +993,17 @@ bool CWallet::UpdateNullifierNoteMap()
         for (std::pair<const uint256, CWalletTx>& wtxItem : mapWallet) {
             for (mapNoteData_t::value_type& item : wtxItem.second.mapNoteData) {
                 if (!item.second.nullifier) {
-                    auto i = item.first.js;
-                    GetNoteDecryptor(item.second.address, dec);
-                    auto hSig = wtxItem.second.vjoinsplit[i].h_sig(
-                        *psnowgemParams, wtxItem.second.joinSplitPubKey);
-                    item.second.nullifier = GetNoteNullifier(
-                        wtxItem.second.vjoinsplit[i],
-                        item.second.address,
-                        dec,
-                        hSig,
-                        item.first.n);
+                    if (GetNoteDecryptor(item.second.address, dec)) {
+                        auto i = item.first.js;
+                        auto hSig = wtxItem.second.vjoinsplit[i].h_sig(
+                            *psnowgemParams, wtxItem.second.joinSplitPubKey);
+                        item.second.nullifier = GetNoteNullifier(
+                            wtxItem.second.vjoinsplit[i],
+                            item.second.address,
+                            dec,
+                            hSig,
+                            item.first.n);
+                    }
                 }
             }
             UpdateNullifierNoteMapWithTx(wtxItem.second);
@@ -3608,7 +3642,7 @@ bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, bool fRejectAbsurdFee)
  * Find notes in the wallet filtered by payment address, min depth and ability to spend.
  * These notes are decrypted and added to the output parameter vector, outEntries.
  */
-void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, std::string address, int minDepth, bool ignoreSpent)
+void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, std::string address, int minDepth, bool ignoreSpent, bool ignoreUnspendable)
 {
     bool fFilterAddress = false;
     libsnowgem::PaymentAddress filterPaymentAddress;
@@ -3643,6 +3677,11 @@ void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, st
 
             // skip note which has been spent
             if (ignoreSpent && nd.nullifier && IsSpent(*nd.nullifier)) {
+                continue;
+            }
+
+            // skip notes which cannot be spent
+            if (ignoreUnspendable && !HaveSpendingKey(pa)) {
                 continue;
             }
 

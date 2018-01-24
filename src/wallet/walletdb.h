@@ -136,9 +136,12 @@ public:
     /// Write spending key to wallet database, where key is payment address and value is spending key.
     bool WriteZKey(const libsnowgem::PaymentAddress& addr, const libsnowgem::SpendingKey& key, const CKeyMetadata &keyMeta);
     bool WriteCryptedZKey(const libsnowgem::PaymentAddress & addr,
-                          const libsnowgem::ViewingKey & vk,
+                          const libsnowgem::ReceivingKey & rk,
                           const std::vector<unsigned char>& vchCryptedSecret,
                           const CKeyMetadata &keyMeta);
+
+    bool WriteViewingKey(const libsnowgem::ViewingKey &vk);
+    bool EraseViewingKey(const libsnowgem::ViewingKey &vk);
 
 private:
     CWalletDB(const CWalletDB&);

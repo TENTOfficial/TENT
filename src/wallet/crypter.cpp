@@ -316,14 +316,14 @@ bool CCryptoKeyStore::AddSpendingKey(const libsnowgem::SpendingKey &sk)
         if (!EncryptSecret(vMasterKey, vchSecret, address.GetHash(), vchCryptedSecret))
             return false;
 
-        if (!AddCryptedSpendingKey(address, sk.viewing_key(), vchCryptedSecret))
+        if (!AddCryptedSpendingKey(address, sk.receiving_key(), vchCryptedSecret))
             return false;
     }
     return true;
 }
 
 bool CCryptoKeyStore::AddCryptedSpendingKey(const libsnowgem::PaymentAddress &address,
-                                            const libsnowgem::ViewingKey &vk,
+                                            const libsnowgem::ReceivingKey &rk,
                                             const std::vector<unsigned char> &vchCryptedSecret)
 {
     {
@@ -332,7 +332,7 @@ bool CCryptoKeyStore::AddCryptedSpendingKey(const libsnowgem::PaymentAddress &ad
             return false;
 
         mapCryptedSpendingKeys[address] = vchCryptedSecret;
-        mapNoteDecryptors.insert(std::make_pair(address, ZCNoteDecryption(vk)));
+        mapNoteDecryptors.insert(std::make_pair(address, ZCNoteDecryption(rk)));
     }
     return true;
 }
@@ -384,7 +384,7 @@ bool CCryptoKeyStore::EncryptKeys(CKeyingMaterial& vMasterKeyIn)
             std::vector<unsigned char> vchCryptedSecret;
             if (!EncryptSecret(vMasterKeyIn, vchSecret, address.GetHash(), vchCryptedSecret))
                 return false;
-            if (!AddCryptedSpendingKey(address, sk.viewing_key(), vchCryptedSecret))
+            if (!AddCryptedSpendingKey(address, sk.receiving_key(), vchCryptedSecret))
                 return false;
         }
         mapSpendingKeys.clear();
