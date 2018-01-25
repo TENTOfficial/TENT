@@ -19,7 +19,7 @@ set -x
 cd "$(dirname "$(readlink -f "$0")")/.."
 
 
-cd depends/ && make HOST=$HOST V=1 NO_QT=1 NO_RUST="$RUST_ARG" -j8 && cd ../
+cd depends/ && make HOST=$HOST V=1 NO_QT=1 NO_RUST="$RUST_ARG" && cd ../
 ./autogen.sh
 CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site CXXFLAGS+=" -fopenmp" ./configure --prefix="${PREFIX}" --host=x86_64-w64-mingw32 --enable-static --disable-zmq --disable-rust "$RUST_ARG"
 sed -i 's/-lboost_system-mt /-lboost_system-mt-s /' configure
