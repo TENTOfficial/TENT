@@ -4,13 +4,13 @@ Upstream-Contact: Snowgem Company <team@snowgem.org>
 Source: https://github.com/snowgem/snowgem
 
 Files: *
-Copyright: 2017, The Snowgem developers
+Copyright: 2017 The SnowGem developers
 Copyright: 2016-2017, The Zcash developers
  2009-2017, Bitcoin Core developers
 License: Expat
 Comment: The Bitcoin Core developers encompasses the current developers listed on bitcoin.org,
  as well as the numerous contributors to the project.
- The Snowgem developers are listed at https://snowgem.org/team.html.
+ The Zcash developers are listed at https://zcash.org/team.html.
 
 Files: depends/sources/libsodium-*.tar.gz
 Copyright: 2013-2016 Frank Denis

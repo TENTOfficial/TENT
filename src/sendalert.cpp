@@ -1,4 +1,5 @@
-// Copyright (c) 2016 The Snowgem developers
+// Copyright (c) 2016 The Zcash developers
+// Copyright (c) 2017-2018 The SnowGem developers
 // Original code from: https://gist.github.com/laanwj/0e689cfa37b52bcbbb44
 
 /*
