@@ -1,6 +1,9 @@
 *.tar.gz
 *.deb
 *.exe
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
 src/bitcoin
 src/snowgemd
 src/snowgem-cli
