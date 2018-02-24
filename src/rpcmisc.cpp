@@ -12,6 +12,7 @@
 #include "rpcserver.h"
 #include "timedata.h"
 #include "util.h"
+#include "utilmoneystr.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
@@ -26,6 +27,169 @@
 #include "snowgem/Address.hpp"
 
 using namespace std;
+
+/**
+ *Return all data for simple wallet
+**/
+UniValue getalldata(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+            "getallinfo\n"
+            "Returns all data for simple wallet.\n"
+            "\nResult:\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getallinfo", "")
+            + HelpExampleRpc("getallinfo", "")
+        );
+
+    LOCK(cs_main);
+
+    UniValue returnObj(UniValue::VOBJ);
+    int connectionCount = 0;
+    {
+        LOCK2(cs_main, cs_vNodes);
+        connectionCount = (int)vNodes.size();
+    }
+
+    int nMinDepth = 1;
+    CAmount nBalance = getBalanceTaddr("", nMinDepth, true);
+    CAmount nPrivateBalance = getBalanceZaddr("", nMinDepth, true);
+    CAmount nTotalBalance = nBalance + nPrivateBalance;
+
+    returnObj.push_back(Pair("connectionCount", connectionCount));
+    returnObj.push_back(Pair("besttime", chainActive.Tip()->GetBlockTime()));
+    returnObj.push_back(Pair("bestblockhash", chainActive.Tip()->GetBlockHash().GetHex()));
+    returnObj.push_back(Pair("transparentbalance", FormatMoney(nBalance)));
+    returnObj.push_back(Pair("privatebalance", FormatMoney(nPrivateBalance)));
+    returnObj.push_back(Pair("totalbalance", FormatMoney(nTotalBalance)));
+    returnObj.push_back(Pair("unconfirmedbalance", FormatMoney(pwalletMain->GetUnconfirmedBalance())));
+
+    //get address balance
+    nBalance = 0;
+
+    //get all t address
+    UniValue transactions(UniValue::VARR);
+    UniValue addrlist(UniValue::VOBJ);
+
+    if (params.size() > 0 && (params[0].get_int() == 1 || params[0].get_int() == 0))
+    {
+        BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+        {
+            const CBitcoinAddress& address = item.first;
+            const string& strName = item.second.name;
+            nBalance = getBalanceTaddr(address.ToString(), nMinDepth, false);
+            addrlist.push_back(Pair(address.ToString(), ValueFromAmount(nBalance)));
+        }
+
+        //address grouping
+        {
+            LOCK2(cs_main, pwalletMain->cs_wallet);
+
+            UniValue jsonGroupings(UniValue::VARR);
+            map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
+            BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
+            {
+                UniValue jsonGrouping(UniValue::VARR);
+                BOOST_FOREACH(CTxDestination address, grouping)
+                {
+                    const string& strName = CBitcoinAddress(address).ToString();
+                    if(addrlist.exists(strName))
+                        continue;
+                    addrlist.push_back(Pair(strName, ValueFromAmount(balances[address])));
+                }
+            }
+        }
+
+        //get all z address
+        std::set<libsnowgem::PaymentAddress> addresses;
+        pwalletMain->GetPaymentAddresses(addresses);
+        for (auto addr : addresses ) {
+            if (pwalletMain->HaveSpendingKey(addr)) {
+                const string& strName = CZCPaymentAddress(addr).ToString();
+                nBalance = getBalanceZaddr(strName, nMinDepth, false);
+                addrlist.push_back(Pair(strName, ValueFromAmount(nBalance)));
+            }
+        }
+    }
+	else
+	{
+		addrlist.push_back(Pair("", ValueFromAmount(nBalance)));
+	}
+    transactions.push_back(addrlist);
+    returnObj.push_back(Pair("addressbalance", transactions));
+
+
+    //get transactions
+    string strAccount = "";
+    int nCount = 200;
+    int nFrom = 0;
+    isminefilter filter = ISMINE_SPENDABLE;
+
+    UniValue trans(UniValue::VARR);
+    if (params.size() > 0 && (params[0].get_int() == 2 || params[0].get_int() == 0))
+    {
+        std::list<CAccountingEntry> acentries;
+        CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
+
+        // iterate backwards until we have nCount items to return:
+        for (CWallet::TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
+        {
+            CWalletTx *const pwtx = (*it).second.first;
+            if (pwtx != 0)
+                ListTransactions(*pwtx, strAccount, 0, true, trans, filter);
+            CAccountingEntry *const pacentry = (*it).second.second;
+            if (pacentry != 0)
+                AcentryToJSON(*pacentry, strAccount, trans);
+
+            if ((int)trans.size() >= (nCount+nFrom)) break;
+        }
+
+        // trans is newest to oldest
+        if (nFrom > (int)trans.size())
+            nFrom = trans.size();
+        if ((nFrom + nCount) > (int)trans.size())
+            nCount = trans.size() - nFrom;
+
+        vector<UniValue> arrTmp = trans.getValues();
+
+        vector<UniValue>::iterator first = arrTmp.begin();
+        std::advance(first, nFrom);
+        vector<UniValue>::iterator last = arrTmp.begin();
+        std::advance(last, nFrom+nCount);
+
+        if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
+        if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
+
+        std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
+
+        trans.clear();
+        trans.setArray();
+        trans.push_backV(arrTmp);
+    }
+	else
+	{
+        UniValue translist(UniValue::VOBJ);
+        translist.push_back(Pair("account", ""));
+        translist.push_back(Pair("address", ""));
+        translist.push_back(Pair("category", ""));
+        translist.push_back(Pair("amount", "0"));
+        translist.push_back(Pair("vout", "1"));
+        translist.push_back(Pair("confirmations", "0"));
+        translist.push_back(Pair("generated", "true"));
+        translist.push_back(Pair("blockhash", "0000000000000000000000000000000000000000000000000000000000000000"));
+        translist.push_back(Pair("blockindex", "0"));
+        translist.push_back(Pair("blocktime", "0"));
+        translist.push_back(Pair("txid", "0000000000000000000000000000000000000000000000000000000000000000"));
+        translist.push_back(Pair("time", "0"));
+        translist.push_back(Pair("timereceived", "0"));
+        trans.push_back(translist);
+	}
+
+    returnObj.push_back(Pair("listtransactions", trans));
+
+    return returnObj;
+}
 
 /**
  * @note Do not add or change anything in the information returned by this
