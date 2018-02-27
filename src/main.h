@@ -39,6 +39,7 @@
 
 class CBlockIndex;
 class CBlockTreeDB;
+class CSporkDB;
 class CBloomFilter;
 class CInv;
 class CScriptCheck;
@@ -124,13 +125,18 @@ extern bool fTxIndex;
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
 extern bool fCheckpointsEnabled;
+
+extern bool fLargeWorkForkFound;
+extern bool fLargeWorkInvalidChainFound;
+
 // TODO: remove this flag by structuring our code such that
 // it is unneeded for testing
 extern bool fCoinbaseEnforcedProtectionEnabled;
 extern size_t nCoinCacheUsage;
 extern CFeeRate minRelayTxFee;
 extern bool fAlerts;
-
+extern std::map<uint256, int64_t> mapRejectedBlocks;
+extern std::map<COutPoint, COutPoint> mapInvalidOutPoints;
 /** Best header we've seen so far (used for getheaders queries' starting points). */
 extern CBlockIndex *pindexBestHeader;
 
@@ -210,6 +216,9 @@ bool IsInitialBlockDownload();
 std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool fAllowSlow = false);
+
+bool DisconnectBlocksAndReprocess(int blocks);
+
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState &state, CBlock *pblock = NULL);
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
@@ -230,7 +239,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
  * @param[out]   setFilesToPrune   The set of file indices that can be unlinked will be returned
  */
 void FindFilesToPrune(std::set<int>& setFilesToPrune);
-
+int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount = 0);
 /**
  *  Actually unlink the specified files
  */
@@ -246,11 +255,17 @@ void Misbehaving(NodeId nodeid, int howmuch);
 void FlushStateToDisk();
 /** Prune block files and flush state to disk. */
 void PruneAndFlush();
-
+/** See whether the protocol update is enforced for connected nodes */
+int ActiveProtocol();
 /** (try to) add transaction to memory pool **/
-bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
-                        bool* pfMissingInputs, bool fRejectAbsurdFee=false);
+bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fRejectInsaneFee = false, bool ignoreFees = false);
 
+bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fRejectInsaneFee = false, bool isDSTX = false);
+
+int GetInputAge(CTxIn& vin);
+int GetInputAgeIX(uint256 nTXHash, CTxIn& vin);
+bool GetCoinAge(const CTransaction& tx, unsigned int nTxTime, uint64_t& nCoinAge);
+int GetIXConfirmations(uint256 nTXHash);
 
 struct CNodeStateStats {
     int nMisbehavior;
@@ -348,7 +363,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason);
  * Check if transaction is final and can be included in a block with the
  * specified height and time. Consensus critical.
  */
-bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime);
+bool IsFinalTx(const CTransaction& tx, int nBlockHeight = 0, int64_t nBlockTime = 0);
 
 /**
  * Check if transaction will be final in the next block to be created.
@@ -359,6 +374,7 @@ bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime);
  */
 bool CheckFinalTx(const CTransaction &tx, int flags = -1);
 
+bool ValidOutPoint(const COutPoint out, int nHeight);
 /** 
  * Closure representing one script verification
  * Note that this stores references to the spending transaction 
@@ -408,6 +424,9 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex);
  *  of problems. Note that in any case, coins may be modified. */
 bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins, bool* pfClean = NULL);
 
+/** Reprocess a number of blocks to try and get on the correct chain again **/
+bool DisconnectBlocksAndReprocess(int blocks);
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins */
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins, bool fJustCheck = false);
 
@@ -431,7 +450,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
  * If dbp is non-NULL, the file is known to already reside on disk
  */
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp);
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp = NULL);
 bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
 
 
@@ -516,6 +535,8 @@ extern CCoinsViewCache *pcoinsTip;
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
 
+/** Global variable that points to the spork database (protected by cs_main) */
+extern CSporkDB* pSporkDB;
 /**
  * Return the spend height, which is one more than the inputs.GetBestBlock().
  * While checking, GetBestBlock() refers to the parent block. (protected by cs_main)

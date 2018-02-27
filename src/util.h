@@ -31,8 +31,14 @@
 
 static const bool DEFAULT_LOGTIMEMICROS = false;
 static const bool DEFAULT_LOGIPS        = false;
+extern bool fEnableSwiftTX;
+extern int nSwiftTXDepth;
+extern bool fMasterNode;
+extern bool fLiteMode;
+extern int nSnowgemSendRounds;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
-
+extern int nAnonymizeSnowgemAmount;
+extern int nLiquidityProvider;
 /** Signals for translation. */
 class CTranslationInterface
 {
@@ -40,6 +46,14 @@ public:
     /** Translate a message to the native language of the user. */
     boost::signals2::signal<std::string (const char* psz)> Translate;
 };
+
+//Dash only features
+extern bool fEnableSnowgemSend;
+extern int64_t enforceMasternodePaymentsTime;
+extern std::string strMasterNodeAddr;
+
+extern std::vector<int64_t> obfuScationDenominations;
+extern std::string strBudgetMode;
 
 extern std::map<std::string, std::string> mapArgs;
 extern std::map<std::string, std::vector<std::string> > mapMultiArgs;
@@ -124,6 +138,7 @@ boost::filesystem::path GetDefaultDataDir();
 const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
 void ClearDatadirCache();
 boost::filesystem::path GetConfigFile();
+boost::filesystem::path GetMasternodeConfigFile();
 #ifndef WIN32
 boost::filesystem::path GetPidFile();
 void CreatePidFile(const boost::filesystem::path &path, pid_t pid);

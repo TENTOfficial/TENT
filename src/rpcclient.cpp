@@ -95,8 +95,13 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "estimatepriority", 0 },
     { "prioritisetransaction", 1 },
     { "prioritisetransaction", 2 },
+    {"spork", 1},
     { "setban", 2 },
     { "setban", 3 },
+    // disabled until removal of the legacy 'masternode' command
+    //{"startmasternode", 1},
+    {"mnvoteraw", 1},
+    {"mnvoteraw", 4},
     { "zcrawjoinsplit", 1 },
     { "zcrawjoinsplit", 2 },
     { "zcrawjoinsplit", 3 },

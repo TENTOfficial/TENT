@@ -12,7 +12,7 @@
 #include <boost/function.hpp>
 
 static const int DEFAULT_HTTP_THREADS=4;
-static const int DEFAULT_HTTP_WORKQUEUE=16;
+static const int DEFAULT_HTTP_WORKQUEUE=32;
 static const int DEFAULT_HTTP_SERVER_TIMEOUT=30;
 
 struct evhttp_request;

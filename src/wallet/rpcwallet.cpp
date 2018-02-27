@@ -2989,7 +2989,7 @@ UniValue z_listaddresses(const UniValue& params, bool fHelp)
     return ret;
 }
 
-CAmount getBalanceTaddr(std::string transparentAddress, int minDepth, bool ignoreUnspendable) {
+CAmount getBalanceTaddr(std::string transparentAddress, int minDepth=1, bool ignoreUnspendable=true) {
     set<CBitcoinAddress> setAddress;
     vector<COutput> vecOutputs;
     CAmount balance = 0;
@@ -3032,7 +3032,7 @@ CAmount getBalanceTaddr(std::string transparentAddress, int minDepth, bool ignor
     return balance;
 }
 
-CAmount getBalanceZaddr(std::string address, int minDepth, bool ignoreUnspendable) {
+CAmount getBalanceZaddr(std::string address, int minDepth = 1, bool ignoreUnspendable=true) {
     CAmount balance = 0;
     std::vector<CNotePlaintextEntry> entries;
     LOCK2(cs_main, pwalletMain->cs_wallet);

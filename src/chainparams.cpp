@@ -100,6 +100,7 @@ public:
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
+        nMasternodeCountDrift = 0;
 
         genesis = CreateGenesisBlock(
             1511111234,
@@ -141,7 +142,7 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = false;
-
+		fHeadersFirstSyncingActive = false;
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
             (0, consensus.hashGenesisBlock)
@@ -177,6 +178,12 @@ public:
             "s3UpY6Q3T3v3F7MEpNDnV3rTucLEJkkHR4q", /* main-index: 18*/
             "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
 };
+        nPoolMaxTransactions = 3;
+        strSporkKey = "045da9271f5d9df405d9e83c7c7e62e9c831cc85c51ffaa6b515c4f9c845dec4bf256460003f26ba9d394a17cb57e6759fe231eca75b801c20bccd19cbe4b7942d";
+
+        strObfuscationPoolDummyAddress = "s1eQnJdoWDhKhxDrX8ev3aFjb1J6ZwXCxUT";
+        nStartMasternodePayments = 1523750400; //2018-04-15
+        nBudget_Fee_Confirmations = 6; // Number of confirmations for the finalization fee
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 };
@@ -267,6 +274,8 @@ public:
             "t2Mx4gGgN1N8Ebd9HASzdG7C9RVtjx7rb2j"
             };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
+		
+		nStartMasternodePayments = 1521072000; //2018-03-15
     }
 };
 static CTestNetParams testNetParams;

@@ -445,65 +445,65 @@ void ThreadShowMetricsScreen()
         std::cout << std::endl;
     }
 
-    while (true) {
-        // Number of lines that are always displayed
-        int lines = 1;
-        int cols = 80;
+//     while (true) {
+//         // Number of lines that are always displayed
+//         int lines = 1;
+//         int cols = 80;
 
-        // Get current window size
-        if (isTTY) {
-#ifdef WIN32
- 	        CONSOLE_SCREEN_BUFFER_INFO csbi;
- 	        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-            cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
- 	        cols = 80;
-#else
+//         // Get current window size
+//         if (isTTY) {
+// #ifdef WIN32
+//  	        CONSOLE_SCREEN_BUFFER_INFO csbi;
+//  	        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+//             cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+//  	        cols = 80;
+// #else
 
-            struct winsize w;
-            w.ws_col = 0;
-            if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1 && w.ws_col != 0) {
-                cols = w.ws_col;
-            }
-#endif
-        }
+//             struct winsize w;
+//             w.ws_col = 0;
+//             if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1 && w.ws_col != 0) {
+//                 cols = w.ws_col;
+//             }
+// #endif
+//         }
 
-        if (isScreen) {
-            // Erase below current position
-            std::cout << "\e[J";
-        }
+//         if (isScreen) {
+//             // Erase below current position
+//             std::cout << "\e[J";
+//         }
 
-        // Miner status
-#ifdef ENABLE_MINING
-        bool mining = GetBoolArg("-gen", false);
-#else
-        bool mining = false;
-#endif
+//         // Miner status
+// #ifdef ENABLE_MINING
+//         bool mining = GetBoolArg("-gen", false);
+// #else
+//         bool mining = false;
+// #endif
 
-        if (loaded) {
-            lines += printStats(mining);
-            lines += printMiningStatus(mining);
-        }
-        lines += printMetrics(cols, mining);
-        lines += printMessageBox(cols);
-        lines += printInitMessage();
+//         if (loaded) {
+//             lines += printStats(mining);
+//             lines += printMiningStatus(mining);
+//         }
+//         lines += printMetrics(cols, mining);
+//         lines += printMessageBox(cols);
+//         lines += printInitMessage();
 
-        if (isScreen) {
-            // Explain how to exit
-            std::cout << "[" << _("Press Ctrl+C to exit") << "] [" << _("Set 'showmetrics=0' to hide") << "]" << std::endl;
-        } else {
-            // Print delineator
-            std::cout << "----------------------------------------" << std::endl;
-        }
+//         if (isScreen) {
+//             // Explain how to exit
+//             std::cout << "[" << _("Press Ctrl+C to exit") << "] [" << _("Set 'showmetrics=0' to hide") << "]" << std::endl;
+//         } else {
+//             // Print delineator
+//             std::cout << "----------------------------------------" << std::endl;
+//         }
 
-        *nNextRefresh = GetTime() + nRefresh;
-        while (GetTime() < *nNextRefresh) {
-            boost::this_thread::interruption_point();
-            MilliSleep(200);
-        }
+//         *nNextRefresh = GetTime() + nRefresh;
+//         while (GetTime() < *nNextRefresh) {
+//             boost::this_thread::interruption_point();
+//             MilliSleep(200);
+//         }
 
-        if (isScreen) {
-            // Return to the top of the updating section
-            std::cout << "\e[" << lines << "A";
-        }
-    }
+//         if (isScreen) {
+//             // Return to the top of the updating section
+//             std::cout << "\e[" << lines << "A";
+//         }
+//     }
 }

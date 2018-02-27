@@ -334,7 +334,39 @@ static const CRPCCommand vRPCCommands[] =
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true  },
     { "hidden",             "setmocktime",            &setmocktime,            true  },
+	
+    /* MN features */
+    {"snowgem",             "masternode",               &masternode, true},
+    {"snowgem",             "listmasternodes",          &listmasternodes, true},
+    {"snowgem",             "getmasternodecount",       &getmasternodecount, true},
+    {"snowgem",             "masternodeconnect",        &masternodeconnect, true},
+    {"snowgem",             "masternodecurrent",        &masternodecurrent, true},
+    {"snowgem",             "masternodedebug",          &masternodedebug, true},
+    {"snowgem",             "startmasternode",          &startmasternode, true},
+    {"snowgem",             "createmasternodekey",      &createmasternodekey, true},
+    {"snowgem",             "getmasternodeoutputs",     &getmasternodeoutputs, true},
+    {"snowgem",             "listmasternodeconf",       &listmasternodeconf, true},
+    {"snowgem",             "getmasternodestatus",      &getmasternodestatus, true},
+    {"snowgem",             "getmasternodewinners",     &getmasternodewinners, true},
+    {"snowgem",             "getmasternodescores",      &getmasternodescores, true},
+    {"snowgem",             "mnbudget",                 &mnbudget, true},
+    {"snowgem",             "preparebudget",            &preparebudget, true},
+    {"snowgem",             "submitbudget",             &submitbudget, true},
+    {"snowgem",             "mnbudgetvote",             &mnbudgetvote, true},
+    {"snowgem",             "getbudgetvotes",           &getbudgetvotes, true},
+    {"snowgem",             "getnextsuperblock",        &getnextsuperblock, true},
+    {"snowgem",             "getbudgetprojection",      &getbudgetprojection, true},
+    {"snowgem",             "getbudgetinfo",            &getbudgetinfo, true},
+    {"snowgem",             "mnbudgetrawvote",          &mnbudgetrawvote, true},
+    {"snowgem",             "mnfinalbudget",            &mnfinalbudget, true},
+    {"snowgem",             "checkbudgets",             &checkbudgets, true},
+    {"snowgem",             "mnsync",                   &mnsync, true},
+    {"snowgem",             "spork",                    &spork, true},
+    {"snowgem",             "getpoolinfo",              &getpoolinfo, true},
+    {"snowgem",             "startalias",               &startalias, true},
+
 #ifdef ENABLE_WALLET
+    {"snowgem",             "obfuscation",              &obfuscation, false}, /* not threadSafe because of SendMoney */
     { "hidden",             "resendwallettransactions", &resendwallettransactions, true},
 #endif
 
