@@ -1685,10 +1685,10 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
     int nMNPSBlock = Params().GetConsensus().nMasternodePaymentsStartBlock;
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
-                                                                      // mainnet:
-    if(nHeight > nMNPSBlock)                  ret += blockValue / 20; // 193200 - 40.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // 236400 - 45.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // 279600 - 50.0%
+    if(nHeight > nMNPSBlock)             ret = blockValue * 35 / 100; // > 193200 - 35.0%
+    if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // > 236400 - 40.0%
+    if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // > 279600 - 45.0%
+    if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret += blockValue / 20; // > 322800 - 50.0%
 
     return ret;
 }
