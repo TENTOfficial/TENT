@@ -1651,6 +1651,10 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     CAmount nSubsidy = 20 * COIN;
 
+    if(NetworkIdFromCommandLine() != CBaseChainParams::MAIN)
+    {
+        return nSubsidy;
+    }
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
@@ -1677,7 +1681,14 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount)
 {
-    int64_t ret = blockValue * 60 / 100;
+    int64_t ret = blockValue * 35 / 100;
+    int nMNPSBlock = Params().GetConsensus().nMasternodePaymentsStartBlock;
+    int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
+
+                                                                      // mainnet:
+    if(nHeight > nMNPSBlock)                  ret += blockValue / 20; // 193200 - 40.0%
+    if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // 236400 - 45.0%
+    if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // 279600 - 50.0%
 
     return ret;
 }
