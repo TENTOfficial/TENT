@@ -271,11 +271,11 @@ public:
 
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = {
-            "t2Mx4gGgN1N8Ebd9HASzdG7C9RVtjx7rb2j"
+            "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
             };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 		
-		nStartMasternodePayments = 1521072000; //2018-03-15
+		nStartMasternodePayments = 1520121600; //2018-03-04
     }
 };
 static CTestNetParams testNetParams;
