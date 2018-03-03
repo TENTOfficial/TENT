@@ -1645,7 +1645,7 @@ CAmount CWalletTx::GetUnlockedCredit() const
     return nCredit;
 }
 
- // Return sum of unlocked coins
+ // Return sum of locked coins
 CAmount CWalletTx::GetLockedCredit() const
 {
     if (pwallet == 0)

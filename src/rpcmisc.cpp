@@ -57,13 +57,16 @@ UniValue getalldata(const UniValue& params, bool fHelp)
     int nMinDepth = 1;
     CAmount nBalance = getBalanceTaddr("", nMinDepth, true);
     CAmount nPrivateBalance = getBalanceZaddr("", nMinDepth, true);
-    CAmount nTotalBalance = nBalance + nPrivateBalance;
+    CAmount nLockedCoin = pwalletMain->GetLockedCoins();
+
+    CAmount nTotalBalance = nBalance + nPrivateBalance + nLockedCoin;
 
     returnObj.push_back(Pair("connectionCount", connectionCount));
     returnObj.push_back(Pair("besttime", chainActive.Tip()->GetBlockTime()));
     returnObj.push_back(Pair("bestblockhash", chainActive.Tip()->GetBlockHash().GetHex()));
     returnObj.push_back(Pair("transparentbalance", FormatMoney(nBalance)));
     returnObj.push_back(Pair("privatebalance", FormatMoney(nPrivateBalance)));
+    returnObj.push_back(Pair("lockedbalance", FormatMoney(nLockedCoin)));
     returnObj.push_back(Pair("totalbalance", FormatMoney(nTotalBalance)));
     returnObj.push_back(Pair("unconfirmedbalance", FormatMoney(pwalletMain->GetUnconfirmedBalance())));
 

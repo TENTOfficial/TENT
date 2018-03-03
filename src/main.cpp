@@ -1681,7 +1681,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount)
 {
-    int64_t ret = blockValue * 35 / 100;
+    int64_t ret = blockValue * 35 / 100; //default: 35%
     int nMNPSBlock = Params().GetConsensus().nMasternodePaymentsStartBlock;
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
