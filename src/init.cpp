@@ -1185,7 +1185,43 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         std::string errorString;
 
         if (!CWallet::Verify(strWalletFile, warningString, errorString))
+        {
             return false;
+        }
+        else
+        {
+            if(mapArgs.count("-backupwallet"))
+            {
+                std::string currDate = DateTimeStrFormat("%Y%m%d%H%M%S", GetTime());
+                boost::filesystem::path p (GetDataDir());
+                std::string walletFile = GetDataDir().string() + "/" + strWalletFile;
+                boost::filesystem::directory_iterator end_itr;
+
+                // cycle through the directory
+                std::vector<std::string> walletFiles;
+                for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
+                {
+                    if (boost::filesystem::is_regular_file(itr->path())) {
+
+                        std::string current_file = itr->path().string();
+                        if(current_file.find("wallet.dat") != std::string::npos)
+                        {
+                            walletFiles.push_back(current_file);
+                        }
+                    }
+                }
+
+                std::string fileRemove = "";
+                if(walletFiles.size() >= 5)
+                {
+                    fileRemove = walletFiles.front();
+                    boost::filesystem::remove(fileRemove);
+                }
+                boost::filesystem::copy_file(walletFile,
+                    walletFile + ".bak." + currDate,
+                    boost::filesystem::copy_option::overwrite_if_exists);
+            }
+        }
 
         if (!warningString.empty())
             InitWarning(warningString);
