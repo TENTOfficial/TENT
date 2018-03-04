@@ -1214,9 +1214,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 std::string fileRemove = "";
                 if(walletFiles.size() >= 5)
                 {
-                    fileRemove = walletFiles.front();
+                    fileRemove = walletFiles.at(1);
                     boost::filesystem::remove(fileRemove);
                 }
+
+                LogPrintf("Backing up wallet %s to %s\n", walletFile, walletFile + ".bak." + currDate);
                 boost::filesystem::copy_file(walletFile,
                     walletFile + ".bak." + currDate,
                     boost::filesystem::copy_option::overwrite_if_exists);
