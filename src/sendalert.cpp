@@ -77,9 +77,9 @@ void ThreadSendAlert()
     alert.nCancel       = 1001;  // cancels previous messages up to this ID number
 
     // These versions are protocol versions
-    // 170002 : 1.0.0
-    alert.nMinVer       = 170002;
-    alert.nMaxVer       = 170002;
+    // 170004 : 2.0.0
+    alert.nMinVer       = 170004;
+    alert.nMaxVer       = 170004;
 
     //
     // main.cpp:
@@ -89,7 +89,7 @@ void ThreadSendAlert()
     //  4000 or higher will put the RPC into safe mode
     alert.nPriority     = 4000;
     alert.strComment    = "";
-    alert.strStatusBar  = "Your client version 1.0.10 has degraded networking behavior. Please update to the most recent version of Snowgem (1.0.10-1 or later).";
+    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Snowgem (2.0.0 or later). More info at: https://github.com/Snowgem/Snowgem/blob/master/README.md.";
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
@@ -97,7 +97,9 @@ void ThreadSendAlert()
     const std::vector<std::string> useragents = {"MagicBean", "BeanStalk", "AppleSeed", "EleosSnowgem"};
 
     BOOST_FOREACH(const std::string& useragent, useragents) {
-        alert.setSubVer.insert(std::string("/"+useragent+":1.0.10/"));
+        alert.setSubVer.insert(std::string("/"+useragent+":1.0.13/"));
+        alert.setSubVer.insert(std::string("/"+useragent+":1.0.14/"));
+        alert.setSubVer.insert(std::string("/"+useragent+":1.0.15/"));
     }
 
     // Sanity check
