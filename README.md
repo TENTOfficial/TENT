@@ -53,6 +53,26 @@ $ sudo dnf install \
       python-zmq wget gtest-devel gcc gcc-c++ libtool patch curl
 ```
 
+Windows:
+```
+sudo apt-get install \
+    build-essential pkg-config libc6-dev m4 g++-multilib \
+    autoconf libtool ncurses-dev unzip git python \
+    zlib1g-dev wget bsdmainutils automake mingw-w64
+```
+
+On Mac systems:
+
+```
+brew tap discoteq/discoteq; brew install flock
+brew install autoconf autogen automake
+brew tap homebrew/versions; brew install homebrew/versions/gcc5
+brew install binutils
+brew install protobuf
+brew install coreutils
+brew install wget
+```
+
 ### Check GCC version
 
 gcc/g++ 4.9 or later is required. Zcash has been successfully built using gcc/g++ versions 4.9 to 7.x inclusive. Use ```g++ --version``` to check which version you have.
@@ -69,7 +89,7 @@ $ sudo apt-get install g++-4.9
 
 binutils 2.22 or later is required. Use as ```--version``` to check which version you have, and upgrade if necessary.
 
-### Build
+### Build Linux
 
 Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
 ```
@@ -81,6 +101,26 @@ $ ./zcutil/build.sh --disable-rust -j$(nproc)
 
 This should compile our dependencies and build zcashd. (Note: if you don't have nproc, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh --disable-rust```. )
 
+### Build Windows
+
+Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
+```
+$ git clone https://github.com/snowgem/snowgem.git
+$ cd snowgem/
+$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ ./zcutil/build-win.sh --disable-rust -j$(nproc)
+```
+
+### Build Mac
+
+Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
+```
+$ git clone https://github.com/snowgem/snowgem.git
+$ cd snowgem/
+$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ ./zcutil/build-mac.sh --disable-rust -j$(nproc)
+```
+
 ### Fetch the software and parameter files
 
 Fetch our repository with git and run ```fetch-params.sh``` like so:
@@ -89,9 +129,6 @@ Fetch our repository with git and run ```fetch-params.sh``` like so:
 $ chmod +x zcutil/fetch-params.sh
 $ ./zcutil/fetch-params.sh
 ```
-This will fetch our Sprout proving and verifying keys (the final ones created in the [Parameter Generation Ceremony](https://github.com/zcash/mpc)), and place them into ```~/.snowgem-params/```. These keys are just under 911MB in size, so it may take some time to download them.
-
-The message printed by ```git checkout``` about a "detached head" is normal and does not indicate a problem.
 
 --------
 ### Need Help?
