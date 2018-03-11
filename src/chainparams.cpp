@@ -240,6 +240,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("abctoxyz.site", "dnsseed.testnet.abctoxyz.site")); // Snowgem
+        vSeeds.push_back(CDNSSeedData("snowgem.org", "dnsseed.testnet.snowgem.org")); // Snowgem
 
         // guarantees the first 2 characters, when base58 encoded, are "tm"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
