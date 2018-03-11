@@ -2,7 +2,12 @@
 
 set -eu
 
-PARAMS_DIR="$HOME/.snowgem-params"
+# Need to be verified before changing to Zen...
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    PARAMS_DIR="$HOME/Library/Application Support/SnowgemParams"
+else
+    PARAMS_DIR="$HOME/.snowgem-params"
+fi
 
 SPROUT_PKEY_NAME='sprout-proving.key'
 SPROUT_VKEY_NAME='sprout-verifying.key'

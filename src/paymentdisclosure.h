@@ -74,7 +74,11 @@ struct PaymentDisclosurePayload {
     uint8_t version;        // 0 = experimental, 1 = first production version, etc.
     uint256 esk;            // snowgem/NoteEncryption.cpp
     uint256 txid;           // primitives/transaction.h
+#ifdef __LP64__ // required to build on MacOS due to size_t ambiguity errors
+    uint64_t js;
+#else
     size_t js;              // Index into CTransaction.vjoinsplit
+#endif
     uint8_t n;              // Index into JSDescription fields of length ZC_NUM_JS_OUTPUTS
     libsnowgem::PaymentAddress zaddr; // snowgem/Address.hpp
     std::string message;     // parameter to RPC call

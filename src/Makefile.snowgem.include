@@ -9,7 +9,6 @@ snowgem_GenerateParams_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 snowgem_GenerateParams_LDADD = \
   $(BOOST_LIBS) \
   $(LIBSNOWGEM) \
-  $(LIBSNARK) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSNOWGEM_LIBS)
@@ -21,7 +20,6 @@ snowgem_CreateJoinSplit_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 snowgem_CreateJoinSplit_LDADD = \
   $(LIBBITCOIN_COMMON) \
   $(LIBSNOWGEM) \
-  $(LIBSNARK) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(BOOST_LIBS) \

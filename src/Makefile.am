@@ -23,8 +23,6 @@ BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
-BITCOIN_INCLUDES += -I$(srcdir)/snark
-BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
 BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
@@ -40,18 +38,6 @@ LIBSNOWGEM=libsnowgem.a
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
-
-LIBSNARK_CXXFLAGS = -fPIC -DBINARY_OUTPUT -DNO_PT_COMPRESSION=1 -fstack-protector-all
-LIBSNARK_CONFIG_FLAGS = CURVE=ALT_BN128 NO_PROCPS=1 NO_DOCS=1 STATIC=1 NO_SUPERCOP=1 FEATUREFLAGS=-DMONTGOMERY_OUTPUT NO_COPY_DEPINST=1 NO_COMPILE_LIBGTEST=1
-if HAVE_OPENMP
-LIBSNARK_CONFIG_FLAGS += MULTICORE=1
-endif
-
-$(LIBSNARK): $(wildcard snark/src/*)
-	$(AM_V_at) CXXFLAGS="$(LIBSNARK_CXXFLAGS)" $(MAKE) $(AM_MAKEFLAGS) -C snark/ DEPINST="$(LIBSNARK_DEPINST)" $(LIBSNARK_CONFIG_FLAGS) OPTFLAGS="-O2 -march=x86-64"
-
-libsnark-tests: $(wildcard snark/src/*)
-	$(AM_V_at) CXXFLAGS="$(LIBSNARK_CXXFLAGS)" $(MAKE) $(AM_MAKEFLAGS) -C snark/ check DEPINST="$(LIBSNARK_DEPINST)" $(LIBSNARK_CONFIG_FLAGS) OPTFLAGS="-O2 -march=x86-64"
 
 $(LIBUNIVALUE): $(wildcard univalue/lib/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C univalue/
@@ -106,7 +92,7 @@ LIBSNOWGEM_H = \
   snowgem/util.h \
   snowgem/Snowgem.h
 
-.PHONY: FORCE collate-libsnark check-symbols check-security
+.PHONY: FORCE check-symbols check-security
 # bitcoin core #
 BITCOIN_CORE_H = \
   activemasternode.h \
@@ -456,7 +442,6 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSNOWGEM) \
-  $(LIBSNARK) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
@@ -502,7 +487,6 @@ snowgem_cli_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(LIBSNOWGEM) \
-  $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSNOWGEM_LIBS)
 #
@@ -524,7 +508,6 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
   $(LIBSNOWGEM) \
-  $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSNOWGEM_LIBS)
 
@@ -591,12 +574,11 @@ CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wal
 
 DISTCLEANFILES = obj/build.h
 
-EXTRA_DIST = leveldb snark
+EXTRA_DIST = leveldb
 
 clean-local:
 	-$(MAKE) -C leveldb clean
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C snark clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 
