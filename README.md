@@ -66,7 +66,7 @@ On Mac systems:
 ```
 brew tap discoteq/discoteq; brew install flock
 brew install autoconf autogen automake
-brew tap homebrew/versions; brew install homebrew/versions/gcc5
+brew install gcc5
 brew install binutils
 brew install protobuf
 brew install coreutils
