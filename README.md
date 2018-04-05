@@ -118,7 +118,7 @@ Ensure you have successfully installed all system package dependencies as descri
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
 $ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
-$ ./zcutil/build-mac.sh --disable-rust -j$(nproc)
+$ ./zcutil/build-mac.sh --disable-rust -j$(sysctl -n hw.physicalcpu)
 ```
 
 ### Fetch the software and parameter files
