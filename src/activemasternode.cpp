@@ -115,11 +115,12 @@ void CActiveMasternode::ManageStatus()
                 return;
             }
 
-            if (!Register(vin, service, keyCollateralAddress, pubKeyCollateralAddress, keyMasternode, pubKeyMasternode, errorMessage)) {
-                notCapableReason = "Error on Register: " + errorMessage;
-                LogPrintf("Register::ManageStatus() - %s\n", notCapableReason);
-                return;
-            }
+            //Don't register automatically
+            // if (!Register(vin, service, keyCollateralAddress, pubKeyCollateralAddress, keyMasternode, pubKeyMasternode, errorMessage)) {
+            //     notCapableReason = "Error on Register: " + errorMessage;
+            //     LogPrintf("Register::ManageStatus() - %s\n", notCapableReason);
+            //     return;
+            // }
 
             LogPrintf("CActiveMasternode::ManageStatus() - Is capable master node!\n");
             status = ACTIVE_MASTERNODE_STARTED;
