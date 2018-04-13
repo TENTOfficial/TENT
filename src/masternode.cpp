@@ -597,7 +597,7 @@ bool CMasternodeBroadcast::CheckInputsAndAdd(int& nDoS)
     }
 
     // verify that sig time is legit in past
-    // should be at least not earlier than block when 1000 SNG tx got MASTERNODE_MIN_CONFIRMATIONS
+    // should be at least not earlier than block when 10000 XSG tx got MASTERNODE_MIN_CONFIRMATIONS
     uint256 hashBlock = uint256();
     CTransaction tx2;
     GetTransaction(vin.prevout.hash, tx2, hashBlock, true);

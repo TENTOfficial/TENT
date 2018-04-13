@@ -39,7 +39,7 @@ Jack Grigg (11):
       Adjust blockheaderToJSON() for Snowgem block header
       Adjust fundrawtransaction RPC test for Snowgem
       Re-encode t-addrs in disablewallet.py with Snowgem prefixes
-      BTC -> SNG in paytxfee RPC docs
+      BTC -> XSG in paytxfee RPC docs
       Update default RPC port in help strings
       Fix typo in listbanned RPC keys
 
