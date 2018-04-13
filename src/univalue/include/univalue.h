@@ -25,6 +25,11 @@ public:
         typ = initialType;
         val = initialStr;
     }
+#ifdef __APPLE__
+    UniValue(size_t val_) {
+        setInt((uint64_t)val_);
+    }
+#endif
     UniValue(uint64_t val_) {
         setInt(val_);
     }
@@ -54,6 +59,9 @@ public:
     bool setNull();
     bool setBool(bool val);
     bool setNumStr(const std::string& val);
+#ifdef __APPLE__
+    bool setInt(size_t val);
+#endif
     bool setInt(uint64_t val);
     bool setInt(int64_t val);
     bool setInt(int val_) { return setInt((int64_t)val_); }
@@ -176,6 +184,14 @@ public:
 // The following were added for compatibility with json_spirit.
 // Most duplicate other methods, and should be removed.
 //
+#ifdef __APPLE__
+static inline std::pair<std::string,UniValue> Pair(const char *cKey, size_t u64Val)
+{
+    std::string key(cKey);
+    UniValue uVal(u64Val);
+    return std::make_pair(key, uVal);
+}
+#endif
 static inline std::pair<std::string,UniValue> Pair(const char *cKey, const char *cVal)
 {
     std::string key(cKey);

@@ -66,7 +66,7 @@ On Mac systems:
 ```
 brew tap discoteq/discoteq; brew install flock
 brew install autoconf autogen automake
-brew tap homebrew/versions; brew install homebrew/versions/gcc5
+brew install gcc5
 brew install binutils
 brew install protobuf
 brew install coreutils
@@ -107,7 +107,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
 $ ./zcutil/build-win.sh --disable-rust -j$(nproc)
 ```
 
@@ -117,7 +117,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
 $ ./zcutil/build-mac.sh --disable-rust -j$(nproc)
 ```
 
