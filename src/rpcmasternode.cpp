@@ -352,18 +352,11 @@ UniValue startalias(const UniValue& params, bool fHelp)
 
             "\nExamples:\n" +
             HelpExampleCli("startalias", "\"mn1\"") + HelpExampleRpc("startalias", ""));
-    if (!fMasterNode || !masternodeSync.IsSynced())
+    if (!masternodeSync.IsSynced())
     {
         UniValue obj(UniValue::VOBJ);
-        if(!fMasterNode)
-        {
-            obj.push_back(Pair("result", "Failed to start alias, masternode is not enabled"));
-        }
-        else
-        {
-            std::string error = "Masternode is not synced, please wait. Current status: " + masternodeSync.GetSyncStatus();
-            obj.push_back(Pair("result", error));
-        }
+        std::string error = "Masternode is not synced, please wait. Current status: " + masternodeSync.GetSyncStatus();
+        obj.push_back(Pair("result", error));
         return obj;
     }
 
@@ -559,7 +552,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             "\nExamples:\n" +
             HelpExampleCli("startmasternode", "\"alias\" \"0\" \"my_mn\"") + HelpExampleRpc("startmasternode", "\"alias\" \"0\" \"my_mn\""));
 
-    if (!fMasterNode || !masternodeSync.IsSynced())
+    if (!masternodeSync.IsSynced())
     {
         UniValue resultsObj(UniValue::VARR);
         int successful = 0;
@@ -570,11 +563,6 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             statusObj.push_back(Pair("result", "failed"));
 
             failed++;
-            if(!fMasterNode)
-            {
-                statusObj.push_back(Pair("error", "Masternode is not enabled, you must set masternode=1 in the configuration"));
-            }
-            else
             {
                 std::string error = "Masternode is not synced, please wait. Current status: " + masternodeSync.GetSyncStatus();
                 statusObj.push_back(Pair("error", error));
