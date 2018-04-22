@@ -105,7 +105,7 @@ Ensure you have successfully installed all system package dependencies as descri
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
 $ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
-$ ./zcutil/build.sh --disable-rust -j$(nproc)
+$ ./zcutil/build.sh --disable-rust
 ```
 
 This should compile our dependencies and build zcashd. (Note: if you don't have nproc, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh --disable-rust```. )
@@ -117,7 +117,7 @@ Ensure you have successfully installed all system package dependencies as descri
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
 $ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
-$ ./zcutil/build-win.sh --disable-rust -j$(nproc)
+$ ./zcutil/build-win.sh --disable-rust
 ```
 
 ### Build Mac
