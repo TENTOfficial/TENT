@@ -85,11 +85,6 @@ $ sudo apt-get update
 $ sudo apt-get install g++-4.9
 ```
 
-### Check binutils version
-
-binutils 2.22 or later is required. Use as ```--version``` to check which version you have, and upgrade if necessary.
-
-
 ### Fetch the software and parameter files
 
 Fetch our repository with git and run ```fetch-params.sh``` like so:
