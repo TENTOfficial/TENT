@@ -89,6 +89,15 @@ $ sudo apt-get install g++-4.9
 
 binutils 2.22 or later is required. Use as ```--version``` to check which version you have, and upgrade if necessary.
 
+
+### Fetch the software and parameter files
+
+Fetch our repository with git and run ```fetch-params.sh``` like so:
+```
+$ chmod +x zcutil/fetch-params.sh
+$ ./zcutil/fetch-params.sh
+```
+
 ### Build Linux
 
 Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
@@ -119,14 +128,6 @@ $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
 $ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
 $ ./zcutil/build-mac.sh --disable-rust -j$(sysctl -n hw.physicalcpu)
-
-### Fetch the software and parameter files
-
-Fetch our repository with git and run ```fetch-params.sh``` like so:
-
-```
-$ chmod +x zcutil/fetch-params.sh
-$ ./zcutil/fetch-params.sh
 ```
 
 --------
