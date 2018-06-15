@@ -99,7 +99,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform depends/Makefile
 $ ./zcutil/build.sh --disable-rust
 ```
 
@@ -111,7 +111,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile
 $ ./zcutil/build-win.sh --disable-rust
 ```
 
@@ -121,7 +121,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform
+$ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile
 $ ./zcutil/build-mac.sh --disable-rust -j$(sysctl -n hw.physicalcpu)
 ```
 
