@@ -11,7 +11,7 @@ fi
 
 SPROUT_PKEY_NAME='sprout-proving.key'
 SPROUT_VKEY_NAME='sprout-verifying.key'
-SPROUT_URL="https://snowgem.org/downloads"
+SPROUT_URL="https://github.com/Snowgem/SimpleWallet/releases/download/2.0.0f"
 SPROUT_IPFS="/ipfs/QmZKKx7Xup7LiAtFRhYsE1M7waXcv9ir9eCECyXAFGxhEo"
 
 SHA256CMD="$(command -v sha256sum || echo shasum)"
