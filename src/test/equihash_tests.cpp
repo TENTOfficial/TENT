@@ -49,7 +49,8 @@ void PrintSolutions(std::stringstream &strm, std::set<std::vector<uint32_t>> sol
 void TestEquihashSolvers(unsigned int n, unsigned int k, const std::string &I, const arith_uint256 &nonce, const std::set<std::vector<uint32_t>> &solns) {
     size_t cBitLen { n/(k+1) };
     crypto_generichash_blake2b_state state;
-    EhInitialiseState(n, k, state);
+        int nHeight = std::numeric_limits<int>::max();
+    EhInitialiseState(n, k, state, nHeight);
     uint256 V = ArithToUint256(nonce);
     BOOST_TEST_MESSAGE("Running solver: n = " << n << ", k = " << k << ", I = " << I << ", V = " << V.GetHex());
     crypto_generichash_blake2b_update(&state, (unsigned char*)&I[0], I.size());
@@ -89,7 +90,8 @@ void TestEquihashSolvers(unsigned int n, unsigned int k, const std::string &I, c
 void TestEquihashValidator(unsigned int n, unsigned int k, const std::string &I, const arith_uint256 &nonce, std::vector<uint32_t> soln, bool expected) {
     size_t cBitLen { n/(k+1) };
     crypto_generichash_blake2b_state state;
-    EhInitialiseState(n, k, state);
+    int nHeight = std::numeric_limits<int>::max();
+    EhInitialiseState(n, k, state, nHeight);
     uint256 V = ArithToUint256(nonce);
     crypto_generichash_blake2b_update(&state, (unsigned char*)&I[0], I.size());
     crypto_generichash_blake2b_update(&state, V.begin(), V.size());

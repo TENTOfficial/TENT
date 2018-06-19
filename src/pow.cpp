@@ -28,6 +28,13 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 
+    // Reset the difficulty after the algo fork
+    if (pindexLast->nHeight >= params.EquihashForkHeight - params.nPowAveragingWindow
+        && pindexLast->nHeight < params.EquihashForkHeight) {
+        LogPrint("pow", "Reset the difficulty at block: %d\n", pindexLast->nHeight);
+        return nProofOfWorkLimit;
+    }
+
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
     arith_uint256 bnTot {0};
@@ -81,14 +88,14 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
     return bnNew.GetCompact();
 }
 
-bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params)
+bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params, int nHeight)
 {
-    unsigned int n = params.EquihashN();
-    unsigned int k = params.EquihashK();
+    unsigned int n = params.EquihashN(nHeight);
+    unsigned int k = params.EquihashK(nHeight);
 
     // Hash state
     crypto_generichash_blake2b_state state;
-    EhInitialiseState(n, k, state);
+    EhInitialiseState(n, k, state, params.EquihashUseXSGSalt(nHeight));
 
     // I = the block header minus nonce and solution.
     CEquihashInput I{*pblock};

@@ -1,5 +1,9 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2014 The Bitcoin Core developers
+// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2016-2017 The Zcash developers
+// Copyright (c) 2018 The Bitcoin Private developers
+// Copyright (c) 2017-2018 The Bitcoin Gold developers
+// Copyright (c) 2017-2018 The SnowGem developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -79,6 +83,7 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
+		consensus.EquihashForkHeight = std::numeric_limits<int>::max(); // Not activated on mainnet
         consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
         consensus.nMasternodePaymentsStartBlock = 193200;
@@ -101,9 +106,13 @@ public:
         nPruneAfterHeight = 100000;
         newTimeRule = 246600;
         const size_t N = 200, K = 9;
+        const size_t N2 = 144, K2 = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
         nEquihashK = K;
+        nEquihashNnew = N2;
+        nEquihashKnew = K2;
         nMasternodeCountDrift = 0;
 
         genesis = CreateGenesisBlock(
@@ -206,6 +215,7 @@ public:
         consensus.nSubsidyHalvingInterval = 60 * 24 * 365 * 4;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
+		consensus.EquihashForkHeight = 7600;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
@@ -224,10 +234,13 @@ public:
 		nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
         const size_t N = 200, K = 9;
+        const size_t N2 = 144, K2 = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
-		nEquihashK = K;
-		
+        nEquihashK = K;
+        nEquihashNnew = N2;
+        nEquihashKnew = K2;
     	genesis = CreateGenesisBlock(
             1477774444,
             uint256S("0000000000000000000000000000000000000000000000000000000000000009"),
@@ -300,6 +313,7 @@ public:
         consensus.nSubsidyHalvingInterval = 150;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
+		consensus.EquihashForkHeight = 2001;
         consensus.nMajorityWindow = 1000;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
         consensus.nPowAveragingWindow = 17;
@@ -316,9 +330,13 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
         const size_t N = 48, K = 5;
+        const size_t N2 = 96, K2 = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
         nEquihashK = K;
+        nEquihashNnew = N2;
+        nEquihashKnew = K2;
     	genesis = CreateGenesisBlock(
             1296688602,
             uint256S("000000000000000000000000000000000000000000000000000000000000000c"),
@@ -396,6 +414,12 @@ bool SelectParamsFromCommandLine()
 
 
 // Block height must be >0 and <=last founders reward block height
+
+unsigned int CChainParams::EquihashSolutionWidth(int height) const
+{
+    return EhSolutionWidth(EquihashN(height), EquihashK(height));
+}
+
 // Index variable i ranges from 0 - (vFoundersRewardAddress.size()-1)
 std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
     int maxHeight = consensus.GetLastFoundersRewardBlockHeight();

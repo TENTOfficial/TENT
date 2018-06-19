@@ -181,8 +181,9 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         unsigned int k = Params().EquihashK();
 
         // Hash state
+        int nHeight = std::numeric_limits<int>::max();
         crypto_generichash_blake2b_state eh_state;
-        EhInitialiseState(n, k, eh_state);
+        EhInitialiseState(n, k, eh_state, nHeight);
 
         // I = the block header minus nonce and solution.
         CEquihashInput I{*pblock};

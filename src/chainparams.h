@@ -72,11 +72,33 @@ public:
     bool RequireStandard() const { return fRequireStandard; }
     int64_t MaxTipAge() const { return nMaxTipAge; }
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
-    unsigned int EquihashN() const { return nEquihashN; }
-    unsigned int EquihashK() const { return nEquihashK; }
     /** The masternode count that we will allow the see-saw reward payments to be off by */
     int MasternodeCountDrift() const { return nMasternodeCountDrift; }
     std::string CurrencyUnits() const { return strCurrencyUnits; }
+    unsigned int EquihashN() const { return nEquihashN; }
+    unsigned int EquihashK() const { return nEquihashK; }
+    unsigned int EquihashN(int height) const
+    {
+        if(height >= consensus.EquihashForkHeight) {
+            return nEquihashNnew;
+        } else {
+            return nEquihashN;
+        }
+    }
+    unsigned int EquihashK(int height) const
+    {
+        if(height >= consensus.EquihashForkHeight) {
+            return nEquihashKnew;
+        } else {
+            return nEquihashK;
+        }
+    }
+    bool EquihashUseXSGSalt(int height) const
+    {
+        return height >= consensus.EquihashForkHeight;
+    }
+    unsigned int EquihashSolutionWidth(int height) const;
+
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** In the future use NetworkIDString() for RPC fields */
@@ -114,6 +136,8 @@ protected:
     uint64_t nPruneAfterHeight = 0;
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
+    unsigned int nEquihashNnew = 0;
+    unsigned int nEquihashKnew = 0;
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string strNetworkID;

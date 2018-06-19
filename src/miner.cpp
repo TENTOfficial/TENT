@@ -505,8 +505,8 @@ void static BitcoinMiner()
     // Each thread has its own counter
     unsigned int nExtraNonce = 0;
 
-    unsigned int n = chainparams.EquihashN();
-    unsigned int k = chainparams.EquihashK();
+    unsigned int n;
+    unsigned int k;
 
     std::string solver = GetArg("-equihashsolver", "default");
     assert(solver == "tromp" || solver == "default");
@@ -577,7 +577,11 @@ void static BitcoinMiner()
             while (true) {
                 // Hash state
                 crypto_generichash_blake2b_state state;
-                EhInitialiseState(n, k, state);
+                const CChainParams& params = Params();
+                int32_t nHeight = pindexPrev->nHeight + 1;
+                n = params.EquihashN(nHeight);
+                k = params.EquihashK(nHeight);
+                EhInitialiseState(n, k, state, params.EquihashUseXSGSalt(nHeight));
 
                 // I = the block header minus nonce and solution.
                 CEquihashInput I{*pblock};

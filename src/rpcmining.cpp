@@ -201,8 +201,8 @@ UniValue generate(const UniValue& params, bool fHelp)
     }
     unsigned int nExtraNonce = 0;
     UniValue blockHashes(UniValue::VARR);
-    unsigned int n = Params().EquihashN();
-    unsigned int k = Params().EquihashK();
+    unsigned int n;
+    unsigned int k;
     while (nHeight < nHeightEnd)
     {
 #ifdef ENABLE_WALLET
@@ -219,8 +219,10 @@ UniValue generate(const UniValue& params, bool fHelp)
         }
 
         // Hash state
-        crypto_generichash_blake2b_state eh_state;
-        EhInitialiseState(n, k, eh_state);
+            n = Params().EquihashN(chainActive.Tip()->nHeight+1);
+            k = Params().EquihashK(chainActive.Tip()->nHeight+1);
+            crypto_generichash_blake2b_state eh_state;
+            EhInitialiseState(n, k, eh_state, Params().EquihashUseXSGSalt(chainActive.Tip()->nHeight+1));
 
         // I = the block header minus nonce and solution.
         CEquihashInput I{*pblock};

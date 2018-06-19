@@ -2513,7 +2513,7 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
         return NullUniValue;
     }
 
-    if (fHelp || params.size() < 2) {
+    if (fHelp || params.size() < 3) {
         throw runtime_error(
             "zcbenchmark benchmarktype samplecount\n"
             "\n"
@@ -2536,7 +2536,7 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
 
     std::string benchmarktype = params[0].get_str();
     int samplecount = params[1].get_int();
-
+    int nHeight = params[2].get_int();
     if (samplecount <= 0) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid samplecount");
     }
@@ -2546,7 +2546,7 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
     JSDescription samplejoinsplit;
 
     if (benchmarktype == "verifyjoinsplit") {
-        CDataStream ss(ParseHexV(params[2].get_str(), "js"), SER_NETWORK, PROTOCOL_VERSION);
+        CDataStream ss(ParseHexV(params[3].get_str(), "js"), SER_NETWORK, PROTOCOL_VERSION);
         ss >> samplejoinsplit;
     }
 
@@ -2559,7 +2559,7 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
             if (params.size() < 3) {
                 sample_times.push_back(benchmark_create_joinsplit());
             } else {
-                int nThreads = params[2].get_int();
+                int nThreads = params[3].get_int();
                 std::vector<double> vals = benchmark_create_joinsplit_threaded(nThreads);
                 // Divide by nThreads^2 to get average seconds per JoinSplit because
                 // we are running one JoinSplit per thread.
@@ -2569,10 +2569,10 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
             sample_times.push_back(benchmark_verify_joinsplit(samplejoinsplit));
 #ifdef ENABLE_MINING
         } else if (benchmarktype == "solveequihash") {
-            if (params.size() < 3) {
+            if (params.size() < 4) {
                 sample_times.push_back(benchmark_solve_equihash());
             } else {
-                int nThreads = params[2].get_int();
+                int nThreads = params[3].get_int();
                 std::vector<double> vals = benchmark_solve_equihash_threaded(nThreads);
                 sample_times.insert(sample_times.end(), vals.begin(), vals.end());
             }
@@ -2582,10 +2582,10 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
         } else if (benchmarktype == "validatelargetx") {
             sample_times.push_back(benchmark_large_tx());
         } else if (benchmarktype == "trydecryptnotes") {
-            int nAddrs = params[2].get_int();
+            int nAddrs = params[3].get_int();
             sample_times.push_back(benchmark_try_decrypt_notes(nAddrs));
         } else if (benchmarktype == "incnotewitnesses") {
-            int nTxs = params[2].get_int();
+            int nTxs = params[3].get_int();
             sample_times.push_back(benchmark_increment_note_witnesses(nTxs));
         } else if (benchmarktype == "connectblockslow") {
             if (Params().NetworkIDString() != "regtest") {

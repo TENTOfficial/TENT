@@ -1630,7 +1630,8 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos)
     }
 
     // Check the header
-    if (!(CheckEquihashSolution(&block, Params()) &&
+    unsigned int nHeight = chainActive.Height();
+    if (!(CheckEquihashSolution(&block, Params(), nHeight) &&
           CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus())))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
@@ -3286,23 +3287,36 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool fCheckPOW)
 {
+    unsigned int nHeight = chainActive.Height() + 1;
+    const CChainParams& chainParams = Params();
+
     // Check block version
     if (block.nVersion < MIN_BLOCK_VERSION)
         return state.DoS(100, error("CheckBlockHeader(): block version too low"),
                          REJECT_INVALID, "version-too-low");
 
     // Check Equihash solution is valid
-    if (fCheckPOW && !CheckEquihashSolution(&block, Params()))
-        return state.DoS(100, error("CheckBlockHeader(): Equihash solution invalid"),
-                         REJECT_INVALID, "invalid-solution");
+    if (fCheckPOW) {
+        const CChainParams& chainparams = Params();
+        const size_t sol_size = chainparams.EquihashSolutionWidth(nHeight);
+        if(block.nSolution.size() != sol_size) {
+            return state.DoS(
+                100, error("CheckBlockHeader(): Equihash solution has invalid size have %d need %d",
+                           block.nSolution.size(), sol_size),
+                REJECT_INVALID, "invalid-solution-size");
+        }
+        if (!CheckEquihashSolution(&block, Params(), nHeight)) {
+            LogPrintf("CheckBlockHeader(): Equihash solution invalid at height %d\n", nHeight);
+            return state.DoS(100, error("CheckBlockHeader(): Equihash solution invalid"),
+                            REJECT_INVALID, "invalid-solution");
+        }
+    }
 
     // Check proof of work matches claimed amount
     if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus()))
         return state.DoS(50, error("CheckBlockHeader(): proof of work failed"),
                          REJECT_INVALID, "high-hash");
 
-    unsigned int nHeight = chainActive.Height();
-    const CChainParams& chainParams = Params();
     // Check timestamp
     if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
         return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),

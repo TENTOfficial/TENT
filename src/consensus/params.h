@@ -17,6 +17,7 @@ struct Params {
 
     bool fCoinbaseMustBeProtected;
 
+    int EquihashForkHeight;
     /** Needs to evenly divide MAX_SUBSIDY to avoid rounding errors. */
     int nSubsidySlowStartInterval;
     /**
