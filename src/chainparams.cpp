@@ -100,10 +100,11 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         newTimeRule = 246600;
-        const size_t N = 200, K = 9;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        nEquihashN = N;
-        nEquihashK = K;
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 9999999;
+        eh_epoch_2_startblock = 9999999;
+
         nMasternodeCountDrift = 0;
 
         genesis = CreateGenesisBlock(
@@ -223,10 +224,11 @@ public:
         nDefaultPort = 26113;
 		nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
-        const size_t N = 200, K = 9;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        nEquihashN = N;
-		nEquihashK = K;
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 7600;
+        eh_epoch_2_startblock = 7583;
+
 		
     	genesis = CreateGenesisBlock(
             1477774444,
@@ -241,7 +243,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("abctoxyz.site", "dnsseed.testnet.abctoxyz.site")); // Snowgem
-        vSeeds.push_back(CDNSSeedData("snowgem.org", "dnsseed.testnet.snowgem.org")); // Snowgem
+        vSeeds.push_back(CDNSSeedData("snowgem.org", "testnet.explorer.snowgem.org")); // Snowgem
 
         // guarantees the first 2 characters, when base58 encoded, are "tm"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
@@ -315,10 +317,11 @@ public:
         nDefaultPort = 26114;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
-        const size_t N = 48, K = 5;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        nEquihashN = N;
-        nEquihashK = K;
+        eh_epoch_1 = eh48_5;
+        eh_epoch_2 = eh48_5;
+        eh_epoch_1_endblock = 1;
+        eh_epoch_2_startblock = 1;
+
     	genesis = CreateGenesisBlock(
             1296688602,
             uint256S("000000000000000000000000000000000000000000000000000000000000000c"),
@@ -422,4 +425,22 @@ CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
 std::string CChainParams::GetFoundersRewardAddressAtIndex(int i) const {
     assert(i >= 0 && i < vFoundersRewardAddress.size());
     return vFoundersRewardAddress[i];
+}
+
+
+int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params){
+    //if in overlap period, there will be two valid solutions, else 1.
+    //The upcoming version of EH is preferred so will always be first element
+    //returns number of elements in list
+    if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
+        ehparams[0]=params.eh_epoch_2_params();
+        return 1;
+    }
+    if(blockheight<params.eh_epoch_2_start()){
+        ehparams[0]=params.eh_epoch_1_params();
+        return 1;
+    }
+    ehparams[0]=params.eh_epoch_2_params();
+    ehparams[1]=params.eh_epoch_1_params();
+    return 2;
 }
