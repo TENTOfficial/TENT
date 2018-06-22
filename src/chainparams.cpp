@@ -102,8 +102,8 @@ public:
         newTimeRule = 246600;
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = 9999999;
-        eh_epoch_2_startblock = 9999999;
+        eh_epoch_1_endblock = 266000;
+        eh_epoch_2_startblock = 265983;
 
         nMasternodeCountDrift = 0;
 
