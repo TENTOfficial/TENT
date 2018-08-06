@@ -35,14 +35,14 @@ using namespace std;
 **/
 UniValue getalldata(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 2)
         throw runtime_error(
             "getallinfo\n"
             "Returns all data for simple wallet.\n"
             "\nResult:\n"
             "\nExamples:\n"
-            + HelpExampleCli("getallinfo", "")
-            + HelpExampleRpc("getallinfo", "")
+            + HelpExampleCli("getalldata", "")
+            + HelpExampleRpc("getalldata", "")
         );
 
     LOCK(cs_main);
@@ -75,11 +75,13 @@ UniValue getalldata(const UniValue& params, bool fHelp)
     nBalance = 0;
 
     //get all t address
-    UniValue transactions(UniValue::VARR);
+    UniValue addressbalance(UniValue::VARR);
     UniValue addrlist(UniValue::VOBJ);
 
     if (params.size() > 0 && (params[0].get_int() == 1 || params[0].get_int() == 0))
     {
+      if(params.size() < 2)
+      {
         BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
         {
             const CBitcoinAddress& address = item.first;
@@ -117,13 +119,66 @@ UniValue getalldata(const UniValue& params, bool fHelp)
                 addrlist.push_back(Pair(strName, ValueFromAmount(nBalance)));
             }
         }
+      }
+      else
+      {
+        BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+        {
+            UniValue addr(UniValue::VOBJ);
+            const CBitcoinAddress& address = item.first;
+            CTxDestination dest = address.Get();
+            isminetype mine = pwalletMain ? IsMine(*pwalletMain, dest) : ISMINE_NO;
+
+            const string& strName = item.second.name;
+            nBalance = getBalanceTaddr(address.ToString(), nMinDepth, false);
+
+            addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
+            addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
+            addrlist.push_back(Pair(address.ToString(), addr));
+        }
+
+        //address grouping
+        {
+            LOCK2(cs_main, pwalletMain->cs_wallet);
+
+            map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
+            BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
+            {
+                BOOST_FOREACH(CTxDestination address, grouping)
+                {
+                    UniValue addr(UniValue::VOBJ);
+                    const string& strName = CBitcoinAddress(address).ToString();
+                    if(addrlist.exists(strName))
+                        continue;
+                    isminetype mine = pwalletMain ? IsMine(*pwalletMain, address) : ISMINE_NO;
+                    addr.push_back(Pair("amount", ValueFromAmount(balances[address])));
+                    addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
+                    addrlist.push_back(Pair(strName, addr));
+                }
+            }
+        }
+
+        //get all z address
+        std::set<libsnowgem::PaymentAddress> addresses;
+        pwalletMain->GetPaymentAddresses(addresses);
+        for (auto addr : addresses ) {
+            if (pwalletMain->HaveSpendingKey(addr)) {
+                UniValue address(UniValue::VOBJ);
+                const string& strName = CZCPaymentAddress(addr).ToString();
+                nBalance = getBalanceZaddr(strName, nMinDepth, false);
+                address.push_back(Pair("amount", ValueFromAmount(nBalance)));
+                address.push_back(Pair("ismine", true));
+                addrlist.push_back(Pair(strName, address));
+            }
+        }
+      }
     }
-	else
-	{
-		addrlist.push_back(Pair("", ValueFromAmount(nBalance)));
-	}
-    transactions.push_back(addrlist);
-    returnObj.push_back(Pair("addressbalance", transactions));
+    else
+    {
+      addrlist.push_back(Pair("", ValueFromAmount(nBalance)));
+    }
+    addressbalance.push_back(addrlist);
+    returnObj.push_back(Pair("addressbalance", addressbalance));
 
 
     //get transactions
