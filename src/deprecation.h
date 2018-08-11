@@ -7,14 +7,14 @@
 #define SNOWGEM_DEPRECATION_H
 
 // Deprecation policy:
-// * Shut down 16 weeks' worth of blocks after the estimated release block height.
+// * Shut down 52 weeks' worth of blocks after the estimated release block height.
 // * A warning is shown during the 2 weeks' worth of blocks prior to shut down.
-static const int APPROX_RELEASE_HEIGHT = 290000;
-static const int WEEKS_UNTIL_DEPRECATION = 16;
+static const int APPROX_RELEASE_HEIGHT = 329000;
+static const int WEEKS_UNTIL_DEPRECATION = 52;
 static const int DEPRECATION_HEIGHT = APPROX_RELEASE_HEIGHT + (WEEKS_UNTIL_DEPRECATION * 7 * 24 * 60);
 
 // Number of blocks before deprecation to warn users
-static const int DEPRECATION_WARN_LIMIT = 14 * 24 * 60; // 2 weeks
+static const int DEPRECATION_WARN_LIMIT = 28 * 24 * 60; // 4 weeks
 
 /**
  * Checks whether the node is deprecated based on the current block height, and
