@@ -104,7 +104,9 @@ UniValue getalldata(const UniValue& params, bool fHelp)
                     const string& strName = CBitcoinAddress(address).ToString();
                     if(addrlist.exists(strName))
                         continue;
-                    addrlist.push_back(Pair(strName, ValueFromAmount(balances[address])));
+                    
+                    nBalance = getBalanceTaddr(strName, nMinDepth, false);
+                    addrlist.push_back(Pair(strName, ValueFromAmount(nBalance)));
                 }
             }
         }
@@ -151,7 +153,10 @@ UniValue getalldata(const UniValue& params, bool fHelp)
                     if(addrlist.exists(strName))
                         continue;
                     isminetype mine = pwalletMain ? IsMine(*pwalletMain, address) : ISMINE_NO;
-                    addr.push_back(Pair("amount", ValueFromAmount(balances[address])));
+
+                    nBalance = getBalanceTaddr(strName, nMinDepth, false);
+
+                    addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
                     addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
                     addrlist.push_back(Pair(strName, addr));
                 }
