@@ -31,18 +31,18 @@
 using namespace std;
 
 /**
- *Return all data for simple wallet
+ *Return current blockchain status, wallet balance, address balance and the last 200 transactions
 **/
 UniValue getalldata(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 2)
         throw runtime_error(
             "getallinfo\n"
-            "Returns all data for simple wallet.\n"
+            "Return current blockchain status, wallet balance, address balance and the last 200 transactions.\n"
             "\nResult:\n"
             "\nExamples:\n"
-            + HelpExampleCli("getalldata", "")
-            + HelpExampleRpc("getalldata", "")
+            + HelpExampleCli("getalldata", "0")
+            + HelpExampleRpc("getalldata", "0")
         );
 
     LOCK(cs_main);
