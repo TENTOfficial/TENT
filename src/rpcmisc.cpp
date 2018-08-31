@@ -80,108 +80,60 @@ UniValue getalldata(const UniValue& params, bool fHelp)
 
     if (params.size() > 0 && (params[0].get_int() == 1 || params[0].get_int() == 0))
     {
-      if(params.size() < 2)
+      BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
       {
-        BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
-        {
-            const CBitcoinAddress& address = item.first;
-            const string& strName = item.second.name;
-            nBalance = getBalanceTaddr(address.ToString(), nMinDepth, false);
-            addrlist.push_back(Pair(address.ToString(), ValueFromAmount(nBalance)));
-        }
+          UniValue addr(UniValue::VOBJ);
+          const CBitcoinAddress& address = item.first;
+          CTxDestination dest = address.Get();
+          isminetype mine = pwalletMain ? IsMine(*pwalletMain, dest) : ISMINE_NO;
 
-        //address grouping
-        {
-            LOCK2(cs_main, pwalletMain->cs_wallet);
+          const string& strName = item.second.name;
+          nBalance = getBalanceTaddr(address.ToString(), nMinDepth, false);
 
-            UniValue jsonGroupings(UniValue::VARR);
-            map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
-            BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
-            {
-                UniValue jsonGrouping(UniValue::VARR);
-                BOOST_FOREACH(CTxDestination address, grouping)
-                {
-                    const string& strName = CBitcoinAddress(address).ToString();
-                    if(addrlist.exists(strName))
-                        continue;
-                    
-                    nBalance = getBalanceTaddr(strName, nMinDepth, false);
-                    addrlist.push_back(Pair(strName, ValueFromAmount(nBalance)));
-                }
-            }
-        }
-
-        //get all z address
-        std::set<libsnowgem::PaymentAddress> addresses;
-        pwalletMain->GetPaymentAddresses(addresses);
-        for (auto addr : addresses ) {
-            if (pwalletMain->HaveSpendingKey(addr)) {
-                const string& strName = CZCPaymentAddress(addr).ToString();
-                nBalance = getBalanceZaddr(strName, nMinDepth, false);
-                addrlist.push_back(Pair(strName, ValueFromAmount(nBalance)));
-            }
-        }
+          addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
+          addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
+          addrlist.push_back(Pair(address.ToString(), addr));
       }
-      else
+
+      //address grouping
       {
-        BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
-        {
-            UniValue addr(UniValue::VOBJ);
-            const CBitcoinAddress& address = item.first;
-            CTxDestination dest = address.Get();
-            isminetype mine = pwalletMain ? IsMine(*pwalletMain, dest) : ISMINE_NO;
+          LOCK2(cs_main, pwalletMain->cs_wallet);
 
-            const string& strName = item.second.name;
-            nBalance = getBalanceTaddr(address.ToString(), nMinDepth, false);
+          map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
+          BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
+          {
+              BOOST_FOREACH(CTxDestination address, grouping)
+              {
+                  UniValue addr(UniValue::VOBJ);
+                  const string& strName = CBitcoinAddress(address).ToString();
+                  if(addrlist.exists(strName))
+                      continue;
+                  isminetype mine = pwalletMain ? IsMine(*pwalletMain, address) : ISMINE_NO;
 
-            addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
-            addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
-            addrlist.push_back(Pair(address.ToString(), addr));
-        }
+                  nBalance = getBalanceTaddr(strName, nMinDepth, false);
 
-        //address grouping
-        {
-            LOCK2(cs_main, pwalletMain->cs_wallet);
+                  addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
+                  addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
+                  addrlist.push_back(Pair(strName, addr));
+              }
+          }
+      }
 
-            map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
-            BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
-            {
-                BOOST_FOREACH(CTxDestination address, grouping)
-                {
-                    UniValue addr(UniValue::VOBJ);
-                    const string& strName = CBitcoinAddress(address).ToString();
-                    if(addrlist.exists(strName))
-                        continue;
-                    isminetype mine = pwalletMain ? IsMine(*pwalletMain, address) : ISMINE_NO;
-
-                    nBalance = getBalanceTaddr(strName, nMinDepth, false);
-
-                    addr.push_back(Pair("amount", ValueFromAmount(nBalance)));
-                    addr.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
-                    addrlist.push_back(Pair(strName, addr));
-                }
-            }
-        }
-
-        //get all z address
-        std::set<libsnowgem::PaymentAddress> addresses;
-        pwalletMain->GetPaymentAddresses(addresses);
-        for (auto addr : addresses ) {
-            if (pwalletMain->HaveSpendingKey(addr)) {
-                UniValue address(UniValue::VOBJ);
-                const string& strName = CZCPaymentAddress(addr).ToString();
-                nBalance = getBalanceZaddr(strName, nMinDepth, false);
-                address.push_back(Pair("amount", ValueFromAmount(nBalance)));
-                address.push_back(Pair("ismine", true));
-                addrlist.push_back(Pair(strName, address));
-            }
-        }
+      //get all z address
+      std::set<libsnowgem::PaymentAddress> addresses;
+      pwalletMain->GetPaymentAddresses(addresses);
+      for (auto addr : addresses ) {
+          if (pwalletMain->HaveSpendingKey(addr)) {
+              UniValue address(UniValue::VOBJ);
+              const string& strName = CZCPaymentAddress(addr).ToString();
+              nBalance = getBalanceZaddr(strName, nMinDepth, false);
+              address.push_back(Pair("amount", ValueFromAmount(nBalance)));
+              address.push_back(Pair("ismine", true));
+              addrlist.push_back(Pair(strName, address));
+          }
       }
     }
-    else
-    {
-      addrlist.push_back(Pair("", ValueFromAmount(nBalance)));
-    }
+
     addressbalance.push_back(addrlist);
     returnObj.push_back(Pair("addressbalance", addressbalance));
 
@@ -233,24 +185,6 @@ UniValue getalldata(const UniValue& params, bool fHelp)
         trans.setArray();
         trans.push_backV(arrTmp);
     }
-	else
-	{
-        UniValue translist(UniValue::VOBJ);
-        translist.push_back(Pair("account", ""));
-        translist.push_back(Pair("address", ""));
-        translist.push_back(Pair("category", ""));
-        translist.push_back(Pair("amount", "0"));
-        translist.push_back(Pair("vout", "1"));
-        translist.push_back(Pair("confirmations", "0"));
-        translist.push_back(Pair("generated", "true"));
-        translist.push_back(Pair("blockhash", "0000000000000000000000000000000000000000000000000000000000000000"));
-        translist.push_back(Pair("blockindex", "0"));
-        translist.push_back(Pair("blocktime", "0"));
-        translist.push_back(Pair("txid", "0000000000000000000000000000000000000000000000000000000000000000"));
-        translist.push_back(Pair("time", "0"));
-        translist.push_back(Pair("timereceived", "0"));
-        trans.push_back(translist);
-	}
 
     returnObj.push_back(Pair("listtransactions", trans));
 
