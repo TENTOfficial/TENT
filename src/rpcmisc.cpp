@@ -199,18 +199,18 @@ UniValue getalldata(const UniValue& params, bool fHelp)
 
         if(params.size() > 1)
         {
-            int day = 1
+            int day = 1;
             if(params[1].get_int() == 1)
             {
-                day = 1
+                day = 1;
             }
             else if(params[1].get_int() == 2)
             {
-                day = 7
+                day = 7;
             }
             else if(params[1].get_int() == 3)
             {
-                day = 30
+                day = 30;
             }
             std::list<CAccountingEntry> acentries;
             CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
