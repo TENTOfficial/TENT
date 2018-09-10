@@ -157,49 +157,9 @@ UniValue getalldata(const UniValue& params, bool fHelp)
     UniValue transTime(UniValue::VARR);
     if (params.size() > 0 && (params[0].get_int() == 2 || params[0].get_int() == 0))
     {
-        {
-            std::list<CAccountingEntry> acentries;
-            CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
-
-            // iterate backwards until we have nCount items to return:
-            for (CWallet::TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
-            {
-                CWalletTx *const pwtx = (*it).second.first;
-                if (pwtx != 0)
-                    ListTransactions(*pwtx, strAccount, 0, true, trans, filter);
-                CAccountingEntry *const pacentry = (*it).second.second;
-                if (pacentry != 0)
-                    AcentryToJSON(*pacentry, strAccount, trans);
-
-                if ((int)trans.size() >= (nCount+nFrom)) break;
-            }
-
-            // trans is newest to oldest
-            if (nFrom > (int)trans.size())
-                nFrom = trans.size();
-            if ((nFrom + nCount) > (int)trans.size())
-                nCount = trans.size() - nFrom;
-
-            vector<UniValue> arrTmp = trans.getValues();
-
-            vector<UniValue>::iterator first = arrTmp.begin();
-            std::advance(first, nFrom);
-            vector<UniValue>::iterator last = arrTmp.begin();
-            std::advance(last, nFrom+nCount);
-
-            if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
-            if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
-
-            std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
-
-            trans.clear();
-            trans.setArray();
-            trans.push_backV(arrTmp);
-        }
-
+        int day = 1;
         if(params.size() > 1)
         {
-            int day = 1;
             if(params[1].get_int() == 1)
             {
                 day = 1;
@@ -212,48 +172,48 @@ UniValue getalldata(const UniValue& params, bool fHelp)
             {
                 day = 30;
             }
-            std::list<CAccountingEntry> acentries;
-            CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
-            uint64_t t = GetTime();
-            // iterate backwards until we have nCount items to return:
-            for (CWallet::TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
-            {
-                CWalletTx *const pwtx = (*it).second.first;
-                if (pwtx != 0)
-                    ListTransactions(*pwtx, strAccount, 0, true, transTime, filter);
-                CAccountingEntry *const pacentry = (*it).second.second;
-                if (pacentry != 0)
-                    AcentryToJSON(*pacentry, strAccount, transTime);
-
-                if (pwtx->nTimeReceived <= t - day * 60 * 60 * 24) break;
-            }
-
-            // trans is newest to oldest
-            if (nFrom > (int)transTime.size())
-                nFrom = transTime.size();
-            if ((nFrom + nCount) > (int)transTime.size())
-                nCount = transTime.size() - nFrom;
-
-            vector<UniValue> arrTmp = transTime.getValues();
-
-            vector<UniValue>::iterator first = arrTmp.begin();
-            std::advance(first, nFrom);
-            vector<UniValue>::iterator last = arrTmp.begin();
-            std::advance(last, nFrom+nCount);
-
-            if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
-            if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
-
-            std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
-
-            transTime.clear();
-            transTime.setArray();
-            transTime.push_backV(arrTmp);
         }
+
+        std::list<CAccountingEntry> acentries;
+        CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
+        uint64_t t = GetTime();
+        // iterate backwards until we have nCount items to return:
+        for (CWallet::TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
+        {
+            CWalletTx *const pwtx = (*it).second.first;
+            if (pwtx != 0)
+                ListTransactions(*pwtx, strAccount, 0, true, trans, filter);
+            CAccountingEntry *const pacentry = (*it).second.second;
+            if (pacentry != 0)
+                AcentryToJSON(*pacentry, strAccount, trans);
+
+            if ((int)trans.size() >= (nCount+nFrom) && pwtx->nTimeReceived <= t - day * 60 * 60 * 24) break;
+        }
+
+        // trans is newest to oldest
+        if (nFrom > (int)trans.size())
+            nFrom = trans.size();
+        if ((nFrom + nCount) > (int)trans.size())
+            nCount = trans.size() - nFrom;
+
+        vector<UniValue> arrTmp = trans.getValues();
+
+        vector<UniValue>::iterator first = arrTmp.begin();
+        std::advance(first, nFrom);
+        vector<UniValue>::iterator last = arrTmp.begin();
+        std::advance(last, nFrom+nCount);
+
+        if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
+        if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
+
+        std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
+
+        trans.clear();
+        trans.setArray();
+        trans.push_backV(arrTmp);
     }
 
     returnObj.push_back(Pair("listtransactions", trans));
-    returnObj.push_back(Pair("listtransactionstime", transTime));
     return returnObj;
 }
 
