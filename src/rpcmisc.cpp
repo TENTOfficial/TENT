@@ -186,25 +186,10 @@ UniValue getalldata(const UniValue& params, bool fHelp)
             CAccountingEntry *const pacentry = (*it).second.second;
             if (pacentry != 0)
                 AcentryToJSON(*pacentry, strAccount, trans);
-
-            if ((int)trans.size() >= (nCount+nFrom) && pwtx->nTimeReceived <= t - day * 60 * 60 * 24) break;
+            if ((int)trans.size() >= (nCount+nFrom) && pwtx->nTimeReceived <= (t - (day * 60 * 60 * 24))) break;
         }
 
-        // trans is newest to oldest
-        if (nFrom > (int)trans.size())
-            nFrom = trans.size();
-        if ((nFrom + nCount) > (int)trans.size())
-            nCount = trans.size() - nFrom;
-
         vector<UniValue> arrTmp = trans.getValues();
-
-        vector<UniValue>::iterator first = arrTmp.begin();
-        std::advance(first, nFrom);
-        vector<UniValue>::iterator last = arrTmp.begin();
-        std::advance(last, nFrom+nCount);
-
-        if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
-        if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
 
         std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
 
