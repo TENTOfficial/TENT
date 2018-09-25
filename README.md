@@ -70,7 +70,7 @@ brew install gcc5
 brew install binutils
 brew install protobuf
 brew install coreutils
-brew install wget
+brew install wget llvm
 ```
 
 ### Check GCC version
@@ -93,7 +93,7 @@ $ chmod +x zcutil/fetch-params.sh
 $ ./zcutil/fetch-params.sh
 ```
 
-### Build Linux
+### Build Linux/MAC
 
 Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
 ```
@@ -113,16 +113,6 @@ $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
 $ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile
 $ ./zcutil/build-win.sh --disable-rust
-```
-
-### Build Mac
-
-Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
-```
-$ git clone https://github.com/snowgem/snowgem.git
-$ cd snowgem/
-$ chmod +x zcutil/build-mac.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile
-$ ./zcutil/build-mac.sh --disable-rust -j$(sysctl -n hw.physicalcpu)
 ```
 
 --------
