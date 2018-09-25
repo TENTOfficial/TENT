@@ -4,7 +4,7 @@ CXX=x86_64-w64-mingw32-g++-posix
 CC=x86_64-w64-mingw32-gcc-posix
 PREFIX="$(pwd)/depends/$HOST"
 
-patch -p1 < buildwin.patch
+git apply zcutil/bdb_win.patch
 set -eu -o pipefail
 
 # If --disable-rust is the next argument, disable Rust code:

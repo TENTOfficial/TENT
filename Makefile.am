@@ -1,4 +1,3 @@
-
 SUBDIRS = src
 if ENABLE_MAN
 SUBDIRS += doc/man
