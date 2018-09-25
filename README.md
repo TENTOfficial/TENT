@@ -103,7 +103,7 @@ $ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh sh
 $ ./zcutil/build.sh --disable-rust
 ```
 
-This should compile our dependencies and build zcashd. (Note: if you don't have nproc, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh --disable-rust```. )
+This should compile our dependencies and build snowgemd
 
 ### Build Windows
 
