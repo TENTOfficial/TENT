@@ -63,6 +63,31 @@ UniValue getalldata(const UniValue& params, bool fHelp)
         connectionCount = (int)vNodes.size();
     }
 
+    vector<COutput> vecOutputs;
+    CAmount remainingValue = 0;
+
+    pwalletMain->AvailableCoins(vecOutputs, true, NULL, false, true);
+
+    // Find unspent coinbase utxos and update estimated size
+    BOOST_FOREACH(const COutput& out, vecOutputs) {
+        if (!out.fSpendable) {
+            continue;
+        }
+
+        CTxDestination address;
+        if (!ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) {
+            continue;
+        }
+
+        if (!out.tx->IsCoinBase()) {
+            continue;
+        }
+
+        CAmount nValue = out.tx->vout[out.i].nValue;
+
+        remainingValue += nValue;
+    }
+
     int nMinDepth = 1;
     CAmount nBalance = getBalanceTaddr("", nMinDepth, true);
     CAmount nPrivateBalance = getBalanceZaddr("", nMinDepth, true);
@@ -77,6 +102,7 @@ UniValue getalldata(const UniValue& params, bool fHelp)
     returnObj.push_back(Pair("privatebalance", FormatMoney(nPrivateBalance)));
     returnObj.push_back(Pair("lockedbalance", FormatMoney(nLockedCoin)));
     returnObj.push_back(Pair("totalbalance", FormatMoney(nTotalBalance)));
+    returnObj.push_back(Pair("remainingValue", ValueFromAmount(remainingValue)));
     returnObj.push_back(Pair("unconfirmedbalance", FormatMoney(pwalletMain->GetUnconfirmedBalance())));
     returnObj.push_back(Pair("immaturebalance", FormatMoney(pwalletMain->GetImmatureBalance())));
 
