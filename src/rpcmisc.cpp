@@ -212,7 +212,7 @@ UniValue getalldata(const UniValue& params, bool fHelp)
             CAccountingEntry *const pacentry = (*it).second.second;
             if (pacentry != 0)
                 AcentryToJSON(*pacentry, strAccount, trans);
-            if ((int)trans.size() >= (nCount+nFrom) && pwtx->nTimeReceived <= (t - (day * 60 * 60 * 24))) break;
+            if (pwtx->nTimeReceived <= (t - (day * 60 * 60 * 24))) break;
         }
 
         vector<UniValue> arrTmp = trans.getValues();
