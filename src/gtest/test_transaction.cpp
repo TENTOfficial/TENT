@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "primitives/transaction.h"
-#include "snowgem/Note.hpp"
-#include "snowgem/Address.hpp"
+#include "zcash/Note.hpp"
+#include "zcash/Address.hpp"
+
+#include <array>
 
 extern ZCJoinSplit* params;
 extern int GenZero(int n);
@@ -10,12 +12,12 @@ extern int GenMax(int n);
 
 TEST(Transaction, JSDescriptionRandomized) {
     // construct a merkle tree
-    ZCIncrementalMerkleTree merkleTree;
+    SproutMerkleTree merkleTree;
 
-    libsnowgem::SpendingKey k = libsnowgem::SpendingKey::random();
-    libsnowgem::PaymentAddress addr = k.address();
+    libzcash::SproutSpendingKey k = libzcash::SproutSpendingKey::random();
+    libzcash::SproutPaymentAddress addr = k.address();
 
-    libsnowgem::Note note(addr.a_pk, 100, uint256(), uint256());
+    libzcash::SproutNote note(addr.a_pk, 100, uint256(), uint256());
 
     // commitment from coin
     uint256 commitment = note.cm();
@@ -29,56 +31,59 @@ TEST(Transaction, JSDescriptionRandomized) {
     auto witness = merkleTree.witness();
 
     // create JSDescription
-    uint256 pubKeyHash;
-    boost::array<libsnowgem::JSInput, ZC_NUM_JS_INPUTS> inputs = {
-        libsnowgem::JSInput(witness, note, k),
-        libsnowgem::JSInput() // dummy input of zero value
+    uint256 joinSplitPubKey;
+    std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS> inputs = {
+        libzcash::JSInput(witness, note, k),
+        libzcash::JSInput() // dummy input of zero value
     };
-    boost::array<libsnowgem::JSOutput, ZC_NUM_JS_OUTPUTS> outputs = {
-        libsnowgem::JSOutput(addr, 50),
-        libsnowgem::JSOutput(addr, 50)
+    std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS> outputs = {
+        libzcash::JSOutput(addr, 50),
+        libzcash::JSOutput(addr, 50)
     };
-    boost::array<uint64_t, ZC_NUM_JS_INPUTS> inputMap;
-    boost::array<uint64_t, ZC_NUM_JS_OUTPUTS> outputMap;
+    std::array<size_t, ZC_NUM_JS_INPUTS> inputMap;
+    std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
+            false,
+            *params, joinSplitPubKey, rt,
             inputs, outputs,
             inputMap, outputMap,
             0, 0, false);
 
-        std::set<uint64_t> inputSet(inputMap.begin(), inputMap.end());
-        std::set<uint64_t> expectedInputSet {0, 1};
+        std::set<size_t> inputSet(inputMap.begin(), inputMap.end());
+        std::set<size_t> expectedInputSet {0, 1};
         EXPECT_EQ(expectedInputSet, inputSet);
 
-        std::set<uint64_t> outputSet(outputMap.begin(), outputMap.end());
-        std::set<uint64_t> expectedOutputSet {0, 1};
+        std::set<size_t> outputSet(outputMap.begin(), outputMap.end());
+        std::set<size_t> expectedOutputSet {0, 1};
         EXPECT_EQ(expectedOutputSet, outputSet);
     }
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
+            false,
+            *params, joinSplitPubKey, rt,
             inputs, outputs,
             inputMap, outputMap,
             0, 0, false, nullptr, GenZero);
 
-        boost::array<uint64_t, ZC_NUM_JS_INPUTS> expectedInputMap {1, 0};
-        boost::array<uint64_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {1, 0};
+        std::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {1, 0};
+        std::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {1, 0};
         EXPECT_EQ(expectedInputMap, inputMap);
         EXPECT_EQ(expectedOutputMap, outputMap);
     }
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
+            false,
+            *params, joinSplitPubKey, rt,
             inputs, outputs,
             inputMap, outputMap,
             0, 0, false, nullptr, GenMax);
 
-        boost::array<uint64_t, ZC_NUM_JS_INPUTS> expectedInputMap {0, 1};
-        boost::array<uint64_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {0, 1};
+        std::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {0, 1};
+        std::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {0, 1};
         EXPECT_EQ(expectedInputMap, inputMap);
         EXPECT_EQ(expectedOutputMap, outputMap);
     }

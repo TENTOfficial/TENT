@@ -23,6 +23,8 @@
 #include <boost/assign/list_of.hpp>
 #include <openssl/rand.h>
 
+#include "key_io.h"
+
 using namespace std;
 using namespace boost;
 
@@ -240,7 +242,7 @@ void CObfuscationPool::ProcessMessageObfuscation(CNode* pfrom, std::string& strC
             }
 
             if (nValueIn > OBFUSCATION_POOL_MAX) {
-                LogPrintf("dsi -- more than Obfuscation pool max! %s\n", tx.ToString());
+                // LogPrintf("dsi -- more than Obfuscation pool max! %s\n", tx.ToString());
                 errorID = ERR_MAXIMUM;
                 pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, errorID);
                 return;
@@ -248,13 +250,13 @@ void CObfuscationPool::ProcessMessageObfuscation(CNode* pfrom, std::string& strC
 
             if (!missingTx) {
                 if (nValueIn - nValueOut > nValueIn * .01) {
-                    LogPrintf("dsi -- fees are too high! %s\n", tx.ToString());
+                    // LogPrintf("dsi -- fees are too high! %s\n", tx.ToString());
                     errorID = ERR_FEES;
                     pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, errorID);
                     return;
                 }
             } else {
-                LogPrintf("dsi -- missing input tx! %s\n", tx.ToString());
+                // LogPrintf("dsi -- missing input tx! %s\n", tx.ToString());
                 errorID = ERR_MISSING_TX;
                 pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, errorID);
                 return;
@@ -419,12 +421,12 @@ void CObfuscationPool::SetNull()
 
 bool CObfuscationPool::SetCollateralAddress(std::string strAddress)
 {
-    CBitcoinAddress address;
-    if (!address.SetString(strAddress)) {
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
         LogPrintf("CObfuscationPool::SetCollateralAddress - Invalid Obfuscation collateral address\n");
         return false;
     }
-    collateralPubKey = GetScriptForDestination(address.Get());
+    collateralPubKey = GetScriptForDestination(dest);
     return true;
 }
 
@@ -553,7 +555,7 @@ void CObfuscationPool::Check()
             std::random_shuffle(txNew.vout.begin(), txNew.vout.end(), randomizeList);
 
 
-            LogPrint("obfuscation", "Transaction 1: %s\n", txNew.ToString());
+            // LogPrint("obfuscation", "Transaction 1: %s\n", txNew.ToString());
             finalTransaction = txNew;
 
             // request signatures from clients
@@ -938,8 +940,16 @@ bool CObfuscationPool::SignatureValid(const CScript& newSig, const CTxIn& newVin
     if (found >= 0) { //might have to do this one input at a time?
         int n = found;
         txNew.vin[n].scriptSig = newSig;
+
         LogPrint("obfuscation", "CObfuscationPool::SignatureValid() - Sign with sig %s\n", newSig.ToString().substr(0, 24));
-        if (!VerifyScript(txNew.vin[n].scriptSig, sigPubKey, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, MutableTransactionSignatureChecker(&txNew, n))) {
+
+        int nHeight = chainActive.Height() + 1;
+        // if (Params().NetworkIDString() != "regtest") {
+        //     nHeight = std::max(nHeight, APPROX_RELEASE_HEIGHT);
+        // }
+        // Grab the consensus branch ID for the given height
+        auto consensusBranchId = CurrentEpochBranchId(nHeight, Params().GetConsensus());
+        if (!VerifyScript(txNew.vin[n].scriptSig, sigPubKey, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, MutableTransactionSignatureChecker(&txNew, n, 0), consensusBranchId)) {
             LogPrint("obfuscation", "CObfuscationPool::SignatureValid() - Signing - Error signing input %u\n", n);
             return false;
         }
@@ -1177,7 +1187,7 @@ void CObfuscationPool::SendObfuscationDenominate(std::vector<CTxIn>& vin, std::v
             LogPrint("obfuscation", "dsi -- tx in %s\n", i.ToString());
         }
 
-        LogPrintf("Submitting tx %s\n", tx.ToString());
+        // LogPrintf("Submitting tx %s\n", tx.ToString());
 
         while (true) {
             TRY_LOCK(cs_main, lockMain);
@@ -1186,7 +1196,7 @@ void CObfuscationPool::SendObfuscationDenominate(std::vector<CTxIn>& vin, std::v
                 continue;
             }
             if (!AcceptableInputs(mempool, state, CTransaction(tx), false, NULL, false, true)) {
-                LogPrintf("dsi -- transaction not valid! %s \n", tx.ToString());
+                // LogPrintf("dsi -- transaction not valid! %s \n", tx.ToString());
                 UnlockCoins();
                 SetNull();
                 return;
@@ -1262,7 +1272,7 @@ bool CObfuscationPool::SignFinalTransaction(CTransaction& finalTransactionNew, C
     if (fMasterNode) return false;
 
     finalTransaction = finalTransactionNew;
-    LogPrintf("CObfuscationPool::SignFinalTransaction %s", finalTransaction.ToString());
+    //LogPrintf("CObfuscationPool::SignFinalTransaction %s", finalTransaction.ToString());
 
     vector<CTxIn> sigs;
 
@@ -1313,7 +1323,13 @@ bool CObfuscationPool::SignFinalTransaction(CTransaction& finalTransactionNew, C
                 const CKeyStore& keystore = *pwalletMain;
 
                 LogPrint("obfuscation", "CObfuscationPool::Sign - Signing my input %i\n", mine);
-                if (!SignSignature(keystore, prevPubKey, finalTransaction, mine, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY))) { // changes scriptSig
+                // Grab the consensus branch ID for the given height
+                int nHeight = chainActive.Height() + 1;
+                // if (Params().NetworkIDString() != "regtest") {
+                //     nHeight = std::max(nHeight, APPROX_RELEASE_HEIGHT);
+                // }
+                auto consensusBranchId = CurrentEpochBranchId(nHeight, Params().GetConsensus());
+                if (!SignSignature(keystore, prevPubKey, finalTransaction, mine, nValue1, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY), consensusBranchId)) { // changes scriptSig
                     LogPrint("obfuscation", "CObfuscationPool::Sign - Unable to sign my own transaction! \n");
                     // not sure what to do here, it will timeout...?
                 }
@@ -1323,7 +1339,7 @@ bool CObfuscationPool::SignFinalTransaction(CTransaction& finalTransactionNew, C
             }
         }
 
-        LogPrint("obfuscation", "CObfuscationPool::Sign - txNew:\n%s", finalTransaction.ToString());
+        //LogPrint("obfuscation", "CObfuscationPool::Sign - txNew:\n%s", finalTransaction.ToString());
     }
 
     // push all of our signatures to the Masternode
@@ -2132,15 +2148,14 @@ bool CObfuScationSigner::IsVinAssociatedWithPubkey(CTxIn& vin, CPubKey& pubkey)
 
 bool CObfuScationSigner::SetKey(std::string strSecret, std::string& errorMessage, CKey& key, CPubKey& pubkey)
 {
-    CBitcoinSecret vchSecret;
-    bool fGood = vchSecret.SetString(strSecret);
+    CKey key2 = DecodeSecret(strSecret);
 
-    if (!fGood) {
+    if (!key2.IsValid()) {
         errorMessage = _("Invalid private key.");
         return false;
     }
 
-    key = vchSecret.GetKey();
+    key = key2;
     pubkey = key.GetPubKey();
 
     return true;
@@ -2148,11 +2163,11 @@ bool CObfuScationSigner::SetKey(std::string strSecret, std::string& errorMessage
 
 bool CObfuScationSigner::GetKeysFromSecret(std::string strSecret, CKey& keyRet, CPubKey& pubkeyRet)
 {
-    CBitcoinSecret vchSecret;
+    CKey key2 = DecodeSecret(strSecret);
 
-    if (!vchSecret.SetString(strSecret)) return false;
+    if (!key2.IsValid()) return false;
 
-    keyRet = vchSecret.GetKey();
+    keyRet = key2;
     pubkeyRet = keyRet.GetPubKey();
 
     return true;

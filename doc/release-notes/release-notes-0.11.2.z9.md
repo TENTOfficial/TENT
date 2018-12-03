@@ -31,7 +31,7 @@ Taylor Hornby (5):
       Disable hardening when building for coverage reports.
       Upgrade libsodium for AVX2-detection bugfix.
       Fix inconsistent optimization flags; single source of truth.
-      Add -fwrapv -fno-strict-aliasing; fix libsnowgem flags.
+      Add -fwrapv -fno-strict-aliasing; fix libzcash flags.
       Use libsodium's s < L check, instead checking that libsodium checks that.
 
 Simon Liu (3):

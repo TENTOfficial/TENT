@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "snowgem/Proof.hpp"
+#include "zcash/Proof.hpp"
 
 #include <iostream>
 
@@ -7,7 +7,7 @@
 #include <libsnark/relations/constraint_satisfaction_problems/r1cs/examples/r1cs_examples.hpp>
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/r1cs_ppzksnark.hpp>
 
-using namespace libsnowgem;
+using namespace libzcash;
 
 typedef libsnark::default_r1cs_ppzksnark_pp curve_pp;
 typedef libsnark::default_r1cs_ppzksnark_pp::G1_type curve_G1;
@@ -241,7 +241,7 @@ TEST(proofs, sqrt_fq2)
 
 TEST(proofs, size_is_expected)
 {
-    ZCProof p;
+    PHGRProof p;
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << p;
 
@@ -444,7 +444,7 @@ TEST(proofs, zksnark_serializes_properly)
     auto vkprecomp = libsnark::r1cs_ppzksnark_verifier_process_vk(kp.vk);
 
     for (size_t i = 0; i < 20; i++) {
-        auto badproof = ZCProof::random_invalid();
+        auto badproof = PHGRProof::random_invalid();
         auto proof = badproof.to_libsnark_proof<libsnark::r1cs_ppzksnark_proof<curve_pp>>();
         
         auto verifierEnabled = ProofVerifier::Strict();
@@ -496,12 +496,12 @@ TEST(proofs, zksnark_serializes_properly)
             proof
         ));
 
-        ZCProof compressed_proof_0(proof);
+        PHGRProof compressed_proof_0(proof);
 
         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
         ss << compressed_proof_0;
 
-        ZCProof compressed_proof_1;
+        PHGRProof compressed_proof_1;
         ss >> compressed_proof_1;
 
         ASSERT_TRUE(compressed_proof_0 == compressed_proof_1);

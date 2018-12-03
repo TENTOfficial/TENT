@@ -9,6 +9,7 @@
 #include "masternodeconfig.h"
 #include "util.h"
 #include "ui_interface.h"
+#include "chainparamsbase.h"
 #include <base58.h>
 // clang-format on
 

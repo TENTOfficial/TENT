@@ -112,7 +112,7 @@ qa/pull-tester/test.*/*
 
 /doc/doxygen/
 
-libsnowgemconsensus.pc
+libzcashconsensus.pc
 
 contrib/debian/files
 contrib/debian/substvars

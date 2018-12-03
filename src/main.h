@@ -15,12 +15,14 @@
 #include "chainparams.h"
 #include "coins.h"
 #include "consensus/consensus.h"
+#include "consensus/upgrades.h"
 #include "net.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
 #include "script/script.h"
 #include "script/sigcache.h"
 #include "script/standard.h"
+#include "spentindex.h"
 #include "sync.h"
 #include "tinyformat.h"
 #include "txmempool.h"
@@ -45,6 +47,7 @@ class CInv;
 class CScriptCheck;
 class CValidationInterface;
 class CValidationState;
+class PrecomputedTransactionData;
 
 struct CNodeStateStats;
 
@@ -57,6 +60,8 @@ static const unsigned int DEFAULT_BLOCK_PRIORITY_SIZE = DEFAULT_BLOCK_MAX_SIZE /
 static const bool DEFAULT_ALERTS = true;
 /** Minimum alert priority for enabling safe mode. */
 static const int ALERT_PRIORITY_SAFE_MODE = 4000;
+/** Maximum reorg length we will accept before we shut down and alert the user. */
+static const unsigned int MAX_REORG_LENGTH = COINBASE_MATURITY - 1;
 /** Maximum number of signature check operations in an IsStandard() P2SH script */
 static const unsigned int MAX_P2SH_SIGOPS = 15;
 /** The maximum number of sigops we're willing to relay/mine in a single tx */
@@ -65,6 +70,8 @@ static const unsigned int MAX_STANDARD_TX_SIGOPS = MAX_BLOCK_SIGOPS/5;
 static const unsigned int DEFAULT_MIN_RELAY_TX_FEE = 100;
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
 static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
+/** Default for -txexpirydelta, in number of blocks */
+static const unsigned int DEFAULT_TX_EXPIRY_DELTA = 20;
 /** The maximum size of a blk?????.dat file (since 0.8) */
 static const unsigned int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB
 /** The pre-allocation chunk size for blk?????.dat files (since 0.8) */
@@ -93,6 +100,11 @@ static const unsigned int DATABASE_WRITE_INTERVAL = 60 * 60;
 static const unsigned int DATABASE_FLUSH_INTERVAL = 24 * 60 * 60;
 /** Maximum length of reject messages. */
 static const unsigned int MAX_REJECT_MESSAGE_LENGTH = 111;
+static const bool DEFAULT_ADDRESSINDEX = false;
+static const bool DEFAULT_TIMESTAMPINDEX = false;
+static const bool DEFAULT_SPENTINDEX = false;
+static const bool DEFAULT_DB_COMPRESSION = true;
+static const int64_t DEFAULT_MAX_TIP_AGE = 24 * 60 * 60;
 
 // Sanity check the magic numbers when we change them
 BOOST_STATIC_ASSERT(DEFAULT_BLOCK_MAX_SIZE <= MAX_BLOCK_SIZE);
@@ -107,6 +119,7 @@ struct BlockHasher
     size_t operator()(const uint256& hash) const { return hash.GetCheapHash(); }
 };
 
+extern unsigned int expiryDelta;
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
@@ -135,6 +148,7 @@ extern bool fCoinbaseEnforcedProtectionEnabled;
 extern size_t nCoinCacheUsage;
 extern CFeeRate minRelayTxFee;
 extern bool fAlerts;
+extern int64_t nMaxTipAge;
 extern std::map<uint256, int64_t> mapRejectedBlocks;
 extern std::map<COutPoint, COutPoint> mapInvalidOutPoints;
 /** Best header we've seen so far (used for getheaders queries' starting points). */
@@ -258,7 +272,8 @@ void PruneAndFlush();
 /** See whether the protocol update is enforced for connected nodes */
 int ActiveProtocol();
 /** (try to) add transaction to memory pool **/
-bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fRejectInsaneFee = false, bool ignoreFees = false);
+bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
+                        bool* pfMissingInputs, bool fRejectAbsurdFee=false, bool ignoreFees = false);
 
 bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fRejectInsaneFee = false, bool isDSTX = false);
 
@@ -274,6 +289,338 @@ struct CNodeStateStats {
     std::vector<int> vHeightInFlight;
 };
 
+struct CTimestampIndexIteratorKey {
+    unsigned int timestamp;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 4;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, timestamp);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        timestamp = ser_readdata32be(s);
+    }
+
+    CTimestampIndexIteratorKey(unsigned int time) {
+        timestamp = time;
+    }
+
+    CTimestampIndexIteratorKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        timestamp = 0;
+    }
+};
+
+struct CTimestampIndexKey {
+    unsigned int timestamp;
+    uint256 blockHash;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 36;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, timestamp);
+        blockHash.Serialize(s);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        timestamp = ser_readdata32be(s);
+        blockHash.Unserialize(s);
+    }
+
+    CTimestampIndexKey(unsigned int time, uint256 hash) {
+        timestamp = time;
+        blockHash = hash;
+    }
+
+    CTimestampIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        timestamp = 0;
+        blockHash.SetNull();
+    }
+};
+
+struct CTimestampBlockIndexKey {
+    uint256 blockHash;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 32;
+    }
+
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        blockHash.Serialize(s);
+    }
+
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        blockHash.Unserialize(s);
+    }
+
+    CTimestampBlockIndexKey(uint256 hash) {
+        blockHash = hash;
+    }
+
+    CTimestampBlockIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        blockHash.SetNull();
+    }
+};
+
+struct CTimestampBlockIndexValue {
+    unsigned int ltimestamp;
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 4;
+    }
+
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata32be(s, ltimestamp);
+    }
+
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        ltimestamp = ser_readdata32be(s);
+    }
+
+    CTimestampBlockIndexValue (unsigned int time) {
+        ltimestamp = time;
+    }
+
+    CTimestampBlockIndexValue() {
+        SetNull();
+    }
+
+    void SetNull() {
+        ltimestamp = 0;
+    }
+};
+
+struct CAddressUnspentKey {
+    unsigned int type;
+    uint160 hashBytes;
+    uint256 txhash;
+    size_t index;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 57;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata8(s, type);
+        hashBytes.Serialize(s);
+        txhash.Serialize(s);
+        ser_writedata32(s, index);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        type = ser_readdata8(s);
+        hashBytes.Unserialize(s);
+        txhash.Unserialize(s);
+        index = ser_readdata32(s);
+    }
+
+    CAddressUnspentKey(unsigned int addressType, uint160 addressHash, uint256 txid, size_t indexValue) {
+        type = addressType;
+        hashBytes = addressHash;
+        txhash = txid;
+        index = indexValue;
+    }
+
+    CAddressUnspentKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        type = 0;
+        hashBytes.SetNull();
+        txhash.SetNull();
+        index = 0;
+    }
+};
+
+struct CAddressUnspentValue {
+    CAmount satoshis;
+    CScript script;
+    int blockHeight;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(satoshis);
+        READWRITE(*(CScriptBase*)(&script));
+        READWRITE(blockHeight);
+    }
+
+    CAddressUnspentValue(CAmount sats, CScript scriptPubKey, int height) {
+        satoshis = sats;
+        script = scriptPubKey;
+        blockHeight = height;
+    }
+
+    CAddressUnspentValue() {
+        SetNull();
+    }
+
+    void SetNull() {
+        satoshis = -1;
+        script.clear();
+        blockHeight = 0;
+    }
+
+    bool IsNull() const {
+        return (satoshis == -1);
+    }
+};
+
+struct CAddressIndexKey {
+    unsigned int type;
+    uint160 hashBytes;
+    int blockHeight;
+    unsigned int txindex;
+    uint256 txhash;
+    size_t index;
+    bool spending;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 66;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata8(s, type);
+        hashBytes.Serialize(s);
+        // Heights are stored big-endian for key sorting in LevelDB
+        ser_writedata32be(s, blockHeight);
+        ser_writedata32be(s, txindex);
+        txhash.Serialize(s);
+        ser_writedata32(s, index);
+        char f = spending;
+        ser_writedata8(s, f);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        type = ser_readdata8(s);
+        hashBytes.Unserialize(s);
+        blockHeight = ser_readdata32be(s);
+        txindex = ser_readdata32be(s);
+        txhash.Unserialize(s);
+        index = ser_readdata32(s);
+        char f = ser_readdata8(s);
+        spending = f;
+    }
+
+    CAddressIndexKey(unsigned int addressType, uint160 addressHash, int height, int blockindex,
+                     uint256 txid, size_t indexValue, bool isSpending) {
+        type = addressType;
+        hashBytes = addressHash;
+        blockHeight = height;
+        txindex = blockindex;
+        txhash = txid;
+        index = indexValue;
+        spending = isSpending;
+    }
+
+    CAddressIndexKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        type = 0;
+        hashBytes.SetNull();
+        blockHeight = 0;
+        txindex = 0;
+        txhash.SetNull();
+        index = 0;
+        spending = false;
+    }
+
+};
+
+struct CAddressIndexIteratorKey {
+    unsigned int type;
+    uint160 hashBytes;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 21;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata8(s, type);
+        hashBytes.Serialize(s);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        type = ser_readdata8(s);
+        hashBytes.Unserialize(s);
+    }
+
+    CAddressIndexIteratorKey(unsigned int addressType, uint160 addressHash) {
+        type = addressType;
+        hashBytes = addressHash;
+    }
+
+    CAddressIndexIteratorKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        type = 0;
+        hashBytes.SetNull();
+    }
+};
+
+struct CAddressIndexIteratorHeightKey {
+    unsigned int type;
+    uint160 hashBytes;
+    int blockHeight;
+
+    size_t GetSerializeSize(int nType, int nVersion) const {
+        return 25;
+    }
+    template<typename Stream>
+    void Serialize(Stream& s) const {
+        ser_writedata8(s, type);
+        hashBytes.Serialize(s);
+        ser_writedata32be(s, blockHeight);
+    }
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        type = ser_readdata8(s);
+        hashBytes.Unserialize(s);
+        blockHeight = ser_readdata32be(s);
+    }
+
+    CAddressIndexIteratorHeightKey(unsigned int addressType, uint160 addressHash, int height) {
+        type = addressType;
+        hashBytes = addressHash;
+        blockHeight = height;
+    }
+
+    CAddressIndexIteratorHeightKey() {
+        SetNull();
+    }
+
+    void SetNull() {
+        type = 0;
+        hashBytes.SetNull();
+        blockHeight = 0;
+    }
+};
+
 struct CDiskTxPos : public CDiskBlockPos
 {
     unsigned int nTxOffset; // after header
@@ -281,7 +628,7 @@ struct CDiskTxPos : public CDiskBlockPos
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(*(CDiskBlockPos*)this);
         READWRITE(VARINT(nTxOffset));
     }
@@ -319,7 +666,7 @@ CAmount GetMinRelayFee(const CTransaction& tx, unsigned int nBytes, bool fAllowF
  * @param[in] mapInputs    Map of previous transactions that have outputs we're spending
  * @return True if all inputs (scriptSigs) use only standard transaction forms
  */
-bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs);
+bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs, uint32_t consensusBranchId);
 
 /** 
  * Count ECDSA signature operations the old-fashioned (pre-0.6) way
@@ -344,26 +691,50 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& ma
  * instead of being performed inline.
  */
 bool ContextualCheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                           unsigned int flags, bool cacheStore, const Consensus::Params& consensusParams,
+                           unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata,
+                           const Consensus::Params& consensusParams, uint32_t consensusBranchId,
                            std::vector<CScriptCheck> *pvChecks = NULL);
 
+/** Check a transaction contextually against a set of consensus rules */
+bool ContextualCheckTransaction(const CTransaction& tx, CValidationState &state, int nHeight, int dosLevel,
+                                bool (*isInitBlockDownload)() = IsInitialBlockDownload);
+
 /** Apply the effects of this transaction on the UTXO set represented by view */
-void UpdateCoins(const CTransaction& tx, CValidationState &state, CCoinsViewCache &inputs, int nHeight);
+void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
+
+/** Transaction validation functions */
 
 /** Context-independent validity checks */
-bool CheckTransaction(const CTransaction& tx, CValidationState& state, libsnowgem::ProofVerifier& verifier);
+bool CheckTransaction(const CTransaction& tx, CValidationState& state, libzcash::ProofVerifier& verifier);
 bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidationState &state);
 
 /** Check for standard transaction types
  * @return True if all outputs (scriptPubKeys) use only standard transaction forms
  */
-bool IsStandardTx(const CTransaction& tx, std::string& reason);
+bool IsStandardTx(const CTransaction& tx, std::string& reason, int nHeight = 0);
+
+namespace Consensus {
+
+/**
+ * Check whether all inputs of this transaction are valid (no double spends and amounts)
+ * This does not modify the UTXO set. This does not check scripts and sigs.
+ * Preconditions: tx.IsCoinBase() is false.
+ */
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams);
+
+} // namespace Consensus
 
 /**
  * Check if transaction is final and can be included in a block with the
  * specified height and time. Consensus critical.
  */
-bool IsFinalTx(const CTransaction& tx, int nBlockHeight = 0, int64_t nBlockTime = 0);
+bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime);
+
+/**
+ * Check if transaction is expired and can be included in a block with the
+ * specified height. Consensus critical.
+ */
+bool IsExpiredTx(const CTransaction &tx, int nBlockHeight);
 
 /**
  * Check if transaction will be final in the next block to be created.
@@ -383,32 +754,45 @@ class CScriptCheck
 {
 private:
     CScript scriptPubKey;
+    CAmount amount;
     const CTransaction *ptxTo;
     unsigned int nIn;
     unsigned int nFlags;
     bool cacheStore;
+    uint32_t consensusBranchId;
     ScriptError error;
+    PrecomputedTransactionData *txdata;
 
 public:
-    CScriptCheck(): ptxTo(0), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
-    CScriptCheck(const CCoins& txFromIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn) :
-        scriptPubKey(txFromIn.vout[txToIn.vin[nInIn].prevout.n].scriptPubKey),
-        ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR) { }
+    CScriptCheck(): amount(0), ptxTo(0), nIn(0), nFlags(0), cacheStore(false), consensusBranchId(0), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
+    CScriptCheck(const CCoins& txFromIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, uint32_t consensusBranchIdIn, PrecomputedTransactionData* txdataIn) :
+        scriptPubKey(txFromIn.vout[txToIn.vin[nInIn].prevout.n].scriptPubKey), amount(txFromIn.vout[txToIn.vin[nInIn].prevout.n].nValue),
+        ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), consensusBranchId(consensusBranchIdIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) { }
 
     bool operator()();
 
     void swap(CScriptCheck &check) {
         scriptPubKey.swap(check.scriptPubKey);
         std::swap(ptxTo, check.ptxTo);
+        std::swap(amount, check.amount);
         std::swap(nIn, check.nIn);
         std::swap(nFlags, check.nFlags);
         std::swap(cacheStore, check.cacheStore);
+        std::swap(consensusBranchId, check.consensusBranchId);
         std::swap(error, check.error);
+        std::swap(txdata, check.txdata);
     }
 
     ScriptError GetScriptError() const { return error; }
 };
 
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+bool GetAddressIndex(uint160 addressHash, int type,
+                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                     int start = 0, int end = 0);
+bool GetAddressUnspent(uint160 addressHash, int type,
+                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
 
 /** Functions for disk access for blocks */
 bool WriteBlockToDisk(CBlock& block, CDiskBlockPos& pos, const CMessageHeader::MessageStartChars& messageStart);
@@ -433,7 +817,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 /** Context-independent validity checks */
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool fCheckPOW = true);
 bool CheckBlock(const CBlock& block, CValidationState& state,
-                libsnowgem::ProofVerifier& verifier,
+                libzcash::ProofVerifier& verifier,
                 bool fCheckPOW = true, bool fCheckMerkleRoot = true);
 
 /** Context-dependent validity checks */
@@ -450,10 +834,20 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
  * If dbp is non-NULL, the file is known to already reside on disk
  */
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp = NULL);
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp);
 bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
 
 
+
+/**
+ * When there are blocks in the active chain with missing data (e.g. if the
+ * activation height and branch ID of a particular upgrade have been altered),
+ * rewind the chainstate and remove them from the block index.
+ *
+ * clearWitnessCaches is an output parameter that will be set to true iff
+ * witness caches should be cleared in order to handle an intended long rewind.
+ */
+bool RewindBlockIndex(const CChainParams& params, bool& clearWitnessCaches);
 
 class CBlockFileInfo
 {
@@ -469,7 +863,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(VARINT(nBlocks));
         READWRITE(VARINT(nSize));
         READWRITE(VARINT(nUndoSize));
@@ -544,8 +938,7 @@ extern CSporkDB* pSporkDB;
  */
 int GetSpendHeight(const CCoinsViewCache& inputs);
 
-namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams);
-}
+/** Return a CMutableTransaction with contextual default values based on set of consensus rules at height */
+CMutableTransaction CreateNewContextualCMutableTransaction(const Consensus::Params& consensusParams, int nHeight);
 
 #endif // BITCOIN_MAIN_H

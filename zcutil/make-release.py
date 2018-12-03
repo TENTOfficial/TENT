@@ -220,7 +220,7 @@ def build():
         'Staging libgmp...',
         'Staging libsodium...',
         "Leaving directory '%s'" % depends_dir,
-        'config.status: creating libsnowgemconsensus.pc',
+        'config.status: creating libzcashconsensus.pc',
         "Entering directory '%s'" % src_dir,
         'httpserver.cpp',
         'torcontrol.cpp',

@@ -17,6 +17,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "key_io.h"
+
 /** Object for who's going to get paid on which blocks */
 CMasternodePayments masternodePayments;
 
@@ -300,8 +302,18 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     CAmount blockValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
     CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue);
     CAmount minerValue = blockValue;
-    // Founders reward is 5% of the block subsidy
-    CAmount vFoundersReward = blockValue / 20;
+    
+    // Founders reward
+    CAmount vFoundersReward = 0;
+    if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
+    {
+        vFoundersReward = blockValue / 20;
+    }
+    else
+    {
+        vFoundersReward = blockValue * 7.5 / 100;
+    }
+    
 
     if(hasPayment){
         minerValue -= masternodePayment;
@@ -323,9 +335,8 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
 
         CTxDestination address1;
         ExtractDestination(payee, address1);
-        CBitcoinAddress address2(address1);
 
-        LogPrint("masternode","Masternode payment to %s\n", address2.ToString().c_str());
+        LogPrint("masternode","Masternode payment to %s\n", EncodeDestination(address1));
     }
 
 }
@@ -412,9 +423,8 @@ void CMasternodePayments::ProcessMessageMasternodePayments(CNode* pfrom, std::st
 
         CTxDestination address1;
         ExtractDestination(winner.payee, address1);
-        CBitcoinAddress address2(address1);
 
-        //   LogPrint("mnpayments", "mnw - winning vote - Addr %s Height %d bestHeight %d - %s\n", address2.ToString().c_str(), winner.nBlockHeight, nHeight, winner.vinMasternode.prevout.ToStringShort());
+        //   LogPrint("mnpayments", "mnw - winning vote - Addr %s Height %d bestHeight %d - %s\n", EncodeDestination(address1), winner.nBlockHeight, nHeight, winner.vinMasternode.prevout.ToStringShort());
 
         if (masternodePayments.AddWinningMasternode(winner)) {
             winner.Relay();
@@ -564,12 +574,11 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
 		try {
 			CTxDestination address1;
 			ExtractDestination(payee.scriptPubKey, address1);
-			CBitcoinAddress address2(address1);
 
 			if (strPayeesPossible == "") {
-				strPayeesPossible += address2.ToString();
+				strPayeesPossible += EncodeDestination(address1);
 			} else {
-				strPayeesPossible += "," + address2.ToString();
+				strPayeesPossible += "," + EncodeDestination(address1);
 			}
         } catch (...) { }
     }
@@ -587,12 +596,11 @@ std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
     BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
         CTxDestination address1;
         ExtractDestination(payee.scriptPubKey, address1);
-        CBitcoinAddress address2(address1);
 
         if (ret != "Unknown") {
-            ret += ", " + address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.nVotes);
+            ret += ", " + EncodeDestination(address1) + ":" + boost::lexical_cast<std::string>(payee.nVotes);
         } else {
-            ret = address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.nVotes);
+            ret = EncodeDestination(address1) + ":" + boost::lexical_cast<std::string>(payee.nVotes);
         }
     }
 
@@ -726,9 +734,8 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 
             CTxDestination address1;
             ExtractDestination(payee, address1);
-            CBitcoinAddress address2(address1);
 
-            LogPrint("masternode","CMasternodePayments::ProcessBlock() Winner payee %s nHeight %d. \n", address2.ToString().c_str(), newWinner.nBlockHeight);
+            LogPrint("masternode","CMasternodePayments::ProcessBlock() Winner payee %s nHeight %d. \n", EncodeDestination(address1), newWinner.nBlockHeight);
         } else {
             LogPrint("masternode","CMasternodePayments::ProcessBlock() Failed to find masternode to pay\n");
         }

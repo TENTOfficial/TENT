@@ -29,7 +29,7 @@ Sean Bowe (49):
       Distinguish the failure cases of wfcheck in tree.
       Change ciphertext length to match protocol spec, and refactor the use of constants.
       Initialize libsodium in the gtest suite.
-      Introduce new `libsnowgem` Snowgem protocol API and crypto constructions surrounding the zkSNARK circuit.
+      Introduce new `libzcash` Snowgem protocol API and crypto constructions surrounding the zkSNARK circuit.
       zkSNARK: Foundations of circuit design and verification logic.
       zkSNARK: Add "zero" constant variable.
       zkSNARK: Enforce spend-authority of input notes.
@@ -40,9 +40,9 @@ Sean Bowe (49):
       zkSNARK: Ensure that values balance correctly.
       zkSNARK: Witness commitments to input notes.
       zkSNARK: Enforce merkle authentication path from nonzero-valued public inputs to root.
-      libsnowgem: Add tests for API
+      libzcash: Add tests for API
       Remove scriptPubKey/scriptSig from CPourTx, and add randomSeed.
-      Transplant of libsnowgem.
+      Transplant of libzcash.
       Added public zkSNARK parameter generation utility.
       Stop testing old tree against new tree.
       Remove nearly all of libzerocash.

@@ -4,7 +4,7 @@
 #include "utilmoneystr.h"
 #include "chainparams.h"
 #include "utilstrencodings.h"
-#include "snowgem/Address.hpp"
+#include "zcash/Address.hpp"
 #include "wallet/wallet.h"
 #include "amount.h"
 #include <memory>
@@ -24,7 +24,6 @@
 //
 #if 0
 TEST(founders_reward_test, create_testnet_2of3multisig) {
-    ECC_Start();
     SelectParams(CBaseChainParams::TESTNET);
     boost::filesystem::path pathTemp = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
     boost::filesystem::create_directories(pathTemp);
@@ -59,7 +58,7 @@ TEST(founders_reward_test, create_testnet_2of3multisig) {
         pWallet->AddCScript(result);
         pWallet->SetAddressBook(innerID, "", "receive");
 
-        std::string address = CBitcoinAddress(innerID).ToString();
+        std::string address = EncodeDestination(innerID);
         addresses.push_back(address);
     }
     
@@ -80,8 +79,6 @@ TEST(founders_reward_test, create_testnet_2of3multisig) {
     std::cout << s << std::endl;
 
     pWallet->Flush(true);
-
-    ECC_Stop();
 }
 #endif
 
@@ -106,11 +103,11 @@ TEST(founders_reward_test, general) {
     // address = t2ENg7hHVqqs9JwU5cgjvSbxnT2a9USNfhy
     // script.ToString() = OP_HASH160 55d64928e69829d9376c776550b6cc710d427153 OP_EQUAL
     // HexStr(script) = a91455d64928e69829d9376c776550b6cc710d42715387
-    EXPECT_EQ(params.GetFoundersRewardScriptAtHeight(1), ParseHex("a914ef775f1f997f122a062fff1a2d7443abd1f9c64287"));
+    EXPECT_EQ(HexStr(params.GetFoundersRewardScriptAtHeight(1)), "a914ef775f1f997f122a062fff1a2d7443abd1f9c64287");
     EXPECT_EQ(params.GetFoundersRewardAddressAtHeight(1), "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi");
-    EXPECT_EQ(params.GetFoundersRewardScriptAtHeight(53126), ParseHex("a914ac67f4c072668138d88a86ff21b27207b283212f87"));
+    EXPECT_EQ(HexStr(params.GetFoundersRewardScriptAtHeight(53126)), "a914ac67f4c072668138d88a86ff21b27207b283212f87");
     EXPECT_EQ(params.GetFoundersRewardAddressAtHeight(53126), "t2NGQjYMQhFndDHguvUw4wZdNdsssA6K7x2");
-    EXPECT_EQ(params.GetFoundersRewardScriptAtHeight(53127), ParseHex("a91455d64928e69829d9376c776550b6cc710d42715387"));
+    EXPECT_EQ(HexStr(params.GetFoundersRewardScriptAtHeight(53127)), "a91455d64928e69829d9376c776550b6cc710d42715387");
     EXPECT_EQ(params.GetFoundersRewardAddressAtHeight(53127), "t2ENg7hHVqqs9JwU5cgjvSbxnT2a9USNfhy");
 
     int maxHeight = params.GetConsensus().GetLastFoundersRewardBlockHeight();

@@ -16,10 +16,6 @@
 
 #include "sodium.h"
 
-#ifdef ENABLE_RUST
-#include "librustsnowgem.h"
-#endif // ENABLE_RUST
-
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     const CChainParams& chainParams = Params();
@@ -34,6 +30,20 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         && pindexLast->nHeight < chainParams.eh_epoch_1_end()) {
         LogPrint("pow", "Reset the difficulty for the eh_epoch_2 algo change: %d\n", nProofOfWorkLimit);
         return nProofOfWorkLimit;
+    }
+
+	{
+        // Comparing to pindexLast->nHeight with >= because this function
+        // returns the work required for the block after pindexLast.
+        if (params.nPowAllowMinDifficultyBlocksAfterHeight != boost::none &&
+            pindexLast->nHeight >= params.nPowAllowMinDifficultyBlocksAfterHeight.get())
+        {
+            // Special difficulty rule for testnet:
+            // If the new block's timestamp is more than 6 * 2.5 minutes
+            // then allow mining of a min-difficulty block.
+            if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing * 6)
+                return nProofOfWorkLimit;
+        }
     }
 
     // Find the first block in the averaging interval
@@ -120,14 +130,6 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
 
     // H(I||V||...
     crypto_generichash_blake2b_update(&state, (unsigned char*)&ss[0], ss.size());
-
-    #ifdef ENABLE_RUST
-    // Ensure that our Rust interactions are working in production builds. This is
-    // temporary and should be removed.
-    {
-        assert(librustsnowgem_xor(0x0f0f0f0f0f0f0f0f, 0x1111111111111111) == 0x1e1e1e1e1e1e1e1e);
-    }
-    #endif // ENABLE_RUST
 
     bool isValid;
     EhIsValidSolution(n, k, state, pblock->nSolution, isValid);

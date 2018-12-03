@@ -5,6 +5,7 @@
 
 #ifndef BITCOIN_SNOWGEMCONSENSUS_H
 #define BITCOIN_SNOWGEMCONSENSUS_H
+#include <stdint.h>
 
 #if defined(BUILD_BITCOIN_INTERNAL) && defined(HAVE_CONFIG_H)
 #include "config/bitcoin-config.h"
@@ -19,7 +20,7 @@
   #elif defined(HAVE_FUNC_ATTRIBUTE_VISIBILITY)
     #define EXPORT_SYMBOL __attribute__ ((visibility ("default")))
   #endif
-#elif defined(MSC_VER) && !defined(STATIC_LIBSNOWGEMCONSENSUS)
+#elif defined(MSC_VER) && !defined(STATIC_libzcashCONSENSUS)
   #define EXPORT_SYMBOL __declspec(dllimport)
 #endif
 

@@ -17,6 +17,7 @@
 #include "utiltime.h"
 
 #include <stdarg.h>
+#include <stdio.h>
 
 #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
 #include <pthread.h>
@@ -142,7 +143,7 @@ void locking_callback(int mode, int i, const char* file, int line) NO_THREAD_SAF
 }
 
 // Init
-class CInit
+static class CInit
 {
 public:
     CInit()
@@ -196,6 +197,20 @@ static boost::once_flag debugPrintInitFlag = BOOST_ONCE_INIT;
 static FILE* fileout = NULL;
 static boost::mutex* mutexDebugLog = NULL;
 static list<string> *vMsgsBeforeOpenLog;
+
+[[noreturn]] void new_handler_terminate()
+{
+    // Rather than throwing std::bad-alloc if allocation fails, terminate
+    // immediately to (try to) avoid chain corruption.
+    // Since LogPrintf may itself allocate memory, set the handler directly
+    // to terminate first.
+    std::set_new_handler(std::terminate);
+    fputs("Error: Out of memory. Terminating.\n", stderr);
+    LogPrintf("Error: Out of memory. Terminating.\n");
+
+    // The log was successful, terminate now.
+    std::terminate();
+};
 
 static int FileWriteStr(const std::string &str, FILE *fp)
 {
@@ -504,7 +519,7 @@ static boost::filesystem::path ZC_GetBaseParamsDir()
     // Unix: ~/.snowgem-params
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "SnowgemParams";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "ZcashParams";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -516,10 +531,10 @@ static boost::filesystem::path ZC_GetBaseParamsDir()
     // Mac
     pathRet /= "Library/Application Support";
     TryCreateDirectory(pathRet);
-    return pathRet / "SnowgemParams";
+    return pathRet / "ZcashParams";
 #else
     // Unix
-    return pathRet / ".snowgem-params";
+    return pathRet / ".zcash-params";
 #endif
 #endif
 }

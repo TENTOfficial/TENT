@@ -46,7 +46,7 @@ Simon (21):
       Update comment.
       Extend try catch block around calls to libsnark, per discussion in #1126.
       Remove GetSerializeHash() method.
-      Use -O1 opimitization flag when building libsnowgem. Continuation of #1064 and related to #1168.
+      Use -O1 opimitization flag when building libzcash. Continuation of #1064 and related to #1168.
       Add test for non-malleable txids.  To run just this test: ./snowgem-gtest --gtest_filter="txid_tests*"
 
 Taylor Hornby (8):
@@ -56,6 +56,6 @@ Taylor Hornby (8):
       Add tests for security hardening features
       Pull in upstream's make check-security, based on upstream PR #6854 and #7424.
       Make security options in configure.ac fail if unavailable.
-      Put hardened stuff in libsnowgem CPPFLAGS.
+      Put hardened stuff in libzcash CPPFLAGS.
       Add more commands to run unit tests under valgrind.
 

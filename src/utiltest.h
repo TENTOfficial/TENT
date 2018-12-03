@@ -4,16 +4,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "wallet/wallet.h"
-#include "snowgem/JoinSplit.hpp"
-#include "snowgem/Note.hpp"
-#include "snowgem/NoteEncryption.hpp"
+#include "zcash/JoinSplit.hpp"
+#include "zcash/Note.hpp"
+#include "zcash/NoteEncryption.hpp"
 
 CWalletTx GetValidReceive(ZCJoinSplit& params,
-                          const libsnowgem::SpendingKey& sk, CAmount value,
-                          bool randomInputs);
-libsnowgem::Note GetNote(ZCJoinSplit& params,
-                       const libsnowgem::SpendingKey& sk,
+                          const libzcash::SproutSpendingKey& sk, CAmount value,
+                          bool randomInputs,
+                          int32_t version = 2);
+libzcash::SproutNote GetNote(ZCJoinSplit& params,
+                       const libzcash::SproutSpendingKey& sk,
                        const CTransaction& tx, size_t js, size_t n);
 CWalletTx GetValidSpend(ZCJoinSplit& params,
-                        const libsnowgem::SpendingKey& sk,
-                        const libsnowgem::Note& note, CAmount value);
+                        const libzcash::SproutSpendingKey& sk,
+                        const libzcash::SproutNote& note, CAmount value);

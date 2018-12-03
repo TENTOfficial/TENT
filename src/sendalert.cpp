@@ -79,7 +79,7 @@ void ThreadSendAlert()
     // These versions are protocol versions
     // 170004 : 2.0.0
     alert.nMinVer       = 170004;
-    alert.nMaxVer       = 170004;
+    alert.nMaxVer       = 170006;
 
     //
     // main.cpp:
@@ -89,15 +89,14 @@ void ThreadSendAlert()
     //  4000 or higher will put the RPC into safe mode
     alert.nPriority     = 4000;
     alert.strComment    = "";
-    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Snowgem (2.0.0 or later). More info at: https://github.com/Snowgem/Snowgem/blob/master/README.md.";
+    alert.strStatusBar  = "Your client is out of date and incompatible with the Overwinter network upgrade. Please update to a recent version of Zcash (1.1.0 or later).";
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
     // alert.setSubVer.insert(std::string("/MagicBean:0.7.2/"));
-    const std::vector<std::string> useragents = {"MagicBean", "BeanStalk", "AppleSeed", "EleosSnowgem"};
+    const std::vector<std::string> useragents = {}; //{"MagicBean", "BeanStalk", "AppleSeed", "EleosZcash"};
 
     BOOST_FOREACH(const std::string& useragent, useragents) {
-        alert.setSubVer.insert(std::string("/"+useragent+":1.0.10/"));
     }
 
     // Sanity check

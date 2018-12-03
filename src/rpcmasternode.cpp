@@ -12,8 +12,9 @@
 #include "masternode-payments.h"
 #include "masternodeconfig.h"
 #include "masternodeman.h"
-#include "rpcserver.h"
+#include "rpc/server.h"
 #include "utilmoneystr.h"
+#include "key_io.h"
 
 #include <boost/tokenizer.hpp>
 
@@ -84,8 +85,9 @@ UniValue obfuscation(const UniValue& params, bool fHelp)
             "<amount> is a real and will be rounded to the next 0.1" +
             HelpRequiringPassphrase());
 
-    CBitcoinAddress address(params[0].get_str());
-    if (!address.IsValid())
+    std::string strAddress = params[0].get_str();
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SnowGem address");
 
     // Amount
@@ -94,7 +96,7 @@ UniValue obfuscation(const UniValue& params, bool fHelp)
     // Wallet comments
     CWalletTx wtx;
     //    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx, ONLY_DENOMINATED);
-    SendMoney(address.Get(), nAmount, wtx, ONLY_DENOMINATED);
+    SendMoney(dest, nAmount, wtx, ONLY_DENOMINATED);
     //    if (strError != "")
     //        throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
@@ -302,7 +304,7 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
     std::vector<pair<int, CMasternode> > vMasternodeRanks = mnodeman.GetMasternodeRanks(nHeight);
     BOOST_FOREACH (PAIRTYPE(int, CMasternode) & s, vMasternodeRanks) {
         UniValue obj(UniValue::VOBJ);
-        std::string strVin = s.second.vin.prevout.ToStringShort();
+        //std::string strVin = s.second.vin.prevout.ToStringShort();
         std::string strTxHash = s.second.vin.prevout.hash.ToString();
         uint32_t oIdx = s.second.vin.prevout.n;
 
@@ -311,7 +313,7 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
         if (mn != NULL) {
             if (strFilter != "" && strTxHash.find(strFilter) == string::npos &&
                 mn->Status().find(strFilter) == string::npos &&
-                CBitcoinAddress(mn->pubKeyCollateralAddress.GetID()).ToString().find(strFilter) == string::npos) continue;
+                EncodeDestination(mn->pubKeyCollateralAddress.GetID()).find(strFilter) == string::npos) continue;
 
             std::string strStatus = mn->Status();
             std::string strHost;
@@ -326,7 +328,7 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
             obj.push_back(Pair("txhash", strTxHash));
             obj.push_back(Pair("outidx", (uint64_t)oIdx));
             obj.push_back(Pair("status", strStatus));
-            obj.push_back(Pair("addr", CBitcoinAddress(mn->pubKeyCollateralAddress.GetID()).ToString()));
+            obj.push_back(Pair("addr", EncodeDestination(mn->pubKeyCollateralAddress.GetID())));
             obj.push_back(Pair("version", mn->protocolVersion));
             obj.push_back(Pair("lastseen", (int64_t)mn->lastPing.sigTime));
             obj.push_back(Pair("activetime", (int64_t)(mn->lastPing.sigTime - mn->sigTime)));
@@ -474,7 +476,7 @@ UniValue masternodecurrent (const UniValue& params, bool fHelp)
 
         obj.push_back(Pair("protocol", (int64_t)winner->protocolVersion));
         obj.push_back(Pair("txhash", winner->vin.prevout.hash.ToString()));
-        obj.push_back(Pair("pubkey", CBitcoinAddress(winner->pubKeyCollateralAddress.GetID()).ToString()));
+        obj.push_back(Pair("pubkey", EncodeDestination(winner->pubKeyCollateralAddress.GetID())));
         obj.push_back(Pair("lastseen", (winner->lastPing == CMasternodePing()) ? winner->sigTime : (int64_t)winner->lastPing.sigTime));
         obj.push_back(Pair("activeseconds", (winner->lastPing == CMasternodePing()) ? 0 : (int64_t)(winner->lastPing.sigTime - winner->sigTime)));
         return obj;
@@ -499,7 +501,7 @@ UniValue masternodedebug (const UniValue& params, bool fHelp)
         return activeMasternode.GetStatus();
 
     CTxIn vin = CTxIn();
-    CPubKey pubkey = CScript();
+    CPubKey pubkey = CPubKey();
     CKey key;
     if (!activeMasternode.GetMasterNodeVin(vin, pubkey, key))
         throw runtime_error("Missing masternode input, please look at the documentation for instructions on masternode creation\n");
@@ -721,7 +723,7 @@ UniValue createmasternodekey (const UniValue& params, bool fHelp)
     CKey secret;
     secret.MakeNewKey(false);
 
-    return CBitcoinSecret(secret).ToString();
+    return EncodeSecret(secret);
 }
 
 UniValue getmasternodeoutputs (const UniValue& params, bool fHelp)
@@ -848,7 +850,7 @@ UniValue getmasternodestatus (const UniValue& params, bool fHelp)
         mnObj.push_back(Pair("txhash", activeMasternode.vin.prevout.hash.ToString()));
         mnObj.push_back(Pair("outputidx", (uint64_t)activeMasternode.vin.prevout.n));
         mnObj.push_back(Pair("netaddr", activeMasternode.service.ToString()));
-        mnObj.push_back(Pair("addr", CBitcoinAddress(pmn->pubKeyCollateralAddress.GetID()).ToString()));
+        mnObj.push_back(Pair("addr", EncodeDestination(pmn->pubKeyCollateralAddress.GetID())));
         mnObj.push_back(Pair("status", activeMasternode.status));
         mnObj.push_back(Pair("message", activeMasternode.GetStatus()));
         return mnObj;

@@ -2,7 +2,7 @@ Alex (1):
       add sha256sum support for Mac OS X
 
 Alfie John (1):
-      Rename libzerocash to libsnowgem
+      Rename libzerocash to libzcash
 
 Jack Grigg (21):
       Implement mining slow start with a linear ramp

@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "clientversion.h"
-#include "rpcserver.h"
+#include "rpc/server.h"
 #include "init.h"
 #include "main.h"
 #include "masternodeconfig.h"
@@ -13,7 +13,6 @@
 #include "util.h"
 #include "httpserver.h"
 #include "httprpc.h"
-#include "rpcserver.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -89,7 +88,7 @@ bool AppInit(int argc, char* argv[])
         }
 
         fprintf(stdout, "%s", strUsage.c_str());
-        return false;
+        return true;
     }
 
     try
@@ -146,7 +145,7 @@ bool AppInit(int argc, char* argv[])
         if (fCommandLine)
         {
             fprintf(stderr, "Error: There is no RPC client functionality in snowgemd. Use the snowgem-cli utility instead.\n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 #ifndef WIN32
         fDaemon = GetBoolArg("-daemon", false);

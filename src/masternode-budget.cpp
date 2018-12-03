@@ -17,6 +17,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "key_io.h"
+
 CBudgetManager budget;
 CCriticalSection cs_budget;
 
@@ -29,7 +31,7 @@ int nSubmittedFinalBudget;
 int GetBudgetPaymentCycleBlocks()
 {
     // Amount of blocks in a months period of time (using 1 minutes per block) = (60*24*30)
-    if (NetworkIdFromCommandLine() == CBaseChainParams::MAIN) return 43200;
+    if (NetworkIdFromCommandLine() == CBaseChainParams::MAIN) return 4070908800; //OFF in mainnet
     //for testing purposes
 
     return 144; //ten times per day
@@ -521,7 +523,16 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
 
     if ((pindexPrev->nHeight + 1 > 0) && (pindexPrev->nHeight + 1 <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
         // Founders reward is 5% of the block subsidy
-        auto vFoundersReward = txNew.vout[0].nValue / 20;
+        CAmount vFoundersReward = 0;
+        
+        if(pindexPrev->nHeight + 1 < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
+        {
+            vFoundersReward = txNew.vout[0].nValue / 20;
+        }
+        else
+        {
+            vFoundersReward = txNew.vout[0].nValue * 7.5 / 100;
+        }
         // Take some reward away from us
         txNew.vout[0].nValue -= vFoundersReward;
 
@@ -536,9 +547,8 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
 
         CTxDestination address1;
         ExtractDestination(payee, address1);
-        CBitcoinAddress address2(address1);
 
-        LogPrintf("Masternode payment to %s\n", address2.ToString().c_str());
+        LogPrintf("Masternode payment to %s\n", EncodeDestination(address1));
     }
 }
 
@@ -1986,10 +1996,9 @@ bool CFinalizedBudget::IsTransactionValid(const CTransaction& txNew, int nBlockH
     if (!found) {
         CTxDestination address1;
         ExtractDestination(vecBudgetPayments[nCurrentBudgetPayment].payee, address1);
-        CBitcoinAddress address2(address1);
 
         LogPrint("masternode","CFinalizedBudget::IsTransactionValid - Missing required payment - %s: %d c: %d\n",
-                  address2.ToString(), vecBudgetPayments[nCurrentBudgetPayment].nAmount, nCurrentBudgetPayment);
+                  EncodeDestination(address1), vecBudgetPayments[nCurrentBudgetPayment].nAmount, nCurrentBudgetPayment);
     }
 
     return found;

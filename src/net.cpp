@@ -7,6 +7,7 @@
 #include "config/bitcoin-config.h"
 #endif
 
+#include "main.h"
 #include "net.h"
 
 #include "addrman.h"
@@ -73,6 +74,7 @@ static std::vector<ListenSocket> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
+std::string strSubVersion;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -82,10 +84,10 @@ CCriticalSection cs_mapRelay;
 limitedmap<CInv, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static deque<string> vOneShots;
-CCriticalSection cs_vOneShots;
+static CCriticalSection cs_vOneShots;
 
-set<CNetAddr> setservAddNodeAddresses;
-CCriticalSection cs_setservAddNodeAddresses;
+static set<CNetAddr> setservAddNodeAddresses;
+static CCriticalSection cs_setservAddNodeAddresses;
 
 vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
@@ -94,7 +96,7 @@ NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
 static CSemaphore *semOutbound = NULL;
-boost::condition_variable messageHandlerCondition;
+static boost::condition_variable messageHandlerCondition;
 
 // Signals for message handling
 static CNodeSignals g_signals;
@@ -438,7 +440,7 @@ void CNode::PushVersion()
     else
         LogPrint("net", "send version message: version %d, blocks=%d, us=%s, peer=%d\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString(), id);
     PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
-                nLocalHostNonce, FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>()), nBestHeight, true);
+                nLocalHostNonce, strSubVersion, nBestHeight, true);
 }
 
 
@@ -538,24 +540,22 @@ void CNode::AddWhitelistedRange(const CSubNet &subnet) {
     vWhitelistedRange.push_back(subnet);
 }
 
-#undef X
-#define X(name) stats.name = name
 void CNode::copyStats(CNodeStats &stats)
 {
     stats.nodeid = this->GetId();
-    X(nServices);
-    X(nLastSend);
-    X(nLastRecv);
-    X(nTimeConnected);
-    X(nTimeOffset);
-    X(addrName);
-    X(nVersion);
-    X(cleanSubVer);
-    X(fInbound);
-    X(nStartingHeight);
-    X(nSendBytes);
-    X(nRecvBytes);
-    X(fWhitelisted);
+    stats.nServices = nServices;
+    stats.nLastSend = nLastSend;
+    stats.nLastRecv = nLastRecv;
+    stats.nTimeConnected = nTimeConnected;
+    stats.nTimeOffset = nTimeOffset;
+    stats.addrName = addrName;
+    stats.nVersion = nVersion;
+    stats.cleanSubVer = cleanSubVer;
+    stats.fInbound = fInbound;
+    stats.nStartingHeight = nStartingHeight;
+    stats.nSendBytes = nSendBytes;
+    stats.nRecvBytes = nRecvBytes;
+    stats.fWhitelisted = fWhitelisted;
 
     // It is common for nodes with good ping times to suddenly become lagged,
     // due to a new block arriving or other large transfer.
@@ -575,7 +575,6 @@ void CNode::copyStats(CNodeStats &stats)
     // Leave string empty if addrLocal invalid (not filled in yet)
     stats.addrLocal = addrLocal.IsValid() ? addrLocal.ToString() : "";
 }
-#undef X
 
 // requires LOCK(cs_vRecvMsg)
 bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes)
@@ -815,6 +814,38 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
     if (vEvictionCandidates.empty()) return false;
 
     // Protect connections with certain characteristics
+
+    // Check version of eviction candidates and prioritize nodes which do not support network upgrade.
+    std::vector<CNodeRef> vTmpEvictionCandidates;
+    int height;
+    {
+        LOCK(cs_main);
+        height = chainActive.Height();
+    }
+
+    const Consensus::Params& params = Params().GetConsensus();
+    auto nextEpoch = NextEpoch(height, params);
+    if (nextEpoch) {
+        auto idx = nextEpoch.get();
+        int nActivationHeight = params.vUpgrades[idx].nActivationHeight;
+
+        if (nActivationHeight > 0 &&
+            height < nActivationHeight &&
+            height >= nActivationHeight - NETWORK_UPGRADE_PEER_PREFERENCE_BLOCK_PERIOD)
+        {
+            // Find any nodes which don't support the protocol version for the next upgrade
+            for (const CNodeRef &node : vEvictionCandidates) {
+                if (node->nVersion < params.vUpgrades[idx].nProtocolVersion) {
+                    vTmpEvictionCandidates.push_back(node);
+                }
+            }
+
+            // Prioritize these nodes by replacing eviction set with them
+            if (vTmpEvictionCandidates.size() > 0) {
+                vEvictionCandidates = vTmpEvictionCandidates;
+            }
+        }
+    }
 
     // Deterministically select 4 peers to protect by netgroup.
     // An attacker cannot predict which netgroups will be protected.
@@ -1783,7 +1814,7 @@ bool StopNode()
     return true;
 }
 
-class CNetCleanup
+static class CNetCleanup
 {
 public:
     CNetCleanup() {}

@@ -80,9 +80,9 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
-        READWRITE(scriptPubKey);
+        READWRITE(*(CScriptBase*)(&scriptPubKey));
         READWRITE(nVotes);
     }
 };
@@ -152,7 +152,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nBlockHeight);
         READWRITE(vecPayments);
@@ -186,7 +186,7 @@ public:
     uint256 GetHash()
     {
         CHashWriter ss(SER_GETHASH, PROTOCOL_VERSION);
-        ss << payee;
+        ss << *(CScriptBase*)(&payee);
         ss << nBlockHeight;
         ss << vinMasternode.prevout;
 
@@ -207,11 +207,11 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(vinMasternode);
         READWRITE(nBlockHeight);
-        READWRITE(payee);
+        READWRITE(*(CScriptBase*)(&payee));
         READWRITE(vchSig);
     }
 
@@ -292,7 +292,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(mapMasternodePayeeVotes);
         READWRITE(mapMasternodeBlocks);

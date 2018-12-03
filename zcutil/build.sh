@@ -33,12 +33,9 @@ if [[ -z "${HOST-}" ]]; then
     HOST="$BUILD"
 fi
 
-# Allow override to $CC and $CXX for porters. Most users will not need it.
-if [[ -z "${CC-}" ]]; then
-    CC=gcc
-fi
-if [[ -z "${CXX-}" ]]; then
-    CXX=g++
+# Allow users to set arbitrary compile flags. Most users will not need this.
+if [[ -z "${CONFIGURE_FLAGS-}" ]]; then
+    CONFIGURE_FLAGS=""
 fi
 
 if [ "x$*" = 'x--help' ]
@@ -65,10 +62,7 @@ $0 [ --enable-lcov || --disable-tests ] [ --disable-mining ] [ --disable-rust ] 
 
   If --enable-proton is passed, Snowgem is configured to build the Apache Qpid Proton
   library required for AMQP support. This library is not built by default.
-  It must be passed after the test/mining/Rust arguments, if present.
-
-  If --disable-libs is passed, Snowgem is configured to not build any libraries like
-  'libsnowgemconsensus'.
+  It must be passed after the test/mining arguments, if present.
 EOF
     exit 0
 fi
@@ -98,14 +92,6 @@ then
     shift
 fi
 
-# If --disable-rust is the next argument, disable Rust code:
-RUST_ARG=''
-if [ "x${1:-}" = 'x--disable-rust' ]
-then
-    RUST_ARG='--enable-rust=no'
-    shift
-fi
-
 # If --enable-proton is the next argument, enable building Proton code:
 PROTON_ARG='--enable-proton=no'
 if [ "x${1:-}" = 'x--enable-proton' ]
@@ -114,23 +100,11 @@ then
     shift
 fi
 
-# If --disable-libs is the next argument, build without libs:
-LIBS_ARG=''
-if [ "x${1:-}" = 'x--disable-libs' ]
-then
-    LIBS_ARG='--without-libs'
-    shift
-fi
-
-PREFIX="$(pwd)/depends/$BUILD/"
-
 eval "$MAKE" --version
-eval "$CC" --version
-eval "$CXX" --version
 as --version
 ld -v
 
-HOST="$HOST" BUILD="$BUILD" NO_RUST="$RUST_ARG" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
+HOST="$HOST" BUILD="$BUILD" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
-CC="$CC" CXX="$CXX" ./configure --prefix="${PREFIX}" --host="$HOST" --build="$BUILD" "$RUST_ARG" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" --enable-werror CXXFLAGS='-g'
+CONFIG_SITE="$PWD/depends/$HOST/share/config.site" ./configure "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g'
 "$MAKE" "$@" V=1

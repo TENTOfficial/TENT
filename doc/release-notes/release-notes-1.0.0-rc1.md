@@ -80,10 +80,10 @@ Kevin Gallagher (24):
       Include contrib/devtools/split-debug.sh from upstream
       Adds faketime to Gitian build dependencies
       Inlude crypto/equihash.tcc in list of sources for dist
-      Adds snowgem/Snowgem.h to LIBSNOWGEM sources
-      Adds snowgem/Proof.hpp to LIBSNOWGEM_H
+      Adds snowgem/Zcash.h to libzcash sources
+      Adds snowgem/Proof.hpp to libzcash_H
       Add alertkeys.h to libbitcoin_server_a_SOURCES
-      Adds files in src/snowgem/circuit to libsnowgem_a_SOURCES
+      Adds files in src/snowgem/circuit to libzcash_a_SOURCES
       Adds zcbenchmarks.h to libbitcoin_wallet_a_SOURCES
       Adds json_test_vectors.h to snowgem_gtest_SOURCES
       Adds additional licenses to Debian copyright file

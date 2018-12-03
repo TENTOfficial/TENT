@@ -895,7 +895,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         int donationPercentage;
         std::string strMessage;
 
-        vRecv >> vin >> addr >> vchSig >> sigTime >> pubkey >> pubkey2 >> count >> current >> lastUpdated >> protocolVersion >> donationAddress >> donationPercentage;
+        vRecv >> vin >> addr >> vchSig >> sigTime >> pubkey >> pubkey2 >> count >> current >> lastUpdated >> protocolVersion >> *(CScriptBase*)(&donationAddress) >> donationPercentage;
 
         // make sure signature isn't in the future (past is OK)
         if (sigTime > GetAdjustedTime() + 60 * 60) {
@@ -978,7 +978,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                         if (!lockNodes) return;
                         BOOST_FOREACH (CNode* pnode, vNodes)
                             if (pnode->nVersion >= masternodePayments.GetMinMasternodePaymentsProto())
-                                pnode->PushMessage("dsee", vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
+                                pnode->PushMessage("dsee", vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, *(CScriptBase*)(&donationAddress), donationPercentage);
                     }
                 }
             }
@@ -1067,7 +1067,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 if (!lockNodes) return;
                 BOOST_FOREACH (CNode* pnode, vNodes)
                     if (pnode->nVersion >= masternodePayments.GetMinMasternodePaymentsProto())
-                        pnode->PushMessage("dsee", vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, donationAddress, donationPercentage);
+                        pnode->PushMessage("dsee", vin, addr, vchSig, sigTime, pubkey, pubkey2, count, current, lastUpdated, protocolVersion, *(CScriptBase*)(&donationAddress), donationPercentage);
             }
         } else {
             LogPrint("masternode","dsee - Rejected Masternode entry %s\n", vin.prevout.hash.ToString());

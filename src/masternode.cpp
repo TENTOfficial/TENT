@@ -13,6 +13,8 @@
 #include "consensus/validation.h"
 #include <boost/lexical_cast.hpp>
 
+#include "key_io.h"
+
 // keep track of the scanning errors I've seen
 map<uint256, int> mapSeenMasternodeScanningErrors;
 // cache block hashes as we calculate them
@@ -427,7 +429,7 @@ bool CMasternodeBroadcast::Create(CTxIn txin, CService service, CKey keyCollater
     if (fImporting || fReindex) return false;
 
     LogPrint("masternode", "CMasternodeBroadcast::Create -- pubKeyCollateralAddressNew = %s, pubKeyMasternodeNew.GetID() = %s\n",
-        CBitcoinAddress(pubKeyCollateralAddressNew.GetID()).ToString(),
+        EncodeDestination(pubKeyCollateralAddressNew.GetID()),
         pubKeyMasternodeNew.GetID().ToString());
 
     CMasternodePing mnp(txin);

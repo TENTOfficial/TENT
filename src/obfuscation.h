@@ -18,7 +18,6 @@ class CTxIn;
 class CObfuscationPool;
 class CObfuScationSigner;
 class CMasterNodeVote;
-class CBitcoinAddress;
 class CObfuscationQueue;
 class CObfuscationBroadcastTx;
 class CActiveMasternode;
@@ -181,7 +180,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nDenom);
         READWRITE(vin);
