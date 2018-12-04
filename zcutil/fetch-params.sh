@@ -4,9 +4,9 @@ set -eu
 
 # Need to be verified before changing to Zen...
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    PARAMS_DIR="$HOME/Library/Application Support/SnowgemParams"
+    PARAMS_DIR="$HOME/Library/Application Support/ZcashParams"
 else
-    PARAMS_DIR="$HOME/.snowgem-params"
+    PARAMS_DIR="$HOME/.zcash-params"
 fi
 
 SPROUT_PKEY_NAME='sprout-proving.key'
