@@ -99,7 +99,7 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform depends/Makefile
+$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform depends/Makefile depends/cargo-checksum.sh
 $ ./zcutil/build.sh
 ```
 
@@ -111,8 +111,8 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile
-HOST=x86_64-w64-mingw32 ./zcutil/build-win.sh
+$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile depends/cargo-checksum.sh
+HOST=x86_64-w64-mingw32 ./zcutil/build.sh
 ```
 
 --------
