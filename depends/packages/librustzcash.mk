@@ -1,15 +1,15 @@
 package=librustzcash
 $(package)_version=0.1
-$(package)_download_path=https://github.com/snowgem/$(package)/archive
+$(package)_download_path=https://github.com/zcash/$(package)/archive/
 $(package)_file_name=$(package)-$($(package)_git_commit).tar.gz
 $(package)_download_file=$($(package)_git_commit).tar.gz
-$(package)_sha256_hash=8d0297fd6ee7b65f6e2f7dbba05ede240cd25947d66631246d1496e9a8eaa9dc
+$(package)_sha256_hash=e9a488a8bbecf7fb237a32dadd65133211ef61616d44cf55609e029837a41004
 $(package)_git_commit=f5e5cb24e1bd756a02fc4a3fd2b824238ccd15ad
 $(package)_dependencies=rust $(rust_crates)
 $(package)_patches=cargo.config
 
 ifeq ($(host_os),mingw32)
-$(package)_library_file=target/x86_64-pc-windows-gnu/release/rustsnowgem.lib
+$(package)_library_file=target/x86_64-pc-windows-gnu/release/rustzcash.lib
 else
 $(package)_library_file=target/release/librustzcash.a
 endif
