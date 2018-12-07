@@ -238,6 +238,14 @@ UniValue getalldata(const UniValue& params, bool fHelp)
             {
                 day = 30;
             }
+            else if(params[1].get_int() == 4)
+            {
+                day = 90;
+            }
+            else if(params[1].get_int() == 5)
+            {
+                day = 365;
+            }
         }
 
         std::list<CAccountingEntry> acentries;
@@ -252,7 +260,7 @@ UniValue getalldata(const UniValue& params, bool fHelp)
             CAccountingEntry *const pacentry = (*it).second.second;
             if (pacentry != 0)
                 AcentryToJSON(*pacentry, strAccount, trans);
-            if (pwtx->nTimeReceived <= (t - (day * 60 * 60 * 24))) break;
+            if (pwtx->nTimeReceived <= (t - (day * 60 * 60 * 24)) && (int)trans.size() >= nCount) break;
         }
 
         vector<UniValue> arrTmp = trans.getValues();
