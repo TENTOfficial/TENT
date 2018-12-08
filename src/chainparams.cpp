@@ -96,9 +96,9 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_TESTDUMMY].nActivationHeight =
             Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nProtocolVersion = 170007;
-        consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 1347500;
+        consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
-        consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 1419200;
+        consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
         /**
