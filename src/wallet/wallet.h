@@ -328,14 +328,7 @@ struct CSproutNotePlaintextEntry
     JSOutPoint jsop;
     libzcash::SproutPaymentAddress address;
     libzcash::SproutNotePlaintext plaintext;
-};
-
-/** Decrypted note, location in a transaction, and confirmation height. */
-struct CUnspentSproutNotePlaintextEntry {
-    JSOutPoint jsop;
-    libzcash::SproutPaymentAddress address;
-    libzcash::SproutNotePlaintext plaintext;
-    int nHeight;
+    int confirmations;
 };
 
 /** Sapling note and its location in a transaction. */
@@ -345,15 +338,7 @@ struct SaplingNoteEntry
     libzcash::SaplingPaymentAddress address;
     libzcash::SaplingNote note;
     std::array<unsigned char, ZC_MEMO_SIZE> memo;
-};
-
-/** Sapling note, location in a transaction, and confirmation height. */
-struct UnspentSaplingNoteEntry {
-    SaplingOutPoint op;
-    libzcash::SaplingPaymentAddress address;
-    libzcash::SaplingNote note;
-    std::array<unsigned char, ZC_MEMO_SIZE> memo;
-    int nHeight;
+    int confirmations;
 };
 
 /** A transaction with a merkle branch linking it to the block chain. */
@@ -1117,10 +1102,10 @@ public:
     void GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const;
 
     /**
-      * ZKeys
+      * Sprout ZKeys
       */
-    //! Generates a new zaddr
-    libzcash::PaymentAddress GenerateNewZKey();
+    //! Generates a new Sprout zaddr
+    libzcash::SproutPaymentAddress GenerateNewSproutZKey();
     //! Adds spending key to the store, and saves it to disk
     bool AddSproutZKey(const libzcash::SproutSpendingKey &key);
     //! Adds spending key to the store, without saving it to disk (used by LoadWallet)
@@ -1402,23 +1387,18 @@ boost::optional<uint256> GetSproutNoteNullifier(
                           std::string address,
                           int minDepth=1,
                           bool ignoreSpent=true,
-                          bool ignoreUnspendable=true);
+                          bool requireSpendingKey=true);
 
-    /* Find notes filtered by payment addresses, min depth, ability to spend */
+    /* Find notes filtered by payment addresses, min depth, max depth, if they are spent,
+       if a spending key is required, and if they are locked */
     void GetFilteredNotes(std::vector<CSproutNotePlaintextEntry>& sproutEntries,
                           std::vector<SaplingNoteEntry>& saplingEntries,
                           std::set<libzcash::PaymentAddress>& filterAddresses,
                           int minDepth=1,
+                          int maxDepth=INT_MAX,
                           bool ignoreSpent=true,
-                          bool ignoreUnspendable=true);
-    
-    /* Find unspent notes filtered by payment address, min depth and max depth */
-    void GetUnspentFilteredNotes(std::vector<CUnspentSproutNotePlaintextEntry>& sproutEntries,
-                                 std::vector<UnspentSaplingNoteEntry>& saplingEntries,
-                                 std::set<libzcash::PaymentAddress>& filterAddresses,
-                                 int minDepth=1,
-                                 int maxDepth=INT_MAX,
-                                 bool requireSpendingKey=true);
+                          bool requireSpendingKey=true,
+                          bool ignoreLocked=true);
 };
 
 /** A key allocated from the key pool. */
