@@ -89,7 +89,6 @@ $ sudo apt-get install g++-4.9
 
 Fetch our repository with git and run ```fetch-params.sh``` like so:
 ```
-$ chmod +x zcutil/fetch-params.sh
 $ ./zcutil/fetch-params.sh
 ```
 
@@ -99,7 +98,6 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform depends/Makefile depends/cargo-checksum.sh
 $ ./zcutil/build.sh
 ```
 
@@ -111,7 +109,6 @@ Ensure you have successfully installed all system package dependencies as descri
 ```
 $ git clone https://github.com/snowgem/snowgem.git
 $ cd snowgem/
-$ chmod +x zcutil/build-win.sh depends/config.guess depends/config.sub autogen.sh share/genbuild.sh src/leveldb/build_detect_platform  depends/Makefile depends/cargo-checksum.sh
 HOST=x86_64-w64-mingw32 ./zcutil/build.sh
 ```
 
