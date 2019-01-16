@@ -207,6 +207,7 @@ public:
         strObfuscationPoolDummyAddress = "s1eQnJdoWDhKhxDrX8ev3aFjb1J6ZwXCxUT";
         nStartMasternodePayments = 1523750400; //2018-04-15
         nBudget_Fee_Confirmations = 6; // Number of confirmations for the finalization fee
+        masternodeProtectionBlock = 4000000;
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 };
@@ -321,8 +322,10 @@ public:
             "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
             };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
-		
-		nStartMasternodePayments = 1520121600; //2018-03-04
+
+        nStartMasternodePayments = 1520121600; //2018-03-04
+        masternodeProtectionBlock = 2000020;
+
     }
 };
 static CTestNetParams testNetParams;

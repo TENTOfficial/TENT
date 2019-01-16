@@ -129,6 +129,7 @@ public:
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int GetNewTimeRule() const { return newTimeRule; }
+    int GetMasternodeProtectionBlock() const { return masternodeProtectionBlock; }
 protected:
     CChainParams() {}
 
@@ -168,6 +169,7 @@ protected:
     CCheckpointData checkpointData;
     std::vector<std::string> vFoundersRewardAddress;
     int newTimeRule;
+    int masternodeProtectionBlock;
 };
 
 /**

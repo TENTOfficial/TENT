@@ -37,6 +37,7 @@
 #include "validationinterface.h"
 #include "wallet/asyncrpcoperation_sendmany.h"
 #include "wallet/asyncrpcoperation_shieldcoinbase.h"
+#include "activemasternode.h"
 
 #include <algorithm>
 #include <atomic>
@@ -3576,6 +3577,13 @@ static void PruneBlockIndexCandidates() {
     assert(!setBlockIndexCandidates.empty());
 }
 
+const CBlockIndex* FindBlockAtHeight(int nHeight, const CBlockIndex* pIndex) {
+    while (pIndex && pIndex->nHeight > nHeight) {
+        pIndex = pIndex->pprev;
+    }
+    return pIndex;
+}
+
 /**
  * Try to make some progress towards making pindexMostWork the active block.
  * pblock is either NULL or a pointer to a CBlock corresponding to pindexMostWork.
@@ -3609,6 +3617,36 @@ static bool ActivateBestChainStep(CValidationState &state, CBlockIndex *pindexMo
         uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_ERROR);
         StartShutdown();
         return false;
+    }
+
+    //check last few blocks if you are masternode
+    const CChainParams& chainParams = Params();
+    if(pindexOldTip->nHeight > chainParams.GetMasternodeProtectionBlock() &&
+       activeMasternode.status == ACTIVE_MASTERNODE_STARTED)
+    {
+        //check some last hash
+        //CHECK_REORG
+        int heightCheck = pindexOldTip->nHeight - DEFAULT_REORG_MN_CHECK;
+        const CBlockIndex *pindexOldTipCheck = FindBlockAtHeight(heightCheck, pindexOldTip);
+        const CBlockIndex *pindexMostWorkCheck = FindBlockAtHeight(heightCheck, (const CBlockIndex*)pindexMostWork);
+        if(pindexOldTipCheck->phashBlock != pindexMostWorkCheck->phashBlock)
+        {
+            auto msg = strprintf(
+            "A block chain reorganization has been detected however block hash is not correct "
+              "\n\n") +
+            _("Block details") + ":\n" +
+            "- " + strprintf(_("Current tip: %s, height %d"),
+                pindexOldTipCheck->phashBlock->GetHex(), pindexOldTipCheck->nHeight) + "\n" +
+            "- " + strprintf(_("New tip:     %s, height %d"),
+                pindexMostWorkCheck->phashBlock->GetHex(), pindexMostWorkCheck->nHeight) + "\n" +
+            _("Please help, human!");
+            LogPrintf("*** %s\n", msg);
+            return false;
+        }
+        else
+        {
+            LogPrintf("Block hash is correct %s, height %d\n", pindexOldTipCheck->phashBlock->GetHex(), pindexOldTipCheck->nHeight);
+        }
     }
 
     // Disconnect active blocks which are no longer in the best chain.
