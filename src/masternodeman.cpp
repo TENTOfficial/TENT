@@ -473,6 +473,17 @@ CMasternode* CMasternodeMan::Find(const CPubKey& pubKeyMasternode)
     return NULL;
 }
 
+CMasternode* CMasternodeMan::Find(const CAddress& addr)
+{
+    LOCK(cs);
+
+    BOOST_FOREACH (CMasternode& mn, vMasternodes) {
+        if ((CNetAddr)(mn.addr) == (CNetAddr)addr)
+            return &mn;
+    }
+    return NULL;
+}
+
 //
 // Deterministically select the oldest/best masternode to pay on the network
 //

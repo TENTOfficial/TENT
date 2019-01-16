@@ -18,6 +18,7 @@
 #include "scheduler.h"
 #include "ui_interface.h"
 #include "crypto/common.h"
+#include "masternodeman.h"
 
 #ifdef WIN32
 #include <string.h>
@@ -71,6 +72,7 @@ static bool vfLimited[NET_MAX] = {};
 static CNode* pnodeLocalHost = NULL;
 uint64_t nLocalHostNonce = 0;
 static std::vector<ListenSocket> vhListenSocket;
+static list<CNode*> vNodesDisconnected;
 CAddrMan addrman;
 int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
@@ -377,6 +379,23 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
         pszDest ? pszDest : addrConnect.ToString(),
         pszDest ? 0.0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
 
+    //@TODO TXID
+    //check if masternodeprotection flag is on
+    //check address, if it's masternode, connect
+    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
+    {
+        CMasternode* mn = mnodeman.Find(addrConnect);
+        if(mn == NULL)
+        {
+            LogPrint("net", "address %s is not in masternode list\n", addrConnect.ToString());
+            return NULL;
+        }
+    }
+    else
+    {
+        LogPrint("net", "masternode list is not synced or masternode protection flag is not enabled\n");
+    }
+
     // Connect
     SOCKET hSocket;
     bool proxyConnectionFailed = false;
@@ -410,6 +429,25 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
     }
 
     return NULL;
+}
+
+void DisconnectNodes()
+{
+    // Close sockets
+    BOOST_FOREACH(CNode* pnode, vNodes)
+        if (pnode->hSocket != INVALID_SOCKET)
+        {
+            CMasternode* mn = mnodeman.Find(pnode->addr);
+            if(mn == NULL)
+            {
+                pnode->fDisconnect = true;
+                LogPrintf("disconnect %s\n", pnode->addr.ToString());
+            }
+            else
+            {
+                LogPrintf("do not disconnect %s\n", pnode->addr.ToString());
+            }
+        }
 }
 
 void CNode::CloseSocketDisconnect()
@@ -713,8 +751,6 @@ void SocketSendData(CNode *pnode)
     }
     pnode->vSendMsg.erase(pnode->vSendMsg.begin(), it);
 }
-
-static list<CNode*> vNodesDisconnected;
 
 class CNodeRef {
 public:

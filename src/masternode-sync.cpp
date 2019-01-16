@@ -125,6 +125,11 @@ void CMasternodeSync::GetNextAsset()
     nAssetSyncStarted = GetTime();
 }
 
+int CMasternodeSync::GetSyncValue()
+{
+    return RequestedMasternodeAssets;
+}
+
 std::string CMasternodeSync::GetSyncStatus()
 {
     switch (masternodeSync.RequestedMasternodeAssets) {
@@ -346,6 +351,13 @@ void CMasternodeSync::Process()
                     // Try to activate our masternode if possible
                     activeMasternode.ManageStatus();
 
+                    //@TODO TXID
+                    //check if masternodeprotection flag is on
+                    //remove not masternode address from vNodes
+                    if(GetBoolArg("-masternodeprotection", false))
+                    {
+                        DisconnectNodes();
+                    }
                     return;
                 }
 
@@ -355,6 +367,14 @@ void CMasternodeSync::Process()
                     // maybe there is no budgets at all, so just finish syncing
                     GetNextAsset();
                     activeMasternode.ManageStatus();
+
+                    //@TODO TXID
+                    //check if masternodeprotection flag is on
+                    //remove not masternode address from vNodes
+                    if(GetBoolArg("-masternodeprotection", false))
+                    {
+                        DisconnectNodes();
+                    }
                     return;
                 }
 
