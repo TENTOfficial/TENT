@@ -387,7 +387,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
         CMasternode* mn = mnodeman.Find(addrConnect);
         if(mn == NULL)
         {
-            LogPrint("net", "address %s is not in masternode list\n", addrConnect.ToString());
+            LogPrint("net", "create connection fail, address %s is not in masternode list\n", addrConnect.ToString());
             return NULL;
         }
     }
@@ -964,6 +964,24 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
         if (nErr != WSAEWOULDBLOCK)
             LogPrintf("socket error accept failed: %s\n", NetworkErrorString(nErr));
         return;
+    }
+
+    //@TODO TXID
+    //check if masternodeprotection flag is on
+    //check address, if it's masternode, connect
+    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
+    {
+        CMasternode* mn = mnodeman.Find(addr);
+        if(mn == NULL)
+        {
+            LogPrint("net", "socket error accept failed, address %s is not in masternode list\n", addr.ToString());
+            CloseSocket(hSocket);
+            return;
+        }
+    }
+    else
+    {
+        LogPrint("net", "masternode list is not synced or masternode protection flag is not enabled\n");
     }
 
     if (!IsSelectableSocket(hSocket))
