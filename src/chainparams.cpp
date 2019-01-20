@@ -324,7 +324,7 @@ public:
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 
         nStartMasternodePayments = 1520121600; //2018-03-04
-        masternodeProtectionBlock = 2000020;
+        masternodeProtectionBlock = 17600;
 
     }
 };

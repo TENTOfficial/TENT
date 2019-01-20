@@ -3621,7 +3621,7 @@ static bool ActivateBestChainStep(CValidationState &state, CBlockIndex *pindexMo
 
     //check last few blocks if you are masternode
     const CChainParams& chainParams = Params();
-    if(pindexOldTip->nHeight > chainParams.GetMasternodeProtectionBlock() &&
+    if(pindexOldTip != NULL && pindexOldTip->nHeight > chainParams.GetMasternodeProtectionBlock() &&
        activeMasternode.status == ACTIVE_MASTERNODE_STARTED)
     {
         //check some last hash
