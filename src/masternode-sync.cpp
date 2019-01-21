@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2017 The PIVX developers
-// Copyright (c) 2017-2018 The SnowGem developers
+// Copyright (c) 2017-2019 The SnowGem developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -351,9 +351,7 @@ void CMasternodeSync::Process()
                     // Try to activate our masternode if possible
                     activeMasternode.ManageStatus();
 
-                    //@TODO TXID
-                    //check if masternodeprotection flag is on
-                    //remove not masternode address from vNodes
+                    //masternode protection code
                     if(GetBoolArg("-masternodeprotection", false))
                     {
                         DisconnectNodes();
@@ -368,9 +366,7 @@ void CMasternodeSync::Process()
                     GetNextAsset();
                     activeMasternode.ManageStatus();
 
-                    //@TODO TXID
-                    //check if masternodeprotection flag is on
-                    //remove not masternode address from vNodes
+                    //masternode protection code
                     if(GetBoolArg("-masternodeprotection", false))
                     {
                         DisconnectNodes();

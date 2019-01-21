@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin Core developers
+// Copyright (c) 2019 The SnowGem developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -379,9 +380,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
         pszDest ? pszDest : addrConnect.ToString(),
         pszDest ? 0.0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
 
-    //@TODO TXID
-    //check if masternodeprotection flag is on
-    //check address, if it's masternode, connect
+    //masternode protection code
     if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
     {
         CMasternode* mn = mnodeman.Find(addrConnect);
@@ -966,9 +965,7 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
         return;
     }
 
-    //@TODO TXID
-    //check if masternodeprotection flag is on
-    //check address, if it's masternode, connect
+    //masternode protection code
     if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
     {
         CMasternode* mn = mnodeman.Find(addr);
