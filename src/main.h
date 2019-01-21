@@ -286,7 +286,7 @@ bool GetCoinAge(const CTransaction& tx, unsigned int nTxTime, uint64_t& nCoinAge
 int GetIXConfirmations(uint256 nTXHash);
 
 /** Find block at height in a fork **/
-CBlockIndex* FindBlockAtHeight(int nHeight, CBlockIndex* pIndex);
+const CBlockIndex* FindBlockAtHeight(int nHeight, const CBlockIndex* pIndex);
 
 struct CNodeStateStats {
     int nMisbehavior;
