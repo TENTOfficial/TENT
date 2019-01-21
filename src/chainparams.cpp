@@ -207,7 +207,7 @@ public:
         strObfuscationPoolDummyAddress = "s1eQnJdoWDhKhxDrX8ev3aFjb1J6ZwXCxUT";
         nStartMasternodePayments = 1523750400; //2018-04-15
         nBudget_Fee_Confirmations = 6; // Number of confirmations for the finalization fee
-        masternodeProtectionBlock = 4000000;
+        masternodeProtectionBlock = 590000;
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 };
