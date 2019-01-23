@@ -7,6 +7,7 @@
 #include "init.h"
 #include "key_io.h"
 #include "main.h"
+#include "metrics.h"
 #include "masternode-sync.h"
 #include "net.h"
 #include "netbase.h"
@@ -346,6 +347,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("connections",   (int)vNodes.size()));
     obj.push_back(Pair("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string())));
     obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
+    obj.push_back(Pair("networksolps",  GetNetworkHashPS(120, -1)));
     obj.push_back(Pair("testnet",       Params().TestnetToBeDeprecatedFieldRPC()));
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
