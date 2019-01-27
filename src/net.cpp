@@ -381,7 +381,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
         pszDest ? 0.0 : (double)(GetAdjustedTime() - addrConnect.nTime)/3600.0);
 
     //masternode protection code
-    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
+    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeconnections", false))
     {
         CMasternode* mn = mnodeman.Find(addrConnect);
         if(mn == NULL)
@@ -966,7 +966,7 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
     }
 
     //masternode protection code
-    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
+    if(masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeconnections", false))
     {
         CMasternode* mn = mnodeman.Find(addr);
         if(mn == NULL)

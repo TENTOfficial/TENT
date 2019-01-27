@@ -352,7 +352,7 @@ void CMasternodeSync::Process()
                     activeMasternode.ManageStatus();
 
                     //masternode protection code
-                    if(GetBoolArg("-masternodeprotection", false))
+                    if(GetBoolArg("-masternodeconnections", false))
                     {
                         DisconnectNodes();
                     }
@@ -367,7 +367,7 @@ void CMasternodeSync::Process()
                     activeMasternode.ManageStatus();
 
                     //masternode protection code
-                    if(GetBoolArg("-masternodeprotection", false))
+                    if(GetBoolArg("-masternodeconnections", false))
                     {
                         DisconnectNodes();
                     }
