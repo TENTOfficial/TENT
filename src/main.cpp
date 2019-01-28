@@ -3541,9 +3541,9 @@ static CBlockIndex* FindMostWorkChain() {
 
             //check last few blocks if you are masternode
             const CChainParams& chainParams = Params();
-            if((pindexOldTip != NULL && pindexOldTip->nHeight > chainParams.GetMasternodeProtectionBlock() &&
-              activeMasternode.status == ACTIVE_MASTERNODE_STARTED) ||
-              masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))
+            if(pindexOldTip != NULL && pindexOldTip->nHeight > chainParams.GetMasternodeProtectionBlock() && 
+              (activeMasternode.status == ACTIVE_MASTERNODE_STARTED ||
+              (masternodeSync.GetSyncValue() == MASTERNODE_SYNC_FINISHED && GetBoolArg("-masternodeprotection", false))))
             {
                 //check some last hash
                 //CHECK_REORG
