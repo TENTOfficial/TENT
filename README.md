@@ -75,7 +75,7 @@ brew install wget llvm
 
 ### Check GCC version
 
-gcc/g++ 4.9 or later is required. Zcash has been successfully built using gcc/g++ versions 4.9 to 7.x inclusive. Use ```g++ --version``` to check which version you have.
+gcc/g++ 4.9 or later is required. SnowGem has been successfully built using gcc/g++ versions 4.9 to 7.x inclusive. Use ```g++ --version``` to check which version you have.
 
 On Ubuntu Trusty, if your version is too old then you can install gcc/g++ 4.9 as follows:
 
