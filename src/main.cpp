@@ -981,7 +981,7 @@ bool ContextualCheckTransaction(
     // Rules that apply before Sapling:
     if (!saplingActive) {
         // Size limits
-        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip()->nHeight+1) > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
         if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_BEFORE_SAPLING)
             return state.DoS(100, error("ContextualCheckTransaction(): size limits failed"),
                             REJECT_INVALID, "bad-txns-oversize");
@@ -1210,14 +1210,14 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
     int nextBlockHeight = chainActive.Height() + 1;
     if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
         // Size limits
-        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip()->nHeight+1) >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
         BOOST_STATIC_ASSERT(MAX_TX_SIZE_AFTER_SAPLING > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
         if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_SAPLING)
             return state.DoS(100, error("CheckTransaction(): size limits failed"),
                             REJECT_INVALID, "bad-txns-oversize");
     }
     else {
-        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip()->nHeight+1) >= MAX_TX_SIZE_AFTER_DIFA); // sanity
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_DIFA); // sanity
         if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_DIFA)
             return state.DoS(100, error("CheckTransaction(): size limits failed"),
                             REJECT_INVALID, "bad-txns-oversize");
@@ -4137,7 +4137,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE(chainActive.Tip()->nHeight+1) || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE(chainActive.Tip()->nHeight+1))
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0))
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
