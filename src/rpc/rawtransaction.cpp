@@ -548,7 +548,7 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
     UniValue res(UniValue::VARR);
 
     vector<uint256> vMatch;
-    if (merkleBlock.txn.ExtractMatches(vMatch) != merkleBlock.header.hashMerkleRoot)
+    if (merkleBlock.txn.ExtractMatches(vMatch, chainActive.Tip()->nHeight + 1) != merkleBlock.header.hashMerkleRoot)
         return res;
 
     LOCK(cs_main);
@@ -604,7 +604,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     UniValue inputs = params[0].get_array();
     UniValue sendTo = params[1].get_obj();
 
-    int nextBlockHeight = chainActive.Height() + 1;
+    int nextBlockHeight = chainActive.Tip()->nHeight + 1;
     CMutableTransaction rawTx = CreateNewContextualCMutableTransaction(
         Params().GetConsensus(), nextBlockHeight);
 

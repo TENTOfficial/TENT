@@ -99,6 +99,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 800000;
+
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
         /**
@@ -245,6 +247,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 11000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 30000;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
 		
@@ -436,6 +439,13 @@ public:
 static CRegTestParams regTestParams;
 
 static CChainParams *pCurrentParams = 0;
+
+int32_t MAX_BLOCK_SIZE(int32_t height)
+{
+    if ( height >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight )
+        return(MAX_BLOCK_SIZE_AFTER_UPGRADE);
+    else return(MAX_BLOCK_SIZE_BEFORE_UPGRADE);
+}
 
 const CChainParams &Params() {
     assert(pCurrentParams);

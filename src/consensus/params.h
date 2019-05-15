@@ -10,6 +10,8 @@
 
 #include <boost/optional.hpp>
 
+int32_t MAX_BLOCK_SIZE(int32_t height);
+
 namespace Consensus {
 
 /**
@@ -26,6 +28,7 @@ enum UpgradeIndex {
     UPGRADE_TESTDUMMY,
     UPGRADE_OVERWINTER,
     UPGRADE_SAPLING,
+    UPGRADE_DIFA,
     // NOTE: Also add new upgrades to NetworkUpgradeInfo in upgrades.cpp
     MAX_NETWORK_UPGRADES
 };
