@@ -490,11 +490,11 @@ bool SelectParamsFromCommandLine()
 // Block height must be >0 and <=last founders reward block height
 // Index variable i ranges from 0 - (vFoundersRewardAddress.size()-1)
 std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
-    int maxHeight = consensus.GetLastFoundersRewardBlockHeight();
-    assert(nHeight > 0 && nHeight <= maxHeight);
+    int maxHeight = consensus.GetFoundersRewardRepeatInterval();
+    // assert(nHeight > 0 && nHeight <= maxHeight);
 
     size_t addressChangeInterval = (maxHeight + vFoundersRewardAddress.size()) / vFoundersRewardAddress.size();
-    size_t i = nHeight / addressChangeInterval;
+    size_t i = (nHeight / addressChangeInterval) % vFoundersRewardAddress.size();
     return vFoundersRewardAddress[i];
 }
 

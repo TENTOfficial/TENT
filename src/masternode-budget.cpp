@@ -529,9 +529,13 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
         {
             vFoundersReward = txNew.vout[0].nValue / 20;
         }
-        else
+        else if(pindexPrev->nHeight + 1 < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
         {
             vFoundersReward = txNew.vout[0].nValue * 7.5 / 100;
+        }
+        else
+        {
+            vFoundersReward = txNew.vout[0].nValue * 15 / 100;
         }
         // Take some reward away from us
         txNew.vout[0].nValue -= vFoundersReward;

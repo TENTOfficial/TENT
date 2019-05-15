@@ -2078,10 +2078,14 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     CAmount nSubsidy = 20 * COIN;
 
-    if(NetworkIdFromCommandLine() != CBaseChainParams::MAIN)
+    if(nHeight >= consensusParams.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
     {
-        return nSubsidy;
+        nSubsidy = 22 * COIN;
     }
+    // if(NetworkIdFromCommandLine() != CBaseChainParams::MAIN)
+    // {
+    //     return nSubsidy;
+    // }
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
@@ -2112,11 +2116,19 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
     int nMNPSBlock = Params().GetConsensus().nMasternodePaymentsStartBlock;
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
     int nMNPaymentChange = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight;
-    if(nHeight > nMNPSBlock)             ret = blockValue * 35 / 100; // > 193200 - 35.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // > 236400 - 40.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // > 279600 - 45.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret += blockValue / 20; // > 322800 - 50.0%
-    if(nHeight > nMNPaymentChange) ret -= blockValue / 20; // 45%
+    int nMNPaymentDIFA = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight;
+    if(nHeight >= nMNPaymentDIFA)
+    { 
+        ret = blockValue * 50 / 100;
+    }
+    else
+    {
+        if(nHeight > nMNPSBlock)             ret = 7 * COIN; // > 193200 - 35.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret = 8 * COIN; // > 236400 - 40.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret = 9 * COIN; // > 279600 - 45.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret = 10 * COIN; // > 322800 - 50.0%
+        if(nHeight > nMNPaymentChange) ret = 9 * COIN; // 45%
+    }
     return ret;
 }
 
@@ -4296,9 +4308,16 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                       break;
                   }
                 }
-                else
+                else if(nHeight < consensusParams.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
                 {
                     if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 7.5 / 100)) {
+                        found = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 15 / 100)) {
                         found = true;
                         break;
                     }

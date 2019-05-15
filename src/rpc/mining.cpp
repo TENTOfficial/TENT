@@ -938,24 +938,30 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
 
     CAmount nReward = GetBlockSubsidy(nHeight, Params().GetConsensus());
     CAmount nFoundersReward = 0;
-    CAmount nMasternodeReward = 0;
     if (nHeight < Params().GetConsensus().GetLastFoundersRewardBlockHeight()) {
         
         if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
         {
             nFoundersReward = nReward / 20;
         }
-        else
+        else if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
         {
             nFoundersReward = nReward * 7.5 / 100;
         }
+        else
+        {
+            nFoundersReward = nReward * 15 / 100;
+        }
 
-        
         nReward -= nFoundersReward;
     }
+    CAmount nMasternodeReward = GetMasternodePayment(nHeight, nReward);
     UniValue result(UniValue::VOBJ);
+
     result.push_back(Pair("miner", ValueFromAmount(nReward)));
     result.push_back(Pair("founders", ValueFromAmount(nFoundersReward)));
+    result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
+    result.push_back(Pair("masternode", ValueFromAmount(nMasternodeReward)));
     return result;
 }
 

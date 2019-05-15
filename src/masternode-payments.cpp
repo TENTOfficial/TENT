@@ -300,7 +300,6 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     }
 
     CAmount blockValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
-    CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue);
     CAmount minerValue = blockValue;
     
     // Founders reward
@@ -309,12 +308,16 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     {
         vFoundersReward = blockValue / 20;
     }
-    else
+    else if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
     {
         vFoundersReward = blockValue * 7.5 / 100;
     }
+    else
+    {
+        vFoundersReward = blockValue * 15 / 100;
+    }
     
-
+    CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue - vFoundersReward);
     if(hasPayment){
         minerValue -= masternodePayment;
     }
@@ -543,7 +546,21 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         nMasternode_Drift_Count = mnodeman.size() + Params().MasternodeCountDrift();
     }
 
-    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, nMasternode_Drift_Count);
+    // Founders reward
+    CAmount nFoundersReward = 0;
+    if(nBlockHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
+    {
+        nFoundersReward = nReward / 20;
+    }
+    else if(nBlockHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
+    {
+        nFoundersReward = nReward * 7.5 / 100;
+    }
+    else
+    {
+        nFoundersReward = nReward * 15 / 100;
+    }
+    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward - nFoundersReward, nMasternode_Drift_Count);
 	
 	// //require at least 6 signatures
 	// BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
