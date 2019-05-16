@@ -765,6 +765,23 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("masternode_payments", pblock->nTime > Params().StartMasternodePayments() ? "true" : "false"));
     result.push_back(Pair("enforce_masternode_payments", true));
 
+    int64_t nHeight = pindexPrev->nHeight + 1;
+    CAmount nReward = GetBlockSubsidy(nHeight, Params().GetConsensus());
+    CAmount nFoundersReward = 0;
+    if (nHeight < Params().GetConsensus().GetLastFoundersRewardBlockHeight()) {
+        
+        if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
+        {
+            nFoundersReward = nReward / 20;
+        }
+        else
+        {
+            nFoundersReward = nReward * 7.5 / 100;
+        }
+    }
+    result.push_back(Pair("founderReward", (int64_t)nFoundersReward));
+    result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
+
     return result;
 }
 
@@ -944,13 +961,9 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
         {
             nFoundersReward = nReward / 20;
         }
-        else if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
-        {
-            nFoundersReward = nReward * 7.5 / 100;
-        }
         else
         {
-            nFoundersReward = nReward * 15 / 100;
+            nFoundersReward = nReward * 7.5 / 100;
         }
 
         nReward -= nFoundersReward;

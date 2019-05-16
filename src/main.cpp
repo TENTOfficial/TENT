@@ -2143,16 +2143,17 @@ bool IsInitialBlockDownload()
         return false;
 
     LOCK(cs_main);
-    if (latchToFalse.load(std::memory_order_relaxed))
-        return false;
-    if (fImporting || fReindex)
-        return true;
-    if (chainActive.Tip() == NULL)
-        return true;
-    if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
-        return true;
-    if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
-        return true;
+    if(chainActive.Height() != 0)
+    {
+        if (fImporting || fReindex)
+            return true;
+        if (chainActive.Tip() == NULL)
+            return true;
+        if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
+            return true;
+        if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
+            return true;
+    }
     LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
     return false;
@@ -4316,16 +4317,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                       break;
                   }
                 }
-                else if(nHeight < consensusParams.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
-                {
-                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 7.5 / 100)) {
-                        found = true;
-                        break;
-                    }
-                }
                 else
                 {
-                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 15 / 100)) {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 7.5 / 100)) {
                         found = true;
                         break;
                     }

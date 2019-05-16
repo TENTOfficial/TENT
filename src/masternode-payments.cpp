@@ -308,13 +308,9 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     {
         vFoundersReward = blockValue / 20;
     }
-    else if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
-    {
-        vFoundersReward = blockValue * 7.5 / 100;
-    }
     else
     {
-        vFoundersReward = blockValue * 15 / 100;
+        vFoundersReward = blockValue * 7.5 / 100;
     }
     
     CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue - vFoundersReward);
@@ -552,13 +548,9 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     {
         nFoundersReward = nReward / 20;
     }
-    else if(nBlockHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
-    {
-        nFoundersReward = nReward * 7.5 / 100;
-    }
     else
     {
-        nFoundersReward = nReward * 15 / 100;
+        nFoundersReward = nReward * 7.5 / 100;
     }
     CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward - nFoundersReward, nMasternode_Drift_Count);
 	
