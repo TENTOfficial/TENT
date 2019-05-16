@@ -112,6 +112,9 @@ struct Params {
     int64_t MinActualTimespan() const { return (AveragingWindowTimespan() * (100 - nPowMaxAdjustUp  )) / 100; }
     int64_t MaxActualTimespan() const { return (AveragingWindowTimespan() * (100 + nPowMaxAdjustDown)) / 100; }
     uint256 nMinimumChainWork;
+
+    /** Parameters for LWMA3 **/
+    int64_t nZawyLWMA3AveragingWindow;  // N
 };
 } // namespace Consensus
 

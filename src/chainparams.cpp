@@ -101,6 +101,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 800000;
 
+        consensus.nZawyLWMA3AveragingWindow = 90;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
         /**
