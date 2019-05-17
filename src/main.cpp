@@ -2078,14 +2078,10 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     CAmount nSubsidy = 20 * COIN;
 
-    if(nHeight >= consensusParams.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
+    if(NetworkIdFromCommandLine() != CBaseChainParams::MAIN)
     {
-        nSubsidy = 22 * COIN;
+        return nSubsidy;
     }
-    // if(NetworkIdFromCommandLine() != CBaseChainParams::MAIN)
-    // {
-    //     return nSubsidy;
-    // }
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.

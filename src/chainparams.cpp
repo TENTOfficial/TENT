@@ -248,7 +248,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 11000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 30000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 20000;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
 		
