@@ -97,8 +97,8 @@ public:
 
     EHparameters eh_epoch_1_params() const { return eh_epoch_1; }
     EHparameters eh_epoch_2_params() const { return eh_epoch_2; }
-    unsigned long eh_epoch_1_end() const { return eh_epoch_1_endblock; }
-    unsigned long eh_epoch_2_start() const { return eh_epoch_2_startblock; }
+    unsigned int eh_epoch_1_end() const { return eh_epoch_1_endtime; }
+    unsigned int eh_epoch_2_start() const { return eh_epoch_2_starttime; }
 
     /** The masternode count that we will allow the see-saw reward payments to be off by */
     int MasternodeCountDrift() const { return nMasternodeCountDrift; }
@@ -143,8 +143,8 @@ protected:
     uint64_t nPruneAfterHeight = 0;
     EHparameters eh_epoch_1 = eh200_9;
     EHparameters eh_epoch_2 = eh144_5;
-    unsigned long eh_epoch_1_endblock = 150000;
-    unsigned long eh_epoch_2_startblock = 140000;
+    unsigned int eh_epoch_1_endtime = 150000; //it's time, not height
+    unsigned int eh_epoch_2_starttime = 140000; //it's time, not height
 
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
@@ -190,7 +190,7 @@ void SelectParams(CBaseChainParams::Network network);
  */
 bool SelectParamsFromCommandLine();
 
-int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params);
+int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const CChainParams& params);
 
 /**
  * Allows modifying the network upgrade regtest parameters.

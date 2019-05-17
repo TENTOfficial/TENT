@@ -566,6 +566,7 @@ void static BitcoinMiner()
 
             // Get the height of current tip
             int nHeight = chainActive.Height();
+            int nTime = chainActive.Tip()->nTime;
             if (nHeight == -1) {
                 LogPrintf("Error in SnowGem Miner: chainActive.Height() returned -1\n");
                 return;
@@ -574,7 +575,7 @@ void static BitcoinMiner()
 
             // Get equihash parameters for the next block to be mined.
             EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
-            validEHparameterList(ehparams,nHeight,chainparams);
+            validEHparameterList(ehparams,nTime,chainparams);
 
             unsigned int n = ehparams[0].n;
             unsigned int k = ehparams[0].k;

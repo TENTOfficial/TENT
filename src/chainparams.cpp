@@ -118,8 +118,10 @@ public:
         newTimeRule = 246600;
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = 266000;
-        eh_epoch_2_startblock = 265983;
+        // eh_epoch_1_endblock = 266000;
+        // eh_epoch_2_startblock = 265983;
+        eh_epoch_1_endtime = 1530187171;
+        eh_epoch_2_starttime = 1530187141;
 
         nMasternodeCountDrift = 0;
 
@@ -248,7 +250,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 11000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 20000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 30000;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
 		
@@ -264,8 +266,10 @@ public:
         nPruneAfterHeight = 1000;
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = 7600;
-        eh_epoch_2_startblock = 7583;
+        eh_epoch_1_endtime = 1529432082;
+        eh_epoch_2_starttime = 1529402266;
+        // eh_epoch_1_endblock = 7600;
+        // eh_epoch_2_startblock = 7583;
 
 		
     	genesis = CreateGenesisBlock(
@@ -381,8 +385,8 @@ public:
         nPruneAfterHeight = 1000;
         eh_epoch_1 = eh48_5;
         eh_epoch_2 = eh48_5;
-        eh_epoch_1_endblock = 1;
-        eh_epoch_2_startblock = 1;
+        eh_epoch_1_endtime = 1;
+        eh_epoch_2_starttime = 1;
 
     	genesis = CreateGenesisBlock(
             1296688602,
@@ -518,15 +522,15 @@ std::string CChainParams::GetFoundersRewardAddressAtIndex(int i) const {
 }
 
 
-int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params){
+int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const CChainParams& params){
     //if in overlap period, there will be two valid solutions, else 1.
     //The upcoming version of EH is preferred so will always be first element
     //returns number of elements in list
-    if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
+    if(blocktime>=params.eh_epoch_2_start() && blocktime>params.eh_epoch_1_end()){
         ehparams[0]=params.eh_epoch_2_params();
         return 1;
     }
-    if(blockheight<params.eh_epoch_2_start()){
+    if(blocktime<params.eh_epoch_2_start()){
         ehparams[0]=params.eh_epoch_1_params();
         return 1;
     }
