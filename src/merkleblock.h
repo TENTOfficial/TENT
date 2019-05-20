@@ -113,7 +113,7 @@ public:
      * extract the matching txid's represented by this partial merkle tree.
      * returns the merkle root, or 0 in case of failure
      */
-    uint256 ExtractMatches(std::vector<uint256> &vMatch);
+    uint256 ExtractMatches(std::vector<uint256> &vMatch, int32_t nHeight);
 };
 
 

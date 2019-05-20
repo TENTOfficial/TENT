@@ -981,7 +981,7 @@ bool ContextualCheckTransaction(
     // Rules that apply before Sapling:
     if (!saplingActive) {
         // Size limits
-        BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
         if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_BEFORE_SAPLING)
             return state.DoS(100, error("ContextualCheckTransaction(): size limits failed"),
                             REJECT_INVALID, "bad-txns-oversize");
@@ -1207,12 +1207,22 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
         return state.DoS(10, error("CheckTransaction(): vout empty"),
                          REJECT_INVALID, "bad-txns-vout-empty");
 
-    // Size limits
-    BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
-    BOOST_STATIC_ASSERT(MAX_TX_SIZE_AFTER_SAPLING > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
-    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_SAPLING)
-        return state.DoS(100, error("CheckTransaction(): size limits failed"),
-                         REJECT_INVALID, "bad-txns-oversize");
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
+        // Size limits
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
+        BOOST_STATIC_ASSERT(MAX_TX_SIZE_AFTER_SAPLING > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
+        if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_SAPLING)
+            return state.DoS(100, error("CheckTransaction(): size limits failed"),
+                            REJECT_INVALID, "bad-txns-oversize");
+    }
+    else {
+        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_DIFA); // sanity
+        if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_DIFA)
+            return state.DoS(100, error("CheckTransaction(): size limits failed"),
+                            REJECT_INVALID, "bad-txns-oversize");
+        
+    }
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
@@ -2102,11 +2112,19 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
     int nMNPSBlock = Params().GetConsensus().nMasternodePaymentsStartBlock;
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
     int nMNPaymentChange = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight;
-    if(nHeight > nMNPSBlock)             ret = blockValue * 35 / 100; // > 193200 - 35.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // > 236400 - 40.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // > 279600 - 45.0%
-    if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret += blockValue / 20; // > 322800 - 50.0%
-    if(nHeight > nMNPaymentChange) ret -= blockValue / 20; // 45%
+    int nMNPaymentDIFA = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight;
+    if(nHeight >= nMNPaymentDIFA)
+    { 
+        ret = blockValue * 50 / 100;
+    }
+    else
+    {
+        if(nHeight > nMNPSBlock)             ret = 7 * COIN; // > 193200 - 35.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 1)) ret = 8 * COIN; // > 236400 - 40.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret = 9 * COIN; // > 279600 - 45.0%
+        if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret = 10 * COIN; // > 322800 - 50.0%
+        if(nHeight > nMNPaymentChange) ret = 9 * COIN; // 45%
+    }
     return ret;
 }
 
@@ -2121,16 +2139,17 @@ bool IsInitialBlockDownload()
         return false;
 
     LOCK(cs_main);
-    if (latchToFalse.load(std::memory_order_relaxed))
-        return false;
-    if (fImporting || fReindex)
-        return true;
-    if (chainActive.Tip() == NULL)
-        return true;
-    if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
-        return true;
-    if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
-        return true;
+    if(chainActive.Height() != 0)
+    {
+        if (fImporting || fReindex)
+            return true;
+        if (chainActive.Tip() == NULL)
+            return true;
+        if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
+            return true;
+        if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
+            return true;
+    }
     LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
     return false;
@@ -4072,14 +4091,22 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
     unsigned int nHeight = chainActive.Height();
     const CChainParams& chainParams = Params();
     // Check timestamp
-    if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
-        return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
-                             REJECT_INVALID, "time-too-new");
-    //new rule
-    else if (nHeight >= chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 10 * 60)
-        return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
-                             REJECT_INVALID, "time-too-new");
-
+    if(nHeight < chainParams.GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
+    {
+        if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+        //new rule
+        else if (nHeight >= chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 10 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+    }
+    else
+    {
+        if (block.GetBlockTime() > GetAdjustedTime() + 6 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+    }
     return true;
 }
 
@@ -4115,7 +4142,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0))
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
@@ -5183,7 +5210,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
     int nLoaded = 0;
     try {
         // This takes over fileIn and calls fclose() on it in the CBufferedFile destructor
-        CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
+        CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SIZE(90000000), MAX_BLOCK_SIZE(90000000)+8, SER_DISK, CLIENT_VERSION);
         uint64_t nRewind = blkdat.GetPos();
         while (!blkdat.eof()) {
             boost::this_thread::interruption_point();
@@ -5202,7 +5229,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                     continue;
                 // read size
                 blkdat >> nSize;
-                if (nSize < 80 || nSize > MAX_BLOCK_SIZE)
+                if (nSize < 80 || nSize > MAX_BLOCK_SIZE(90000000))
                     continue;
             } catch (const std::exception&) {
                 // no valid block header found; don't complain

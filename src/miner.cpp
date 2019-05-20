@@ -131,8 +131,13 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE);
+
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
+        nBlockMaxSize = MAX_TX_SIZE_AFTER_DIFA;
+    }
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
-    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE-1000), nBlockMaxSize));
+    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0)-1000), nBlockMaxSize));
 
     // How much of the block should be dedicated to high-priority transactions,
     // included regardless of the fees they pay
@@ -561,6 +566,7 @@ void static BitcoinMiner()
 
             // Get the height of current tip
             int nHeight = chainActive.Height();
+            int nTime = chainActive.Tip()->nTime;
             if (nHeight == -1) {
                 LogPrintf("Error in SnowGem Miner: chainActive.Height() returned -1\n");
                 return;
@@ -569,7 +575,7 @@ void static BitcoinMiner()
 
             // Get equihash parameters for the next block to be mined.
             EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
-            validEHparameterList(ehparams,nHeight,chainparams);
+            validEHparameterList(ehparams,nTime,chainparams);
 
             unsigned int n = ehparams[0].n;
             unsigned int k = ehparams[0].k;

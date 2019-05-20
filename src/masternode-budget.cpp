@@ -533,6 +533,7 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
         {
             vFoundersReward = txNew.vout[0].nValue * 7.5 / 100;
         }
+
         // Take some reward away from us
         txNew.vout[0].nValue -= vFoundersReward;
 
