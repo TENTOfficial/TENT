@@ -99,7 +99,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 800000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 760000;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
