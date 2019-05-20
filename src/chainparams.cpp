@@ -101,7 +101,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 800000;
 
-        consensus.nZawyLWMA3AveragingWindow = 90;
+        consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
         /**
@@ -250,10 +250,11 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 11000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 30000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 19600;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
-		
+        consensus.nZawyLWMA3AveragingWindow = 60;
+
 		// The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000000000000000000000d");
         pchMessageStart[0] = 0xfa;
