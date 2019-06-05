@@ -31,7 +31,7 @@ int nSubmittedFinalBudget;
 int GetBudgetPaymentCycleBlocks()
 {
     // Amount of blocks in a months period of time (using 1 minutes per block) = (60*24*30)
-    if (NetworkIdFromCommandLine() == CBaseChainParams::MAIN) return 4070908800; //OFF in mainnet
+    if (NetworkIdFromCommandLine() == CBaseChainParams::MAIN) return (60*24*30); //1 month
     //for testing purposes
 
     return 144; //ten times per day

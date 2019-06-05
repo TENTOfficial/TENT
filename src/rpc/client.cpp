@@ -102,9 +102,18 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "prioritisetransaction", 1 },
     { "prioritisetransaction", 2 },
     {"spork", 1},
+    {"preparebudget", 2},
+    {"preparebudget", 3},
+    {"preparebudget", 5},
+    {"submitbudget", 2},
+    {"submitbudget", 3},
+    {"submitbudget", 5},
+    {"submitbudget", 7},
+    {"mnvoteraw", 1},
+    {"mnvoteraw", 4},
     { "setban", 2 },
     { "setban", 3 },
-	{ "getblockhashes", 0 },
+    { "getblockhashes", 0 },
     { "getblockhashes", 1 },
     { "getblockhashes", 2 },
     { "getspentinfo", 0},
@@ -208,4 +217,5 @@ UniValue RPCConvertValues(const std::string &strMethod, const std::vector<std::s
 
     return params;
 }
+
 

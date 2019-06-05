@@ -4052,6 +4052,7 @@ bool CWallet::GetBudgetSystemCollateralTX(CWalletTx& tx, uint256 hash, bool useI
     std::string strFail = "";
     vector<CRecipient> vecSend;
     CRecipient recipient = {scriptChange, BUDGET_FEE_TX, false};
+    vecSend.push_back(recipient);
 
     CCoinControl* coinControl = NULL;
     int nChangePosRet = -1;
