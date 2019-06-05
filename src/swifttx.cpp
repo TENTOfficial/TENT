@@ -168,7 +168,7 @@ void ProcessMessageSwiftTX(CNode* pfrom, std::string& strCommand, CDataStream& v
 bool IsIXTXValid(const CTransaction& txCollateral)
 {
     if (txCollateral.vout.size() < 1) return false;
-    if (txCollateral.nLockTime != 0) return false;
+    if (txCollateral.nLockTime >  (unsigned int)chainActive.Height()) return false;
 
     CAmount nValueIn = 0;
     CAmount nValueOut = 0;

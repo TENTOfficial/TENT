@@ -48,7 +48,7 @@ bool IsBudgetCollateralValid(uint256 nTxCollateralHash, uint256 nExpectedHash, s
     }
 
     if (txCollateral.vout.size() < 1) return false;
-    if (txCollateral.nLockTime != 0) return false;
+    if (txCollateral.nLockTime >  (unsigned int)chainActive.Height()) return false;
 
     CScript findScript;
     findScript << OP_RETURN << ToByteVector(nExpectedHash);
@@ -62,6 +62,7 @@ bool IsBudgetCollateralValid(uint256 nTxCollateralHash, uint256 nExpectedHash, s
         }
         if (o.scriptPubKey == findScript && o.nValue >= PROPOSAL_FEE_TX) foundOpReturn = true;
     }
+
     if (!foundOpReturn) {
         strError = strprintf("Couldn't find opReturn %s in %s", nExpectedHash.ToString(), txCollateral.ToString());
         LogPrint("masternode","CBudgetProposalBroadcast::IsBudgetCollateralValid - %s\n", strError);

@@ -963,7 +963,7 @@ bool CObfuscationPool::SignatureValid(const CScript& newSig, const CTxIn& newVin
 bool CObfuscationPool::IsCollateralValid(const CTransaction& txCollateral)
 {
     if (txCollateral.vout.size() < 1) return false;
-    if (txCollateral.nLockTime != 0) return false;
+    if (txCollateral.nLockTime >  (unsigned int)chainActive.Height()) return false;
 
     int64_t nValueIn = 0;
     int64_t nValueOut = 0;
