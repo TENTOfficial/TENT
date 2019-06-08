@@ -25,6 +25,41 @@ CMasternodeSync::CMasternodeSync()
     Reset();
 }
 
+bool CMasternodeSync::IsSynced()
+{
+    return RequestedMasternodeAssets == MASTERNODE_SYNC_FINISHED;
+}
+
+bool CMasternodeSync::IsBlockchainSynced()
+{
+    static bool fBlockchainSynced = false;
+    static int64_t lastProcess = GetTime();
+
+    // if the last call to this function was more than 60 minutes ago (client was in sleep mode) reset the sync process
+    if (GetTime() - lastProcess > 60 * 60) {
+        Reset();
+        fBlockchainSynced = false;
+    }
+    lastProcess = GetTime();
+
+    if (fBlockchainSynced) return true;
+
+    if (fImporting || fReindex) return false;
+
+    TRY_LOCK(cs_main, lockMain);
+    if (!lockMain) return false;
+
+    CBlockIndex* pindex = chainActive.Tip();
+    if (pindex == NULL) return false;
+
+
+    if (pindex->nTime + 60 * 60 < GetTime())
+        return false;
+
+    fBlockchainSynced = true;
+
+    return true;
+}
 
 void CMasternodeSync::Reset()
 {
@@ -193,7 +228,7 @@ void CMasternodeSync::ClearFulfilledRequest()
     TRY_LOCK(cs_vNodes, lockRecv);
     if (!lockRecv) return;
 
-    BOOST_FOREACH (CNode* pnode, vNodes) {
+    for (CNode* pnode : vNodes) {
         pnode->ClearFulfilledRequest("getspork");
         pnode->ClearFulfilledRequest("mnsync");
         pnode->ClearFulfilledRequest("mnwsync");
@@ -204,7 +239,6 @@ void CMasternodeSync::ClearFulfilledRequest()
 void CMasternodeSync::Process()
 {
     static int tick = 0;
-    static int syncCount = 0;
 
     if (tick++ % MASTERNODE_SYNC_TIMEOUT != 0) return;
 
@@ -212,11 +246,8 @@ void CMasternodeSync::Process()
         /* 
             Resync if we lose all masternodes from sleep/wake or failure to sync originally
         */
-        if (mnodeman.CountEnabled() == 0 ) {
-			if(syncCount < 2){
-				Reset();
-				syncCount++;
-			}
+        if (mnodeman.CountEnabled() == 0) {
+            Reset();
         } else
             return;
     }
@@ -229,7 +260,6 @@ void CMasternodeSync::Process()
     }
 
     LogPrint("masternode", "CMasternodeSync::Process() - tick %d RequestedMasternodeAssets %d\n", tick, RequestedMasternodeAssets);
-    LogPrint("masternode", "lastMasternodeList = %d\n", lastMasternodeList);
 
     if (RequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL) GetNextAsset();
 
@@ -240,7 +270,7 @@ void CMasternodeSync::Process()
     TRY_LOCK(cs_vNodes, lockRecv);
     if (!lockRecv) return;
 
-    BOOST_FOREACH (CNode* pnode, vNodes) {
+    for (CNode* pnode : vNodes) {
         if (NetworkIdFromCommandLine() == CBaseChainParams::REGTEST) {
             if (RequestedMasternodeAttempt <= 2) {
                 pnode->PushMessage("getsporks"); //get current network sporks
@@ -272,6 +302,7 @@ void CMasternodeSync::Process()
 
         if (pnode->nVersion >= masternodePayments.GetMinMasternodePaymentsProto()) {
             if (RequestedMasternodeAssets == MASTERNODE_SYNC_LIST) {
+                LogPrint("masternode", "CMasternodeSync::Process() - lastMasternodeList %lld (GetTime() - MASTERNODE_SYNC_TIMEOUT) %lld\n", lastMasternodeList, GetTime() - MASTERNODE_SYNC_TIMEOUT);
                 if (lastMasternodeList > 0 && lastMasternodeList < GetTime() - MASTERNODE_SYNC_TIMEOUT * 2 && RequestedMasternodeAttempt >= MASTERNODE_SYNC_THRESHOLD) { //hasn't received a new item in the last five seconds, so we'll move to the
                     GetNextAsset();
                     return;

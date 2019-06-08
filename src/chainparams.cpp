@@ -212,6 +212,8 @@ public:
         strObfuscationPoolDummyAddress = "s1eQnJdoWDhKhxDrX8ev3aFjb1J6ZwXCxUT";
         nStartMasternodePayments = 1523750400; //2018-04-15
         nBudget_Fee_Confirmations = 6; // Number of confirmations for the finalization fee
+        nProposalEstablishmentTime = 60 * 60 * 24; // Proposals must be at least a day old to make it into a budget
+        nBudgetCycleBlocks = 43200; //!< Amount of blocks in a months period of time (using 1 minutes per) = (60*24*30)
         masternodeProtectionBlock = 590000;
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
@@ -333,6 +335,8 @@ public:
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 
         nStartMasternodePayments = 1520121600; //2018-03-04
+        nProposalEstablishmentTime = 60 * 5; // Proposals must be at least 5 mns old to make it into a test budget
+        nBudgetCycleBlocks = 144; //!< Ten cycles per day on testnet
         masternodeProtectionBlock = 17600;
 
     }

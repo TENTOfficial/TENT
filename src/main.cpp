@@ -2140,14 +2140,17 @@ bool IsInitialBlockDownload()
 
     LOCK(cs_main);
 
-    if (fImporting || fReindex)
-        return true;
-    if (chainActive.Tip() == NULL)
-        return true;
-    if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
-        return true;
-    if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
-        return true;
+    if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
+    {
+        if (fImporting || fReindex)
+            return true;
+        if (chainActive.Tip() == NULL)
+            return true;
+        if (chainActive.Tip()->nChainWork < UintToArith256(chainParams.GetConsensus().nMinimumChainWork))
+            return true;
+        if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
+            return true;
+    }
 
     LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
@@ -5804,7 +5807,7 @@ void static ProcessGetData(CNode* pfrom)
 	                    if (budget.mapSeenMasternodeBudgetProposals.count(inv.hash)) {
 	                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
 	                        ss.reserve(1000);
-	                        ss << *(CScriptBase*)(&budget.mapSeenMasternodeBudgetProposals[inv.hash]);
+	                        ss << budget.mapSeenMasternodeBudgetProposals[inv.hash];
 	                        pfrom->PushMessage("mprop", ss);
 	                        pushed = true;
 	                    }
@@ -6940,7 +6943,7 @@ bool ProcessMessages(CNode* pfrom)
             if (strstr(e.what(), "end of data"))
             {
                 // Allow exceptions from under-length message on vRecv
-                LogPrintf("%s(%s, %u bytes): Exception '%s' caught, normally caused by a message being shorter than its stated length\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
+                LogPrintf("%s(%s, %u bytes): Exception '%s' caught, normally caused by a message being shorter than its stated length, command = %s\n", __func__, SanitizeString(strCommand), nMessageSize, e.what(), strCommand.c_str());
             }
             else if (strstr(e.what(), "size too large"))
             {
