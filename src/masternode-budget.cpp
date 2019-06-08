@@ -423,6 +423,7 @@ bool CBudgetManager::AddProposal(CBudgetProposal& budgetProposal)
     }
 
     if (mapProposals.count(budgetProposal.GetHash())) {
+        LogPrint("mnbudget","CBudgetManager::AddProposal - no hash - %s\n", budgetProposal.GetHash().ToString().c_str());
         return false;
     }
 
