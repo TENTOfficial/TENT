@@ -1690,7 +1690,7 @@ CBudgetProposalBroadcast::CBudgetProposalBroadcast(std::string strProposalNameIn
     // nBlockEnd = nCycleStart + GetBudgetPaymentCycleBlocks() * nPaymentCount + GetBudgetPaymentCycleBlocks() / 2;
 
     // Calculate the end of the cycle for this vote, vote will be deleted after next cycle
-    nBlockEnd = nCycleStart + (Params().GetBudgetCycleBlocks() + 1)  * nPaymentCount;
+    nBlockEnd = nCycleStart + Params().GetBudgetCycleBlocks()  * nPaymentCount + 1;
 
     address = addressIn;
     nAmount = nAmountIn;
