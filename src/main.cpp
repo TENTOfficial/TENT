@@ -2139,8 +2139,7 @@ bool IsInitialBlockDownload()
         return false;
 
     LOCK(cs_main);
-
-    if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
+    //if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
     {
         if (fImporting || fReindex)
             return true;
