@@ -2139,6 +2139,9 @@ bool IsInitialBlockDownload()
         return false;
 
     LOCK(cs_main);
+
+    if (latchToFalse.load(std::memory_order_relaxed))
+        return false;
     //if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
     {
         if (fImporting || fReindex)
@@ -2150,6 +2153,7 @@ bool IsInitialBlockDownload()
         if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
             return true;
     }
+
 
     LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);

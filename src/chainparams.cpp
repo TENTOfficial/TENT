@@ -100,6 +100,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 765000;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
@@ -253,6 +254,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 19600;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;
