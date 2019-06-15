@@ -908,7 +908,7 @@ UniValue getmasternodescores (const UniValue& params, bool fHelp)
         arith_uint256 nHigh = 0;
         CMasternode* pBestMasternode = NULL;
         for (CMasternode& mn : vMasternodes) {
-            arith_uint256 n = mn.CalculateScore(1, nHeight - 100);
+            arith_uint256 n = mn.CalculateScore(1, nHeight - 101);
             if (n > nHigh) {
                 nHigh = n;
                 pBestMasternode = &mn;
