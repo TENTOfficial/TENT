@@ -1207,22 +1207,12 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
         return state.DoS(10, error("CheckTransaction(): vout empty"),
                          REJECT_INVALID, "bad-txns-vout-empty");
 
-    int nextBlockHeight = chainActive.Height() + 1;
-    if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
-        // Size limits
-        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
-        BOOST_STATIC_ASSERT(MAX_TX_SIZE_AFTER_SAPLING > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
-        if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_SAPLING)
-            return state.DoS(100, error("CheckTransaction(): size limits failed"),
-                            REJECT_INVALID, "bad-txns-oversize");
-    }
-    else {
-        // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_DIFA); // sanity
-        if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_DIFA)
-            return state.DoS(100, error("CheckTransaction(): size limits failed"),
-                            REJECT_INVALID, "bad-txns-oversize");
-        
-    }
+    // Size limits
+    // BOOST_STATIC_ASSERT(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0) >= MAX_TX_SIZE_AFTER_SAPLING); // sanity
+    BOOST_STATIC_ASSERT(MAX_TX_SIZE_AFTER_SAPLING > MAX_TX_SIZE_BEFORE_SAPLING); // sanity
+    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_TX_SIZE_AFTER_SAPLING)
+        return state.DoS(100, error("CheckTransaction(): size limits failed"),
+                        REJECT_INVALID, "bad-txns-oversize");
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
