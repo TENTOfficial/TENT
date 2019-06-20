@@ -117,8 +117,6 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     /** Return the founder's reward address and script for a given block height */
-    int GetBudgetCycleBlocks() const { return nBudgetCycleBlocks; }
-    int64_t GetProposalEstablishmentTime() const { return nProposalEstablishmentTime; }
     std::string SporkKey() const { return strSporkKey; }
     std::string ObfuscationPoolDummyAddress() const { return strObfuscationPoolDummyAddress; }
     /** Headers first syncing is disabled */
@@ -163,13 +161,11 @@ protected:
     bool fTestnetToBeDeprecatedFieldRPC = false;
     int nMasternodeCountDrift;
     int nPoolMaxTransactions;
-    int nBudgetCycleBlocks;
     std::string strSporkKey;
     bool fHeadersFirstSyncingActive;
     std::string strObfuscationPoolDummyAddress;
     int64_t nStartMasternodePayments;
     int64_t nBudget_Fee_Confirmations;
-    int64_t nProposalEstablishmentTime;
     CCheckpointData checkpointData;
     std::vector<std::string> vFoundersRewardAddress;
     int newTimeRule;

@@ -65,12 +65,6 @@ bool CMasternodeConfig::read(std::string& strErr)
         int port = 0;
         std::string hostname = "";
         SplitHostPort(ip, port, hostname);
-        if(port == 0 || hostname == "") {
-            strErr = _("Failed to parse host:port string") + "\n"+
-                     strprintf(_("Line: %d"), linenumber) + "\n\"" + line + "\"";
-            streamConfig.close();
-            return false;
-        }
 
         if (NetworkIdFromCommandLine() == CBaseChainParams::MAIN) {
             if (port != 16113) {

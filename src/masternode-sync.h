@@ -72,9 +72,11 @@ public:
 
     void Reset();
     void Process();
-    bool IsSynced();
-    bool IsBlockchainSynced();
+    bool IsFailed() { return RequestedMasternodeAssets == MASTERNODE_SYNC_FAILED; }
+    bool IsBlockchainSynced() { return RequestedMasternodeAssets > MASTERNODE_SYNC_SPORKS; }
     bool IsMasternodeListSynced() { return RequestedMasternodeAssets > MASTERNODE_SYNC_LIST; }
+    bool IsWinnersListSynced() { return RequestedMasternodeAssets > MASTERNODE_SYNC_MNW; }
+    bool IsSynced() { return RequestedMasternodeAssets == MASTERNODE_SYNC_FINISHED; }
     void ClearFulfilledRequest();
 };
 

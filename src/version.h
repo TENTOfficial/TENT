@@ -21,7 +21,7 @@ static const int GETHEADERS_VERSION = 31800;
 static const int MIN_PEER_PROTO_VERSION = 170004;
 //! disconnect from peers older than this proto version
 static const int MIN_PEER_PROTO_VERSION_ENFORCEMENT = 170004;
-static const int MIN_PEER_MNANNOUNCE = 170004;
+
 //! nTime field added to CAddress, starting with this version;
 //! if possible, avoid requesting addresses nodes older than this
 static const int CADDR_TIME_VERSION = 31402;

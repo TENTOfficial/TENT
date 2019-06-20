@@ -60,9 +60,8 @@ public:
         READWRITE(vchSig);
     }
 
-    bool CheckAndUpdate(int& nDos, bool fRequireEnabled = true, bool fCheckSigTimeOnly = false);
+    bool CheckAndUpdate(int& nDos, bool fRequireEnabled = true);
     bool Sign(CKey& keyMasternode, CPubKey& pubKeyMasternode);
-    bool VerifySignature(CPubKey& pubKeyMasternode, int &nDos);
     void Relay();
 
     uint256 GetHash()
@@ -192,7 +191,8 @@ public:
         return !(a.vin == b.vin);
     }
 
-    arith_uint256 CalculateScore(int mod = 1, int64_t nBlockHeight = 0);
+    // CALCULATE A RANK AGAINST OF GIVEN BLOCK
+    arith_uint256 CalculateScore(const uint256& blockHash);
 
     ADD_SERIALIZE_METHODS;
 
@@ -301,9 +301,7 @@ public:
     bool CheckAndUpdate(int& nDoS);
     bool CheckInputsAndAdd(int& nDos);
     bool Sign(CKey& keyCollateralAddress);
-    bool VerifySignature();
     void Relay();
-    std::string GetStrMessage();
 
     ADD_SERIALIZE_METHODS;
 
@@ -332,7 +330,6 @@ public:
     /// Create Masternode broadcast, needs to be relayed manually after that
     static bool Create(CTxIn vin, CService service, CKey keyCollateralAddressNew, CPubKey pubKeyCollateralAddressNew, CKey keyMasternodeNew, CPubKey pubKeyMasternodeNew, std::string& strErrorRet, CMasternodeBroadcast& mnbRet);
     static bool Create(std::string strService, std::string strKey, std::string strTxHash, std::string strOutputIndex, std::string& strErrorRet, CMasternodeBroadcast& mnbRet, bool fOffline = false);
-    static bool CheckDefaultPort(std::string strService, std::string& strErrorRet, std::string strContext);
 };
 
 #endif
