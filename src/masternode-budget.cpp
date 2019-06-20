@@ -48,7 +48,7 @@ bool IsBudgetCollateralValid(uint256 nTxCollateralHash, uint256 nExpectedHash, s
     }
 
     if (txCollateral.vout.size() < 1) return false;
-    if (txCollateral.nLockTime >  (unsigned int)chainActive.Height()) return false;
+    if (txCollateral.nLockTime != 0) return false;
 
     CScript findScript;
     findScript << OP_RETURN << ToByteVector(nExpectedHash);
