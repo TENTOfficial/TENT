@@ -343,7 +343,6 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
 
 UniValue startalias(const UniValue& params, bool fHelp)
 {
-    LogPrintf("params.size(): %d", params.size());
     if (fHelp || (params.size() != 1))
         throw runtime_error(
             "startalias \"aliasname\"\n"
