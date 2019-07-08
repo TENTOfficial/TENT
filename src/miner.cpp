@@ -136,6 +136,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
         nBlockMaxSize = MAX_TX_SIZE_AFTER_DIFA;
     }
+    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+        nBlockMaxSize = MAX_BLOCK_SIZE_AFTER_UPGRADE;
+    }
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
     nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0)-1000), nBlockMaxSize));
 

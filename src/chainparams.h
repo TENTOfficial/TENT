@@ -130,6 +130,7 @@ public:
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int GetNewTimeRule() const { return newTimeRule; }
     int GetMasternodeProtectionBlock() const { return masternodeProtectionBlock; }
+    int GetMasternodeCollateral() const { return masternodeCollateral; }
 protected:
     CChainParams() {}
 
@@ -170,6 +171,7 @@ protected:
     std::vector<std::string> vFoundersRewardAddress;
     int newTimeRule;
     int masternodeProtectionBlock;
+    int masternodeCollateral;
 };
 
 /**
