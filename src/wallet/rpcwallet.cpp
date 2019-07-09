@@ -3783,12 +3783,13 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
     mtx.nVersionGroupId = SAPLING_VERSION_GROUP_ID;
     mtx.nVersion = SAPLING_TX_VERSION;
     unsigned int max_tx_size = MAX_TX_SIZE_AFTER_SAPLING;
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
-        max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
-    }
-    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
         max_tx_size = MAX_TX_SIZE_AFTER_ALFHEIMR;
     }
+    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
+        max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
+    }
+    
     if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
         if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER)) {
             mtx.nVersionGroupId = OVERWINTER_VERSION_GROUP_ID;
@@ -4001,11 +4002,12 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
     if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
         max_tx_size = MAX_TX_SIZE_BEFORE_SAPLING;
     }
+    
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+        max_tx_size = MAX_TX_SIZE_AFTER_ALFHEIMR;
+    }
     else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
         max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
-    } 
-    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
-        max_tx_size = MAX_TX_SIZE_AFTER_ALFHEIMR;
     }
 
     // If Sapling is not active, do not allow sending to a Sapling address.
@@ -4348,11 +4350,11 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
 
     unsigned int max_tx_size = saplingActive ? MAX_TX_SIZE_AFTER_SAPLING : MAX_TX_SIZE_BEFORE_SAPLING;
 
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
-        max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
-    }
-    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
         max_tx_size = MAX_TX_SIZE_AFTER_ALFHEIMR;
+    }
+    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
+        max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
     }
     size_t estimatedTxSize = 200;  // tx overhead + wiggle room
     if (isToSproutZaddr) {
