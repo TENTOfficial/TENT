@@ -251,12 +251,12 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_TESTDUMMY].nActivationHeight =
             Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nProtocolVersion = 170007;
-        consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 11000;
+        consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 8100;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170008;
-        consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 19650;
+        consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 8100;
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 8300;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
-        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 21500;
+        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 8500;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
@@ -333,14 +333,14 @@ public:
             715          //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        // Founders reward script expects a vector of 2-of-3 multisig addresses
+        // Founders reward script expects a vector 900of 2-of-3 multisig addresses
         vFoundersRewardAddress = {
             "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
             };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 
         nStartMasternodePayments = 1520121600; //2018-03-04
-        masternodeProtectionBlock = 17600;
+        masternodeProtectionBlock = 7900;
         masternodeCollateral = 10;
     }
 };

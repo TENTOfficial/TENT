@@ -135,13 +135,12 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     int nextBlockHeight = chainActive.Height() + 1;
     if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
         nBlockMaxSize = MAX_BLOCK_SIZE(nextBlockHeight);
+        nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE(nextBlockHeight)-1000), nBlockMaxSize));
     }
     else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
         nBlockMaxSize = MAX_TX_SIZE_AFTER_DIFA;
+        nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0)-1000), nBlockMaxSize));
     }
-    // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
-    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0)-1000), nBlockMaxSize));
-
     // How much of the block should be dedicated to high-priority transactions,
     // included regardless of the fees they pay
     unsigned int nBlockPrioritySize = GetArg("-blockprioritysize", DEFAULT_BLOCK_PRIORITY_SIZE);
