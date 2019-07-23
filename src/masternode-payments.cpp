@@ -222,7 +222,7 @@ bool IsBlockValueValid(const CBlock& block, CAmount nExpectedValue)
 bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
 {
     if (!masternodeSync.IsSynced()) { //there is no budget data to use to check anything -- find the longest chain
-        LogPrint("masternode", "Client not synced, skipping block payee checks\n");
+        LogPrint("masternodepayments", "Client not synced, skipping block payee checks\n");
         return true;
     }
 
@@ -234,11 +234,13 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
             if (budget.IsTransactionValid(txNew, nBlockHeight))
                 return true;
 
-            LogPrint("masternode","Invalid budget payment detected %s\n", txNew.ToString().c_str());
             if (IsSporkActive(SPORK_9_MASTERNODE_BUDGET_ENFORCEMENT))
+            {
+                LogPrintf("Invalid budget payment detected %s\n", txNew.ToString().c_str());
                 return false;
+            }
 
-            LogPrint("masternode","Budget enforcement is disabled, accepting block\n");
+            LogPrint("masternodepayments","Budget enforcement is disabled, accepting block\n");
             return true;
         }
     }
@@ -247,11 +249,11 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
     if (masternodePayments.IsTransactionValid(txNew, nBlockHeight))
         return true;
 
-    LogPrint("masternode","Invalid mn payment detected %s\n", txNew.ToString().c_str());
+    LogPrintf("Invalid mn payment detected %s\n", txNew.ToString().c_str());
 
     if (IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT))
         return false;
-    LogPrint("masternode","Masternode payment enforcement is disabled, accepting block\n");
+    LogPrint("masternodepayments","Masternode payment enforcement is disabled, accepting block\n");
 
     return true;
 }
@@ -592,7 +594,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         } catch (...) { }
     }
 
-    LogPrint("masternode","CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
+    LogPrintf("CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
     return false;
 }
 
