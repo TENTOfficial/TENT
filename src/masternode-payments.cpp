@@ -579,9 +579,9 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
             }
         }
 
-        if (found) return true;
-		
-		
+        // if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
+            if (found) return true;
+
 		try {
 			CTxDestination address1;
 			ExtractDestination(payee.scriptPubKey, address1);
@@ -594,6 +594,11 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         } catch (...) { }
     }
 
+    LogPrintf("Transaction output: ");
+    BOOST_FOREACH (CTxOut out, txNew.vout) {
+        LogPrintf("%ld,", out.nValue);
+    }
+    LogPrintf("\n");
     LogPrintf("CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
     return false;
 }
