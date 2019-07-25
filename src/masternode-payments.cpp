@@ -555,41 +555,72 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward - nFoundersReward, nMasternode_Drift_Count);
 	
 	// //require at least 6 signatures
-	// BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
-    // {
-    //     LogPrint("masternode","Masternode payment nVotes=%d nMaxSignatures=%d\n", payee.nVotes, nMaxSignatures);
-	// 	if (payee.nVotes >= nMaxSignatures && payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
-	// 		nMaxSignatures = payee.nVotes;
-    // }
+    if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+        BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
+        {
+            LogPrint("masternode","Masternode payment nVotes=%d nMaxSignatures=%d\n", payee.nVotes, nMaxSignatures);
+            if (payee.nVotes >= nMaxSignatures && payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
+                nMaxSignatures = payee.nVotes;
+        }
 
-	// //if we don't have at least 6 signatures on a payee, approve whichever is the longest chain
-	// if (nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;			
+        //if we don't have at least 6 signatures on a payee, approve whichever is the longest chain
+        if (nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;
+    }	
 
     BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
         bool found = false;
         BOOST_FOREACH (CTxOut out, txNew.vout) {
             if (payee.scriptPubKey == out.scriptPubKey) {
                 LogPrint("masternode","Masternode payment Paid=%s Min=%s\n", FormatMoney(out.nValue).c_str(), FormatMoney(requiredMasternodePayment).c_str());
-                if(out.nValue == requiredMasternodePayment)
-                    found = true;
+                if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+                    if(out.nValue >= requiredMasternodePayment)
+                        found = true;
+                    else
+                        LogPrint("masternode","Masternode payment is out of drift range");
+                }
                 else
-                    LogPrint("masternode","Masternode payment is out of drift range");
+                {
+                    if(out.nValue == requiredMasternodePayment)
+                        found = true;
+                    else
+                        LogPrint("masternode","Masternode payment is out of drift range");
+                }
             }
         }
 
-        if (found) return true;
-		
-		
-		try {
-			CTxDestination address1;
-			ExtractDestination(payee.scriptPubKey, address1);
+        if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+            if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED) {
+                if (found) return true;
+            
+            
+                try {
+                    CTxDestination address1;
+                    ExtractDestination(payee.scriptPubKey, address1);
 
-			if (strPayeesPossible == "") {
-				strPayeesPossible += EncodeDestination(address1);
-			} else {
-				strPayeesPossible += "," + EncodeDestination(address1);
-			}
-        } catch (...) { }
+                    if (strPayeesPossible == "") {
+                        strPayeesPossible += EncodeDestination(address1);
+                    } else {
+                        strPayeesPossible += "," + EncodeDestination(address1);
+                    }
+                } catch (...) { }
+            }
+        }
+        else
+        {
+            if (found) return true;
+            
+            
+            try {
+                CTxDestination address1;
+                ExtractDestination(payee.scriptPubKey, address1);
+
+                if (strPayeesPossible == "") {
+                    strPayeesPossible += EncodeDestination(address1);
+                } else {
+                    strPayeesPossible += "," + EncodeDestination(address1);
+                }
+            } catch (...) { }
+        }
     }
 
     LogPrint("masternode","CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
