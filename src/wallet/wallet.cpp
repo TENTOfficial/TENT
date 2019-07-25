@@ -2150,7 +2150,7 @@ CAmount CWalletTx::GetUnlockedCredit() const
         const CTxOut& txout = vout[i];
 
         if (pwallet->IsSpent(hashTx, i) || pwallet->IsLockedCoin(hashTx, i)) continue;
-        if (fMasterNode && vout[i].nValue == 10000 * COIN) continue; // do not count MN-like outputs
+        if (fMasterNode && vout[i].nValue == Params().GetMasternodeCollateral() * COIN) continue; // do not count MN-like outputs
 
         nCredit += pwallet->GetCredit(txout, ISMINE_SPENDABLE);
         if (!MoneyRange(nCredit))
@@ -2184,7 +2184,7 @@ CAmount CWalletTx::GetLockedCredit() const
         }
 
         // Add masternode collaterals which are handled likc locked coins
-        // else if (fMasterNode && vout[i].nValue == 10000 * COIN) {
+        // else if (fMasterNode && vout[i].nValue == Params().GetMasternodeCollateral() * COIN) {
         //     nCredit += pwallet->GetCredit(txout, ISMINE_SPENDABLE);
         // }
 
@@ -3046,7 +3046,7 @@ CAmount CWalletTx::GetAnonymizableCredit(bool fUseCache) const
         const CTxIn vin = CTxIn(hashTx, i);
 
         if (pwallet->IsSpent(hashTx, i) || pwallet->IsLockedCoin(hashTx, i)) continue;
-        if (fMasterNode && vout[i].nValue == 10000 * COIN) continue; // do not count MN-like outputs
+        if (fMasterNode && vout[i].nValue == Params().GetMasternodeCollateral() * COIN) continue; // do not count MN-like outputs
 
         const int rounds = pwallet->GetInputObfuscationRounds(vin);
         if (rounds >= -2 && rounds < nSnowgemSendRounds) {
@@ -3435,13 +3435,13 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 if (coin_type == ONLY_DENOMINATED) {
                     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if (coin_type == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == 10000 * COIN);
+                    found = !(fMasterNode && pcoin->vout[i].nValue == Params().GetMasternodeCollateral() * COIN);
                 } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN) {
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if (found && fMasterNode) found = pcoin->vout[i].nValue != 10000 * COIN; // do not use Hot MN funds
+                    if (found && fMasterNode) found = pcoin->vout[i].nValue != Params().GetMasternodeCollateral() * COIN; // do not use Hot MN funds
                 } else if (coin_type == ONLY_10000) {
-                    found = pcoin->vout[i].nValue == 10000 * COIN;
+                    found = pcoin->vout[i].nValue == Params().GetMasternodeCollateral() * COIN;
                 } else {
                     found = true;
                 }
@@ -3783,7 +3783,7 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, CAmount nValueMin, CAmount 
 
     BOOST_FOREACH (const COutput& out, vCoins) {
         // masternode-like input should not be selected by AvailableCoins now anyway
-        //if(out.tx->vout[out.i].nValue == 10000*COIN) continue;
+        //if(out.tx->vout[out.i].nValue == Params().GetMasternodeCollateral()*COIN) continue;
         if (nValueRet + out.tx->vout[out.i].nValue <= nValueMax) {
             bool fAccepted = false;
 
@@ -3881,7 +3881,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
         if (out.tx->vout[out.i].nValue < CENT) continue;
         //do not allow collaterals to be selected
         if (IsCollateralAmount(out.tx->vout[out.i].nValue)) continue;
-        if (fMasterNode && out.tx->vout[out.i].nValue == 10000 * COIN) continue; //masternode input
+        if (fMasterNode && out.tx->vout[out.i].nValue == Params().GetMasternodeCollateral() * COIN) continue; //masternode input
 
         if (nValueRet + out.tx->vout[out.i].nValue <= nValueMax) {
             CTxIn vin = CTxIn(out.tx->GetHash(), out.i);
@@ -4168,7 +4168,10 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
         max_tx_size = MAX_TX_SIZE_BEFORE_SAPLING;
     }
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
+        max_tx_size = MAX_TX_SIZE_AFTER_ALFHEIMR;
+    }
+    else if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_DIFA)) {
         max_tx_size = MAX_TX_SIZE_AFTER_DIFA;
     }
 

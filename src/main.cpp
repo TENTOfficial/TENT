@@ -2132,7 +2132,7 @@ bool IsInitialBlockDownload()
 
     if (latchToFalse.load(std::memory_order_relaxed))
         return false;
-    //if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
+    if(chainActive.Height() != 0 && NetworkIdFromCommandLine() == CBaseChainParams::MAIN)
     {
         if (fImporting || fReindex)
             return true;

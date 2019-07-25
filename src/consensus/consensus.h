@@ -28,6 +28,7 @@ static const unsigned int MAX_BLOCK_SIGOPS = 20000;
 static const unsigned int MAX_TX_SIZE_BEFORE_SAPLING = 100000;
 static const unsigned int MAX_TX_SIZE_AFTER_SAPLING = 2000000;
 static const unsigned int MAX_TX_SIZE_AFTER_DIFA = (2 * MAX_TX_SIZE_BEFORE_SAPLING);
+static const unsigned int MAX_TX_SIZE_AFTER_ALFHEIMR = (4 * MAX_TX_SIZE_BEFORE_SAPLING);
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 100;
 /** The minimum value which is invalid for expiry height, used by CTransaction and CMutableTransaction */

@@ -101,7 +101,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 520000;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 765000;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
-
+        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 50000000;
+        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
@@ -215,6 +216,7 @@ public:
         nStartMasternodePayments = 1523750400; //2018-04-15
         nBudget_Fee_Confirmations = 6; // Number of confirmations for the finalization fee
         masternodeProtectionBlock = 590000;
+        masternodeCollateral = 10000;
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 };
@@ -254,6 +256,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 11200;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 19650;
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 21500;
+        consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;
@@ -337,7 +341,7 @@ public:
 
         nStartMasternodePayments = 1520121600; //2018-03-04
         masternodeProtectionBlock = 17600;
-
+        masternodeCollateral = 10;
     }
 };
 static CTestNetParams testNetParams;
