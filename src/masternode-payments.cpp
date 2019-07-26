@@ -590,21 +590,6 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
             }
         }
 
-<<<<<<< HEAD
-        // if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
-            if (found) return true;
-
-		try {
-			CTxDestination address1;
-			ExtractDestination(payee.scriptPubKey, address1);
-
-			if (strPayeesPossible == "") {
-				strPayeesPossible += EncodeDestination(address1);
-			} else {
-				strPayeesPossible += "," + EncodeDestination(address1);
-			}
-        } catch (...) { }
-=======
         if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
             if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED) {
                 if (found) return true;
@@ -638,7 +623,6 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
                 }
             } catch (...) { }
         }
->>>>>>> origin/development
     }
 
     LogPrintf("Transaction output: ");
