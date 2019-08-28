@@ -103,6 +103,9 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 850000;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 1850000;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
+        
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
@@ -258,6 +261,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 8500;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 1850000;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;

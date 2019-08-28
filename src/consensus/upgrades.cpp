@@ -38,6 +38,11 @@ const struct NUInfo NetworkUpgradeInfo[Consensus::MAX_NETWORK_UPGRADES] = {
         /*.nBranchId =*/ 0x76b809bb,
         /*.strName =*/ "Alfheimr",
         /*.strInfo =*/ "Masternodevoting, increase tx size to 400k",
+    },
+    {
+        /*.nBranchId =*/ 0x76b809bb,
+        /*.strName =*/ "Knowhere",
+        /*.strInfo =*/ "Update payment reward",
     }
 };
 

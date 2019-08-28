@@ -933,6 +933,7 @@ UniValue getmasternodewinners (const UniValue& params, bool fHelp)
                 std::size_t pos = t.find(":");
                 std::string strAddress = t.substr(0,pos);
                 uint64_t nVotes = atoi(t.substr(pos+1));
+                strAddress.erase(std::remove_if(strAddress.begin(), strAddress.end(), ::isspace), strAddress.end());
                 addr.push_back(Pair("address", strAddress));
                 addr.push_back(Pair("nVotes", nVotes));
                 winner.push_back(addr);
