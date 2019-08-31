@@ -338,9 +338,14 @@ int printMetrics(size_t cols, bool mining)
                         {
                             subsidy -= subsidy / 20;
                         }
-                        else
+                        else if(height < consensusParams.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
                         {
                             subsidy -= subsidy * 7.5 / 100;
+                        }
+                        else
+                        {
+                            subsidy -= subsidy * 15 / 100; //founders reward
+                            subsidy -= subsidy * 5 / 100; //treasury reward
                         }
                     }
                     if (std::max(0, COINBASE_MATURITY - (tipHeight - height)) > 0) {

@@ -310,12 +310,23 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     {
         vFoundersReward = blockValue / 20;
     }
-    else
+    else if(nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
     {
         vFoundersReward = blockValue * 7.5 / 100;
     }
+    else
+    {
+        vFoundersReward = blockValue * 15 / 100;
+    }
+
+    // Treasury reward
+    CAmount vTreasuryReward = 0;
+    if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+    {
+        vTreasuryReward = blockValue * 5 / 100;
+    }
     
-    CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue - vFoundersReward);
+    CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue);
     if(hasPayment){
         minerValue -= masternodePayment;
     }
@@ -325,9 +336,11 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
         // Take some reward away from us
         txNew.vout[0].nValue -= vFoundersReward;
+        txNew.vout[0].nValue -= vTreasuryReward;
 
         // And give it to the founders
         txNew.vout.push_back(CTxOut(vFoundersReward, Params().GetFoundersRewardScriptAtHeight(nHeight)));
+        txNew.vout.push_back(CTxOut(vTreasuryReward, Params().GetTreasuryRewardScriptAtHeight(nHeight)));
     }
 
     //@TODO masternode
@@ -349,7 +362,7 @@ int CMasternodePayments::GetMinMasternodePaymentsProto()
     else
     {
         int minPeer = MIN_PEER_PROTO_VERSION_ENFORCEMENT;
-        if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_KNOWHERE)) {
+        if (NetworkUpgradeActive(nLastBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_KNOWHERE)) {
             minPeer = MIN_PEER_PROTO_VERSION_ENFORCEMENT_KNOWHERE;
         }
         return minPeer;
@@ -550,17 +563,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         nMasternode_Drift_Count = mnodeman.size() + Params().MasternodeCountDrift();
     }
 
-    // Founders reward
-    CAmount nFoundersReward = 0;
-    if(nBlockHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight)
-    {
-        nFoundersReward = nReward / 20;
-    }
-    else
-    {
-        nFoundersReward = nReward * 7.5 / 100;
-    }
-    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward - nFoundersReward, nMasternode_Drift_Count);
+    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, nMasternode_Drift_Count);
 	
 	// //require at least 6 signatures
     if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {

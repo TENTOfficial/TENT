@@ -2103,7 +2103,8 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
     int nMNPaymentChange = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight;
     int nMNPaymentDIFA = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight;
-    if(nHeight >= nMNPaymentDIFA)
+    int nMNPaymentKnowhere = Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight;
+    if(nHeight >= nMNPaymentKnowhere)
     { 
         ret = blockValue * 50 / 100;
     }
@@ -2114,6 +2115,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
         if(nHeight > nMNPSBlock+(nMNPIPeriod* 2)) ret = 9 * COIN; // > 279600 - 45.0%
         if(nHeight > nMNPSBlock+(nMNPIPeriod* 3)) ret = 10 * COIN; // > 322800 - 50.0%
         if(nHeight > nMNPaymentChange) ret = 9 * COIN; // 45%
+        if(nHeight >= nMNPaymentDIFA) ret = 925 * COIN / 100;
     }
     return ret;
 }
@@ -4308,9 +4310,16 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                       break;
                   }
                 }
-                else
+                else if(nHeight < consensusParams.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
                 {
                     if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 7.5 / 100)) {
+                        found = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 15 / 100)) {
                         found = true;
                         break;
                     }
@@ -4320,6 +4329,24 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
         if (!found) {
             return state.DoS(100, error("%s: founders reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
+        }
+    }
+
+    //check treasury reward
+    if ((nHeight > consensusParams.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight) && (nHeight <= consensusParams.GetLastFoundersRewardBlockHeight())) {
+        bool found = false;
+
+        BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
+            if (output.scriptPubKey == Params().GetTreasuryRewardScriptAtHeight(nHeight)) {
+                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 5 / 100)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            return state.DoS(100, error("%s: treasury reward missing", __func__), REJECT_INVALID, "cb-no-treasury-reward");
         }
     }
 
