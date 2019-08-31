@@ -103,6 +103,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 850000;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
+        
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("000000000000000000000000000000000000000000000000000000e45718e6cb");
@@ -178,11 +179,12 @@ public:
             (0, consensus.hashGenesisBlock)
             (23000, uint256S("0x000000006b366d2c1649a6ebb4787ac2b39c422f451880bc922e3a6fbd723616"))
             (88000, uint256S("0x0000003ef01c0d1f954fdd738dac1b4f7191e6bee66ed8cb882d00d65fccd89b"))
-            (770000, uint256S("0x0000033c44f81085a466f72d24104105caee912da72bdccc6d6f3c0d819ddc1a")),
-            1560575530,     // * UNIX timestamp of last checkpoint block
-            2050422,         // * total number of transactions between genesis and last checkpoint
+            (770000, uint256S("0x0000033c44f81085a466f72d24104105caee912da72bdccc6d6f3c0d819ddc1a"))
+            (874855, uint256S("0x000000cde6ea86e41c60ca32c06e7d1a0847bf533ecf0cd71b445ce81037f8cd")),
+            1566917129,     // * UNIX timestamp of last checkpoint block
+            2328987,         // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            3834            // * estimated number of transactions per day after checkpoint
+            3836            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (60 * 24))
         };
 
