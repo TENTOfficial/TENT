@@ -791,8 +791,11 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     }
     result.push_back(Pair("founderReward", (int64_t)nFoundersReward));
     result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
-    result.push_back(Pair("treasuryReward", (int64_t)nTreasuryReward));
-    result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+    if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+    {
+        result.push_back(Pair("treasuryReward", (int64_t)nTreasuryReward));
+        result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+    }
     return result;
 }
 
@@ -994,8 +997,11 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
     result.push_back(Pair("miner", ValueFromAmount(nReward)));
     result.push_back(Pair("founders", ValueFromAmount(nFoundersReward)));
     result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
-    result.push_back(Pair("treasury", ValueFromAmount(nTreasuryReward)));
-    result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+    if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+    {
+        result.push_back(Pair("treasury", ValueFromAmount(nTreasuryReward)));
+        result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+    }
     result.push_back(Pair("masternode", ValueFromAmount(nMasternodeReward)));
     return result;
 }

@@ -557,7 +557,10 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
 
         // And give it to the founders
         txNew.vout.push_back(CTxOut(vFoundersReward, Params().GetFoundersRewardScriptAtHeight(pindexPrev->nHeight + 1)));
-        txNew.vout.push_back(CTxOut(vTreasuryReward, Params().GetTreasuryRewardScriptAtHeight(pindexPrev->nHeight + 1)));
+        if(pindexPrev->nHeight + 1 >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+        {
+            txNew.vout.push_back(CTxOut(vTreasuryReward, Params().GetTreasuryRewardScriptAtHeight(pindexPrev->nHeight + 1)));
+        }
     }
 
     if(nHighestCount > 0){

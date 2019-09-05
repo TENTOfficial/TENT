@@ -286,7 +286,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 8500;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
-        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 1850000;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 12600;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
@@ -369,7 +369,7 @@ public:
         };
 
         vTreasuryRewardAddress = {
-            "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
+            "t2Vck95daFLBrvcgfxCT43uBsicECsn6wqe"
         };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 
@@ -576,7 +576,7 @@ std::string CChainParams::GetTreasuryRewardAddressAtHeight(int nHeight) const {
 }
 
 // Block height must be >0
-// The founders reward address is expected to be a multisig (P2SH) address
+// The treasury reward address is expected to be a multisig (P2SH) address
 CScript CChainParams::GetTreasuryRewardScriptAtHeight(int nHeight) const {
     CTxDestination address = DecodeDestination(GetTreasuryRewardAddressAtHeight(nHeight).c_str());
     assert(IsValidDestination(address));
