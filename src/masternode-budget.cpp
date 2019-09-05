@@ -539,9 +539,6 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
             vFoundersReward = txNew.vout[0].nValue * 15 / 100;
         }
 
-        // Take some reward away from us
-        txNew.vout[0].nValue -= vFoundersReward;
-
         // And give it to the founders
         txNew.vout.push_back(CTxOut(vFoundersReward, Params().GetFoundersRewardScriptAtHeight(pindexPrev->nHeight + 1)));
 

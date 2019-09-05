@@ -994,6 +994,8 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
     CAmount nMasternodeReward = GetMasternodePayment(nHeight, nReward);
     UniValue result(UniValue::VOBJ);
 
+    nReward -= nFoundersReward;
+    nReward -= nTreasuryReward;
     result.push_back(Pair("miner", ValueFromAmount(nReward)));
     result.push_back(Pair("founders", ValueFromAmount(nFoundersReward)));
     result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
