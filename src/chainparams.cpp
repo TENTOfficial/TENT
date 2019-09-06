@@ -103,6 +103,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 850000;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 916000;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
@@ -180,11 +182,12 @@ public:
             (23000, uint256S("0x000000006b366d2c1649a6ebb4787ac2b39c422f451880bc922e3a6fbd723616"))
             (88000, uint256S("0x0000003ef01c0d1f954fdd738dac1b4f7191e6bee66ed8cb882d00d65fccd89b"))
             (770000, uint256S("0x0000033c44f81085a466f72d24104105caee912da72bdccc6d6f3c0d819ddc1a"))
-            (874855, uint256S("0x000000cde6ea86e41c60ca32c06e7d1a0847bf533ecf0cd71b445ce81037f8cd")),
-            1566917129,     // * UNIX timestamp of last checkpoint block
-            2328987,         // * total number of transactions between genesis and last checkpoint
+            (874855, uint256S("0x000000cde6ea86e41c60ca32c06e7d1a0847bf533ecf0cd71b445ce81037f8cd"))
+            (888888, uint256S("0x000003f40c40c23a58ca7d0255b994e7235e42a51bce730a68ef79e2157612da")),
+            1567767845,     // * UNIX timestamp of last checkpoint block
+            2363519,         // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            3836            // * estimated number of transactions per day after checkpoint
+            3828            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (60 * 24))
         };
 
@@ -210,6 +213,31 @@ public:
             "s3TKWLar6bZEHppF4ZR1MbPuBfe33a1bHX9", /* main-index: 17*/
             "s3UpY6Q3T3v3F7MEpNDnV3rTucLEJkkHR4q", /* main-index: 18*/
             "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
+        };
+
+        //@TODO - txid update wallet list
+        // Treasury reward script expects a vector of 2-of-3 multisig addresses
+        vTreasuryRewardAddress = {
+            "s3STyRjwtffPWcfQzawkHEcDVVeYCCZvKAw", /* main-index: 0*/
+            "s3QiJcoCmWewixcVVAnt3LoxY3BSNNx8YhM", /* main-index: 1*/
+            "s3b65JSBYsikDESqv1MqgWhn51adyMd2fzY", /* main-index: 2*/
+            "s3fRjrKkH6yVj5rPTU2N8X7pMKnuyWS46Qb", /* main-index: 3*/
+            "s3XYB7NcXsZWb6MX8jsCwefdAU8BnTQvg7x", /* main-index: 4*/
+            "s3dcca3UyRyH56osUEWMRGTS7h9YwXj6Kqq", /* main-index: 5*/
+            "s3c5hmNVHNn5Gb4JzqdUH7iDubSjUSfUD9i", /* main-index: 6*/
+            "s3b3EPcrRvkcgcTVVqEhz8HtF3KrKGu5m3h", /* main-index: 7*/
+            "s3chG3hQjiorgYRACd42S7p4zzWoGaYyVfN", /* main-index: 8*/
+            "s3aVCqrd3qt6EASt9KpGnLtKRQkjAPbu5qC", /* main-index: 9*/
+            "s3jPRn5CmFGVfKENbjbE3U4NwfXaBN4oH2C", /* main-index: 10*/
+            "s3gUK3Vv9gF1hT4XoGfZju1DFmvoGvhEuVH", /* main-index: 11*/
+            "s3b2SGjybAV8vhZeKuXz1vFURpP3CVxyrnq", /* main-index: 12*/
+            "s3inM3mAzVwseCPJzMDgwmNyXDTRA9Pjn5h", /* main-index: 13*/
+            "s3PiBVbSkPeV6VNXJf1HD2hbsyXRGXDN1q5", /* main-index: 14*/
+            "s3aejhtm6xYdB5wEdSyJUsJ79CqqGmeC7Y6", /* main-index: 15*/
+            "s3TTYpvWazeMSbvMHvmTfxsJakWz7cEhcET", /* main-index: 16*/
+            "s3f4F2nsXzgJt1K2drpcGnDiVZedvfMY6H1", /* main-index: 17*/
+            "s3ZGMfXNrYRLEy58bGGacyc7CzsXt6C8brn", /* main-index: 18*/
+            "s3S7Z17UfNmRkxoNkRaLuyXpckMv9DEr4cz", /* main-index: 19*/
         };
         nPoolMaxTransactions = 3;
         strSporkKey = "045da9271f5d9df405d9e83c7c7e62e9c831cc85c51ffaa6b515c4f9c845dec4bf256460003f26ba9d394a17cb57e6759fe231eca75b801c20bccd19cbe4b7942d";
@@ -260,6 +288,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_DIFA].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nActivationHeight = 8500;
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 12600;
+        consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;
@@ -338,7 +368,11 @@ public:
         // Founders reward script expects a vector 900of 2-of-3 multisig addresses
         vFoundersRewardAddress = {
             "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
-            };
+        };
+
+        vTreasuryRewardAddress = {
+            "t2Vck95daFLBrvcgfxCT43uBsicECsn6wqe"
+        };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
 
         nStartMasternodePayments = 1520121600; //2018-03-04
@@ -442,6 +476,7 @@ public:
 
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
+        vTreasuryRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 
@@ -531,6 +566,32 @@ std::string CChainParams::GetFoundersRewardAddressAtIndex(int i) const {
     return vFoundersRewardAddress[i];
 }
 
+// Block height must be >0
+// Index variable i ranges from 0 - (vFoundersRewardAddress.size()-1)
+std::string CChainParams::GetTreasuryRewardAddressAtHeight(int nHeight) const {
+    int maxHeight = consensus.GetFoundersRewardRepeatInterval();
+    // assert(nHeight > 0 && nHeight <= maxHeight);
+
+    size_t addressChangeInterval = (maxHeight + vTreasuryRewardAddress.size()) / vTreasuryRewardAddress.size();
+    size_t i = (nHeight / addressChangeInterval) % vTreasuryRewardAddress.size();
+    return vTreasuryRewardAddress[i];
+}
+
+// Block height must be >0
+// The treasury reward address is expected to be a multisig (P2SH) address
+CScript CChainParams::GetTreasuryRewardScriptAtHeight(int nHeight) const {
+    CTxDestination address = DecodeDestination(GetTreasuryRewardAddressAtHeight(nHeight).c_str());
+    assert(IsValidDestination(address));
+    assert(boost::get<CScriptID>(&address) != nullptr);
+    CScriptID scriptID = boost::get<CScriptID>(address); // address is a boost variant
+    CScript script = CScript() << OP_HASH160 << ToByteVector(scriptID) << OP_EQUAL;
+    return script;
+}
+
+std::string CChainParams::GetTreasuryRewardAddressAtIndex(int i) const {
+    assert(i >= 0 && i < vTreasuryRewardAddress.size());
+    return vTreasuryRewardAddress[i];
+}
 
 int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const CChainParams& params){
     //if in overlap period, there will be two valid solutions, else 1.

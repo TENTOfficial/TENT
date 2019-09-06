@@ -11,6 +11,8 @@
 
 #include "librustzcash.h"
 
+#include "key_io.h"
+
 JSDescription::JSDescription(
     bool makeGrothProof,
     ZCJoinSplit& params,
@@ -207,7 +209,9 @@ uint256 CTxOut::GetHash() const
 
 std::string CTxOut::ToString() const
 {
-    return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30));
+    CTxDestination address1;
+    ExtractDestination(scriptPubKey, address1);
+    return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s, address=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30), EncodeDestination(address1));
 }
 
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::SPROUT_MIN_CURRENT_VERSION), fOverwintered(false), nVersionGroupId(0), nExpiryHeight(0), nLockTime(0), valueBalance(0) {}
