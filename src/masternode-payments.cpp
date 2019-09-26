@@ -249,7 +249,7 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
     if (masternodePayments.IsTransactionValid(txNew, nBlockHeight))
         return true;
 
-    LogPrintf("Invalid mn payment detected %s\n", txNew.ToString().c_str());
+    LogPrintf("masternodepayments", "Invalid mn payment detected %s\n", txNew.ToString().c_str());
 
     if (IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT))
         return false;
@@ -586,63 +586,32 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         BOOST_FOREACH (CTxOut out, txNew.vout) {
             if (payee.scriptPubKey == out.scriptPubKey) {
                 LogPrint("masternode","Masternode payment Paid=%s Min=%s\n", FormatMoney(out.nValue).c_str(), FormatMoney(requiredMasternodePayment).c_str());
-                if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
-                    if(out.nValue >= requiredMasternodePayment)
-                        found = true;
-                    else
-                        LogPrint("masternode","Masternode payment is out of drift range");
-                }
+                if(out.nValue >= requiredMasternodePayment)
+                    found = true;
                 else
-                {
-                    if(out.nValue == requiredMasternodePayment)
-                        found = true;
-                    else
-                        LogPrint("masternode","Masternode payment is out of drift range");
-                }
+                    LogPrint("masternode","Masternode payment is out of drift range");
             }
         }
 
-        if (NetworkUpgradeActive(nBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ALFHEIMR)) {
-            if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED) {
-                if (found) return true;
-            
-            
-                try {
-                    CTxDestination address1;
-                    ExtractDestination(payee.scriptPubKey, address1);
+        if (found) return true;
 
-                    if (strPayeesPossible == "") {
-                        strPayeesPossible += EncodeDestination(address1);
-                    } else {
-                        strPayeesPossible += "," + EncodeDestination(address1);
-                    }
-                } catch (...) { }
+        try {
+            CTxDestination address1;
+            ExtractDestination(payee.scriptPubKey, address1);
+
+            if (strPayeesPossible == "") {
+                strPayeesPossible += EncodeDestination(address1);
+            } else {
+                strPayeesPossible += "," + EncodeDestination(address1);
             }
-        }
-        else
-        {
-            if (found) return true;
-            
-            
-            try {
-                CTxDestination address1;
-                ExtractDestination(payee.scriptPubKey, address1);
-
-                if (strPayeesPossible == "") {
-                    strPayeesPossible += EncodeDestination(address1);
-                } else {
-                    strPayeesPossible += "," + EncodeDestination(address1);
-                }
-            } catch (...) { }
-        }
+        } catch (...) { }
     }
 
-    LogPrintf("Transaction output: ");
+    LogPrint("mnpaymentpayee", "Transaction output: ");
     BOOST_FOREACH (CTxOut out, txNew.vout) {
-        LogPrintf("%ld,", out.nValue);
+        LogPrint("mnpaymentpayee","%ld,", out.nValue);
     }
-    LogPrintf("\n");
-    LogPrintf("CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
+    LogPrint("mnpaymentpayee","\nCMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
     return false;
 }
 
