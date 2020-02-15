@@ -44,6 +44,14 @@ $ sudo apt-get install \
       autoconf libtool ncurses-dev unzip git python python-zmq \
       zlib1g-dev wget bsdmainutils automake curl
 ```
+On Ubuntu 18.04 or upper systems:
+
+```
+$ sudo apt-get install \
+      build-essential pkg-config libc6-dev m4 g++-multilib \
+      autoconf libtool ncurses-dev unzip git python python-zmq \
+      zlib1g-dev wget bsdmainutils automake curl libgconf-2-4
+```
 
 On Fedora-based systems:
 
