@@ -54,8 +54,8 @@ void SendMoney(const CTxDestination& address, CAmount nValue, CWalletTx& wtxNew,
 
 UniValue obfuscation(const UniValue& params, bool fHelp)
 {
-    throw runtime_error("Obfuscation is not supported any more. User Zerocoin\n");
-    
+    throw runtime_error("Obfuscation is not supported any more. User SnowGem\n");
+
     if (fHelp || params.size() == 0)
         throw runtime_error(
             "obfuscation <solarisaddress> <amount>\n"
@@ -166,11 +166,11 @@ UniValue masternode(const UniValue& params, bool fHelp)
 
     if (strCommand == "list") {
 		UniValue newParams(UniValue::VARR);
-		
+
         for (unsigned int i = 1; i < params.size(); i++) {
             newParams.push_back(params[i]);
         }
-		
+
         return listmasternodes(newParams, fHelp);
     }
 
