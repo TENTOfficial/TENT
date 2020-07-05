@@ -38,6 +38,11 @@ if [[ -z "${CONFIGURE_FLAGS-}" ]]; then
     CONFIGURE_FLAGS=""
 fi
 
+#  Allow users to set arbitrary linker flags. Most users will not need this.
+if [[ -z "${LDFLAGS-}" ]]; then
+    LDFLAGS=""
+fi
+
 if [ "x$*" = 'x--help' ]
 then
     cat <<EOF
@@ -106,5 +111,5 @@ ld -v
 
 HOST="$HOST" BUILD="$BUILD" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
-CONFIG_SITE="$PWD/depends/$HOST/share/config.site" ./configure "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g'
+CONFIG_SITE="$PWD/depends/$HOST/share/config.site" ./configure "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g' LDFLAGS="$LDFLAGS"
 "$MAKE" "$@" V=1
