@@ -34,9 +34,9 @@ SproutProofs makeSproutProofs(
         const uint256& rt
 ){
     //Making the PHGR proof
-    JSDescription phgr(false, js, joinSplitPubKey, rt, inputs, outputs, vpub_old, vpub_new);
+    JSDescription phgr(js, joinSplitPubKey, rt, inputs, outputs, vpub_old, vpub_new);
     //Making the Groth proof
-    JSDescription groth(true, js, joinSplitPubKey, rt, inputs, outputs, vpub_old, vpub_new);
+    JSDescription groth(js, joinSplitPubKey, rt, inputs, outputs, vpub_old, vpub_new);
 
     return {phgr, groth};
 
@@ -192,7 +192,6 @@ void invokeAPI(
 
     // PHGR
     SproutProof proof = js->prove(
-        false,
         inputs,
         outputs,
         output_notes,
@@ -211,7 +210,7 @@ void invokeAPI(
 
     // Groth
     proof = js->prove(
-        true,
+        
         inputs,
         outputs,
         output_notes,

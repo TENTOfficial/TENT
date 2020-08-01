@@ -4,6 +4,7 @@
 
 #include "asyncrpcqueue.h"
 #include "amount.h"
+#include "asyncrpcoperation_common.h"
 #include "consensus/upgrades.h"
 #include "core_io.h"
 #include "init.h"
@@ -257,12 +258,7 @@ bool ShieldToAddress::operator()(const libzcash::SaplingPaymentAddress &zaddr) c
     // generate a common one from the HD seed. This ensures the data is
     // recoverable, while keeping it logically separate from the ZIP 32
     // Sapling key hierarchy, which the user might not be using.
-    HDSeed seed;
-    if (!pwalletMain->GetHDSeed(seed)) {
-        throw JSONRPCError(
-            RPC_WALLET_ERROR,
-            "CWallet::GenerateNewSaplingZKey(): HD seed not found");
-    }
+    HDSeed seed = pwalletMain->GetHDSeedForRPC();
     uint256 ovk = ovkForShieldingFromTaddr(seed);
 
     // Add transparent inputs
@@ -274,36 +270,10 @@ bool ShieldToAddress::operator()(const libzcash::SaplingPaymentAddress &zaddr) c
     m_op->builder_.SendChangeTo(zaddr, ovk);
 
     // Build the transaction
-    auto maybe_tx = m_op->builder_.Build();
-    if (!maybe_tx) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Failed to build transaction.");
-    }
-    m_op->tx_ = maybe_tx.get();
+    m_op->tx_ = m_op->builder_.Build().GetTxOrThrow();
 
-    // Send the transaction
-    // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
-    auto signedtxn = EncodeHexTx(m_op->tx_);
-    if (!m_op->testmode) {
-        UniValue params = UniValue(UniValue::VARR);
-        params.push_back(signedtxn);
-        UniValue sendResultValue = sendrawtransaction(params, false);
-        if (sendResultValue.isNull()) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "sendrawtransaction did not return an error or a txid.");
-        }
-
-        auto txid = sendResultValue.get_str();
-
-        UniValue o(UniValue::VOBJ);
-        o.push_back(Pair("txid", txid));
-        m_op->set_result(o);
-    } else {
-        // Test mode does not send the transaction to the network.
-        UniValue o(UniValue::VOBJ);
-        o.push_back(Pair("test", 1));
-        o.push_back(Pair("txid", m_op->tx_.GetHash().ToString()));
-        o.push_back(Pair("hex", signedtxn));
-        m_op->set_result(o);
-    }
+    UniValue sendResult = SendTransaction(m_op->tx_, boost::none, m_op->testmode);
+    m_op->set_result(sendResult);
 
     return true;
 }
@@ -428,7 +398,6 @@ UniValue AsyncRPCOperation_shieldcoinbase::perform_joinsplit(ShieldCoinbaseJSInf
     uint256 esk; // payment disclosure - secret
 
     JSDescription jsdesc = JSDescription::Randomized(
-            mtx.fOverwintered && (mtx.nVersion >= SAPLING_TX_VERSION),
             *psnowgemParams,
             joinSplitPubKey_,
             anchor,

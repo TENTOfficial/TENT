@@ -137,7 +137,7 @@ bool AsyncRPCOperation_saplingconsolidation::main_impl() {
               continue;
 
             amountConsolidated += amountToSend;
-            auto builder = TransactionBuilder(consensusParams, targetHeight_, pwalletMain, pzcashParams, &coinsView, &cs_main);
+            auto builder = TransactionBuilder(consensusParams, targetHeight_, pwalletMain, psnowgemParams, &coinsView, &cs_main);
             builder.SetExpiryHeight(targetHeight_ + CONSOLIDATION_EXPIRY_DELTA);
             LogPrint("zrpcunsafe", "%s: Beginning creating transaction with Sapling output amount=%s\n", getId(), FormatMoney(amountToSend - fConsolidationTxFee));
 

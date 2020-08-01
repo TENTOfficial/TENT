@@ -336,7 +336,10 @@ am__libbitcoin_util_a_SOURCES_DIST = support/pagelocker.cpp \
 	txdb.h txmempool.h ui_interface.h uint256.h uint252.h undo.h \
 	util.h utilmoneystr.h utilstrencodings.h utiltime.h \
 	validationinterface.h version.h \
+	wallet/asyncrpcoperation_common.h \
 	wallet/asyncrpcoperation_mergetoaddress.h \
+	wallet/asyncrpcoperation_saplingmigration.h \
+	wallet/asyncrpcoperation_saplingconsolidation.h \
 	wallet/asyncrpcoperation_sendmany.h \
 	wallet/asyncrpcoperation_shieldcoinbase.h wallet/crypter.h \
 	wallet/db.h wallet/rpcwallet.h wallet/wallet.h \
@@ -376,7 +379,10 @@ am_libbitcoin_wallet_a_OBJECTS =  \
 	libbitcoin_wallet_a-obfuscation-relay.$(OBJEXT) \
 	libbitcoin_wallet_a-utiltest.$(OBJEXT) \
 	libbitcoin_wallet_a-zcbenchmarks.$(OBJEXT) \
+	wallet/libbitcoin_wallet_a-asyncrpcoperation_common.$(OBJEXT) \
 	wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.$(OBJEXT) \
+	wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.$(OBJEXT) \
+	wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.$(OBJEXT) \
 	wallet/libbitcoin_wallet_a-asyncrpcoperation_sendmany.$(OBJEXT) \
 	wallet/libbitcoin_wallet_a-asyncrpcoperation_shieldcoinbase.$(OBJEXT) \
 	wallet/libbitcoin_wallet_a-crypter.$(OBJEXT) \
@@ -1430,7 +1436,10 @@ BITCOIN_CORE_H = \
   utiltime.h \
   validationinterface.h \
   version.h \
+  wallet/asyncrpcoperation_common.h \
   wallet/asyncrpcoperation_mergetoaddress.h \
+  wallet/asyncrpcoperation_saplingmigration.h \
+	wallet/asyncrpcoperation_saplingconsolidation.h \
   wallet/asyncrpcoperation_sendmany.h \
   wallet/asyncrpcoperation_shieldcoinbase.h \
   wallet/crypter.h \
@@ -1518,7 +1527,10 @@ libbitcoin_wallet_a_SOURCES = \
   utiltest.h \
   zcbenchmarks.cpp \
   zcbenchmarks.h \
+  wallet/asyncrpcoperation_common.cpp \
   wallet/asyncrpcoperation_mergetoaddress.cpp \
+  wallet/asyncrpcoperation_saplingmigration.cpp \
+	wallet/asyncrpcoperation_saplingconsolidation.cpp \
   wallet/asyncrpcoperation_sendmany.cpp \
   wallet/asyncrpcoperation_shieldcoinbase.cpp \
   wallet/crypter.cpp \
@@ -2044,7 +2056,13 @@ wallet/$(am__dirstamp):
 wallet/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) wallet/$(DEPDIR)
 	@: > wallet/$(DEPDIR)/$(am__dirstamp)
+wallet/libbitcoin_wallet_a-asyncrpcoperation_common.$(OBJEXT):  \
+	wallet/$(am__dirstamp) wallet/$(DEPDIR)/$(am__dirstamp)
 wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.$(OBJEXT):  \
+	wallet/$(am__dirstamp) wallet/$(DEPDIR)/$(am__dirstamp)
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.$(OBJEXT):  \
+	wallet/$(am__dirstamp) wallet/$(DEPDIR)/$(am__dirstamp)
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.$(OBJEXT):  \
 	wallet/$(am__dirstamp) wallet/$(DEPDIR)/$(am__dirstamp)
 wallet/libbitcoin_wallet_a-asyncrpcoperation_sendmany.$(OBJEXT):  \
 	wallet/$(am__dirstamp) wallet/$(DEPDIR)/$(am__dirstamp)
@@ -2703,7 +2721,10 @@ include test/$(DEPDIR)/test_test_bitcoin-transaction_tests.Po
 include test/$(DEPDIR)/test_test_bitcoin-uint256_tests.Po
 include test/$(DEPDIR)/test_test_bitcoin-univalue_tests.Po
 include test/$(DEPDIR)/test_test_bitcoin-util_tests.Po
+include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Po
 include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.Po
+include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Po
+include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Po
 include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_sendmany.Po
 include wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_shieldcoinbase.Po
 include wallet/$(DEPDIR)/libbitcoin_wallet_a-crypter.Po
@@ -4140,6 +4161,20 @@ libbitcoin_wallet_a-zcbenchmarks.obj: zcbenchmarks.cpp
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o libbitcoin_wallet_a-zcbenchmarks.obj `if test -f 'zcbenchmarks.cpp'; then $(CYGPATH_W) 'zcbenchmarks.cpp'; else $(CYGPATH_W) '$(srcdir)/zcbenchmarks.cpp'; fi`
 
+wallet/libbitcoin_wallet_a-asyncrpcoperation_common.o: wallet/asyncrpcoperation_common.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_common.o -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_common.o `test -f 'wallet/asyncrpcoperation_common.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_common.cpp
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_common.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_common.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_common.o `test -f 'wallet/asyncrpcoperation_common.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_common.cpp
+
+wallet/libbitcoin_wallet_a-asyncrpcoperation_common.obj: wallet/asyncrpcoperation_common.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_common.obj -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_common.obj `if test -f 'wallet/asyncrpcoperation_common.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_common.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_common.cpp'; fi`
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_common.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_common.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_common.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_common.obj `if test -f 'wallet/asyncrpcoperation_common.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_common.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_common.cpp'; fi`
+
 wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.o: wallet/asyncrpcoperation_mergetoaddress.cpp
 	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.o -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.o `test -f 'wallet/asyncrpcoperation_mergetoaddress.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_mergetoaddress.cpp
 	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.Po
@@ -4153,6 +4188,34 @@ wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.obj: wallet/asyncrpc
 #	$(AM_V_CXX)source='wallet/asyncrpcoperation_mergetoaddress.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_mergetoaddress.obj `if test -f 'wallet/asyncrpcoperation_mergetoaddress.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_mergetoaddress.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_mergetoaddress.cpp'; fi`
+
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.o: wallet/asyncrpcoperation_saplingmigration.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.o -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.o `test -f 'wallet/asyncrpcoperation_saplingmigration.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_saplingmigration.cpp
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_saplingmigration.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.o `test -f 'wallet/asyncrpcoperation_saplingmigration.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_saplingmigration.cpp
+
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.obj: wallet/asyncrpcoperation_saplingmigration.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.obj -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.obj `if test -f 'wallet/asyncrpcoperation_saplingmigration.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_saplingmigration.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_saplingmigration.cpp'; fi`
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_saplingmigration.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingmigration.obj `if test -f 'wallet/asyncrpcoperation_saplingmigration.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_saplingmigration.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_saplingmigration.cpp'; fi`
+
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.o: wallet/asyncrpcoperation_saplingconsolidation.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.o -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.o `test -f 'wallet/asyncrpcoperation_saplingconsolidation.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_saplingconsolidation.cpp
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_saplingconsolidation.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.o `test -f 'wallet/asyncrpcoperation_saplingconsolidation.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_saplingconsolidation.cpp
+
+wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.obj: wallet/asyncrpcoperation_saplingconsolidation.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.obj -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.obj `if test -f 'wallet/asyncrpcoperation_saplingconsolidation.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_saplingconsolidation.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_saplingconsolidation.cpp'; fi`
+	$(AM_V_at)$(am__mv) wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Tpo wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.Po
+#	$(AM_V_CXX)source='wallet/asyncrpcoperation_saplingconsolidation.cpp' object='wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_saplingconsolidation.obj `if test -f 'wallet/asyncrpcoperation_saplingconsolidation.cpp'; then $(CYGPATH_W) 'wallet/asyncrpcoperation_saplingconsolidation.cpp'; else $(CYGPATH_W) '$(srcdir)/wallet/asyncrpcoperation_saplingconsolidation.cpp'; fi`
 
 wallet/libbitcoin_wallet_a-asyncrpcoperation_sendmany.o: wallet/asyncrpcoperation_sendmany.cpp
 	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbitcoin_wallet_a_CPPFLAGS) $(CPPFLAGS) $(libbitcoin_wallet_a_CXXFLAGS) $(CXXFLAGS) -MT wallet/libbitcoin_wallet_a-asyncrpcoperation_sendmany.o -MD -MP -MF wallet/$(DEPDIR)/libbitcoin_wallet_a-asyncrpcoperation_sendmany.Tpo -c -o wallet/libbitcoin_wallet_a-asyncrpcoperation_sendmany.o `test -f 'wallet/asyncrpcoperation_sendmany.cpp' || echo '$(srcdir)/'`wallet/asyncrpcoperation_sendmany.cpp

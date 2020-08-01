@@ -110,7 +110,7 @@ bool AsyncRPCOperation_saplingmigration::main_impl() {
     CCoinsViewCache coinsView(pcoinsTip);
     do {
         CAmount amountToSend = chooseAmount(availableFunds);
-        auto builder = TransactionBuilder(consensusParams, targetHeight_, pwalletMain, pzcashParams, &coinsView, &cs_main);
+        auto builder = TransactionBuilder(consensusParams, targetHeight_, pwalletMain, psnowgemParams, &coinsView, &cs_main);
         builder.SetExpiryHeight(targetHeight_ + MIGRATION_EXPIRY_DELTA);
         LogPrint("zrpcunsafe", "%s: Beginning creating transaction with Sapling output amount=%s\n", getId(), FormatMoney(amountToSend - FEE));
         std::vector<SproutNoteEntry> fromNotes;
@@ -123,7 +123,7 @@ bool AsyncRPCOperation_saplingmigration::main_impl() {
         availableFunds -= fromNoteAmount;
         for (const SproutNoteEntry& sproutEntry : fromNotes) {
             std::string data(sproutEntry.memo.begin(), sproutEntry.memo.end());
-            LogPrint("zrpcunsafe", "%s: Adding Sprout note input (txid=%s, vJoinSplit=%d, jsoutindex=%d, amount=%s, memo=%s)\n",
+            LogPrint("zrpcunsafe", "%s: Adding Sprout note input (txid=%s, vjoinsplit=%d, jsoutindex=%d, amount=%s, memo=%s)\n",
                 getId(),
                 sproutEntry.jsop.hash.ToString().substr(0, 10),
                 sproutEntry.jsop.js,

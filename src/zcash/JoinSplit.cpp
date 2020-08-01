@@ -140,7 +140,6 @@ public:
     }
 
     SproutProof prove(
-        bool makeGrothProof,
         const std::array<JSInput, NumInputs>& inputs,
         const std::array<JSOutput, NumOutputs>& outputs,
         std::array<SproutNote, NumOutputs>& out_notes,
@@ -271,100 +270,52 @@ public:
             out_macs[i] = PRF_pk(inputs[i].key, i, h_sig);
         }
 
-        if (makeGrothProof) {
-            if (!computeProof) {
-                return GrothProof();
-            }
-
-            GrothProof proof;
-
-            CDataStream ss1(SER_NETWORK, PROTOCOL_VERSION);
-            ss1 << inputs[0].witness.path();
-            std::vector<unsigned char> auth1(ss1.begin(), ss1.end());
-
-            CDataStream ss2(SER_NETWORK, PROTOCOL_VERSION);
-            ss2 << inputs[1].witness.path();
-            std::vector<unsigned char> auth2(ss2.begin(), ss2.end());
-
-            librustzcash_sprout_prove(
-                proof.begin(),
-
-                phi.begin(),
-                rt.begin(),
-                h_sig.begin(),
-
-                inputs[0].key.begin(),
-                inputs[0].note.value(),
-                inputs[0].note.rho.begin(),
-                inputs[0].note.r.begin(),
-                auth1.data(),
-
-                inputs[1].key.begin(),
-                inputs[1].note.value(),
-                inputs[1].note.rho.begin(),
-                inputs[1].note.r.begin(),
-                auth2.data(),
-
-                out_notes[0].a_pk.begin(),
-                out_notes[0].value(),
-                out_notes[0].r.begin(),
-
-                out_notes[1].a_pk.begin(),
-                out_notes[1].value(),
-                out_notes[1].r.begin(),
-
-                vpub_old,
-                vpub_new
-            );
-
-            return proof;
-        }
-
         if (!computeProof) {
-            return PHGRProof();
+            return GrothProof();
         }
 
-        protoboard<FieldT> pb;
-        {
-            joinsplit_gadget<FieldT, NumInputs, NumOutputs> g(pb);
-            g.generate_r1cs_constraints();
-            g.generate_r1cs_witness(
-                phi,
-                rt,
-                h_sig,
-                inputs,
-                out_notes,
-                vpub_old,
-                vpub_new
-            );
-        }
+        GrothProof proof;
 
-        // The constraint system must be satisfied or there is an unimplemented
-        // or incorrect sanity check above. Or the constraint system is broken!
-        assert(pb.is_satisfied());
+        CDataStream ss1(SER_NETWORK, PROTOCOL_VERSION);
+        ss1 << inputs[0].witness.path();
+        std::vector<unsigned char> auth1(ss1.begin(), ss1.end());
 
-        // TODO: These are copies, which is not strictly necessary.
-        std::vector<FieldT> primary_input = pb.primary_input();
-        std::vector<FieldT> aux_input = pb.auxiliary_input();
+        CDataStream ss2(SER_NETWORK, PROTOCOL_VERSION);
+        ss2 << inputs[1].witness.path();
+        std::vector<unsigned char> auth2(ss2.begin(), ss2.end());
 
-        // Swap A and B if it's beneficial (less arithmetic in G2)
-        // In our circuit, we already know that it's beneficial
-        // to swap, but it takes so little time to perform this
-        // estimate that it doesn't matter if we check every time.
-        pb.constraint_system.swap_AB_if_beneficial();
+        librustzcash_sprout_prove(
+            proof.begin(),
 
-        std::ifstream fh(pkPath, std::ios::binary);
+            phi.begin(),
+            rt.begin(),
+            h_sig.begin(),
 
-        if(!fh.is_open()) {
-            throw std::runtime_error(strprintf("could not load param file at %s", pkPath));
-        }
+            inputs[0].key.begin(),
+            inputs[0].note.value(),
+            inputs[0].note.rho.begin(),
+            inputs[0].note.r.begin(),
+            auth1.data(),
 
-        return PHGRProof(r1cs_ppzksnark_prover_streaming<ppzksnark_ppT>(
-            fh,
-            primary_input,
-            aux_input,
-            pb.constraint_system
-        ));
+            inputs[1].key.begin(),
+            inputs[1].note.value(),
+            inputs[1].note.rho.begin(),
+            inputs[1].note.r.begin(),
+            auth2.data(),
+
+            out_notes[0].a_pk.begin(),
+            out_notes[0].value(),
+            out_notes[0].r.begin(),
+
+            out_notes[1].a_pk.begin(),
+            out_notes[1].value(),
+            out_notes[1].r.begin(),
+
+            vpub_old,
+            vpub_new
+        );
+
+        return proof;
     }
 };
 

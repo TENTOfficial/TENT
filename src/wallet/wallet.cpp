@@ -27,6 +27,7 @@
 #include "zcash/Note.hpp"
 #include "crypter.h"
 #include "wallet/asyncrpcoperation_saplingmigration.h"
+#include "wallet/asyncrpcoperation_saplingconsolidation.h"
 #include "zcash/zip32.h"
 
 #include <assert.h>
@@ -113,7 +114,7 @@ libzcash::SproutPaymentAddress CWallet::GenerateNewSproutZKey()
 }
 
 // Generate a new Sapling spending key and return its public payment address
-SaplingPaymentAddress CWallet::GenerateNewSaplingZKey()
+SaplingPaymentAddress CWallet::GenerateNewSaplingZKey(bool resetCounter)
 {
     AssertLockHeld(cs_wallet); // mapSaplingZKeyMetadata
 
@@ -137,6 +138,11 @@ SaplingPaymentAddress CWallet::GenerateNewSaplingZKey()
 
     // Derive account key at next index, skip keys already known to the wallet
     libzcash::SaplingExtendedSpendingKey xsk;
+
+    //reset saplingAccountCounter
+    if (resetCounter)
+      hdChain.saplingAccountCounter = 0;
+
     do
     {
         xsk = m_32h_cth.Derive(hdChain.saplingAccountCounter | ZIP32_HARDENED_KEY_LIMIT);
@@ -627,6 +633,39 @@ void CWallet::RunSaplingMigration(int blockHeight) {
         }
         pendingSaplingMigrationTxs.clear();
     }
+}
+
+void CWallet::AddPendingSaplingMigrationTx(const CTransaction& tx) {
+    LOCK(cs_wallet);
+    pendingSaplingMigrationTxs.push_back(tx);
+}
+
+void CWallet::RunSaplingConsolidation(int blockHeight) {
+    if (!NetworkUpgradeActive(blockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
+        return;
+    }
+    LOCK(cs_wallet);
+    if (!fSaplingConsolidationEnabled) {
+        return;
+    }
+
+    int consolidateInterval = rand() % 5 + 5;
+    if (blockHeight % consolidateInterval == 0) {
+        std::shared_ptr<AsyncRPCQueue> q = getAsyncRPCQueue();
+        std::shared_ptr<AsyncRPCOperation> lastOperation = q->getOperationForId(saplingConsolidationOperationId);
+        if (lastOperation != nullptr) {
+            lastOperation->cancel();
+        }
+        pendingSaplingConsolidationTxs.clear();
+        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_saplingconsolidation(blockHeight + 5));
+        saplingConsolidationOperationId = operation->getId();
+        q->addOperation(operation);
+    }
+}
+
+void CWallet::CommitConsolidationTx(const CTransaction& tx) {
+  CWalletTx wtx(this, tx);
+  CommitTransaction(wtx, boost::none);
 }
 
 void CWallet::SetBestChain(const CBlockLocator& loc)
@@ -2722,6 +2761,14 @@ bool CWallet::SetCryptedHDSeed(const uint256& seedFp, const std::vector<unsigned
             return CWalletDB(strWalletFile).WriteCryptedHDSeed(seedFp, vchCryptedSecret);
     }
     return false;
+}
+
+HDSeed CWallet::GetHDSeedForRPC() const {
+    HDSeed seed;
+    if (!pwalletMain->GetHDSeed(seed)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "HD seed not found");
+    }
+    return seed;
 }
 
 void CWallet::SetHDChain(const CHDChain& chain, bool memonly)
@@ -6112,11 +6159,12 @@ bool CMerkleTx::IsTransactionLockTimedOut() const
 }
 
 /**
- * Find notes in the wallet filtered by payment address, min depth and ability to spend.
+ * Find notes in the wallet filtered by payment addresses, min depth, max depth, 
+ * if the note is spent, if a spending key is required, and if the notes are locked.
  * These notes are decrypted and added to the output parameter vector, outEntries.
  */
 void CWallet::GetFilteredNotes(
-    std::vector<CSproutNotePlaintextEntry>& sproutEntries,
+    std::vector<SproutNoteEntry>& sproutEntries,
     std::vector<SaplingNoteEntry>& saplingEntries,
     std::string address,
     int minDepth,
@@ -6133,12 +6181,12 @@ void CWallet::GetFilteredNotes(
 }
 
 /**
- * Find notes in the wallet filtered by payment addresses, min depth, max depth, 
+ * Find notes in the wallet filtered by payment addresses, min depth, max depth,
  * if the note is spent, if a spending key is required, and if the notes are locked.
  * These notes are decrypted and added to the output parameter vector, outEntries.
  */
 void CWallet::GetFilteredNotes(
-    std::vector<CSproutNotePlaintextEntry>& sproutEntries,
+    std::vector<SproutNoteEntry>& sproutEntries,
     std::vector<SaplingNoteEntry>& saplingEntries,
     std::set<PaymentAddress>& filterAddresses,
     int minDepth,
@@ -6185,7 +6233,7 @@ void CWallet::GetFilteredNotes(
                 continue;
             }
 
-            int i = jsop.js; // Index into CTransaction.vjoinsplit
+            int i = jsop.js; // Index into CTransaction.vJoinSplit
             int j = jsop.n; // Index into JSDescription.ciphertexts
 
             // Get cached decryptor
@@ -6205,7 +6253,8 @@ void CWallet::GetFilteredNotes(
                         hSig,
                         (unsigned char) j);
 
-                sproutEntries.push_back(CSproutNotePlaintextEntry{jsop, pa, plaintext, wtx.GetDepthInMainChain()});
+                sproutEntries.push_back(SproutNoteEntry {
+                    jsop, pa, plaintext.note(pa), plaintext.memo(), wtx.GetDepthInMainChain() });
 
             } catch (const note_decryption_failed &err) {
                 // Couldn't decrypt with this spending key
@@ -6263,7 +6312,6 @@ void CWallet::GetFilteredNotes(
         }
     }
 }
-
 
 //
 // Shielded key and address generalizations

@@ -344,12 +344,13 @@ public:
 typedef std::map<JSOutPoint, SproutNoteData> mapSproutNoteData_t;
 typedef std::map<SaplingOutPoint, SaplingNoteData> mapSaplingNoteData_t;
 
-/** Decrypted note and its location in a transaction. */
-struct CSproutNotePlaintextEntry
+/** Sprout note, its location in a transaction, and number of confirmations. */
+struct SproutNoteEntry
 {
     JSOutPoint jsop;
     libzcash::SproutPaymentAddress address;
-    libzcash::SproutNotePlaintext plaintext;
+    libzcash::SproutNote note;
+    std::array<unsigned char, ZC_MEMO_SIZE> memo;
     int confirmations;
 };
 
@@ -1163,7 +1164,7 @@ public:
       * Sapling ZKeys
       */
     //! Generates new Sapling key
-    libzcash::SaplingPaymentAddress GenerateNewSaplingZKey();
+    libzcash::SaplingPaymentAddress GenerateNewSaplingZKey(bool resetCounter = false);
     //! Adds Sapling spending key to the store, and saves it to disk
     bool AddSaplingZKey(
         const libzcash::SaplingExtendedSpendingKey &key,
@@ -1320,7 +1321,10 @@ boost::optional<uint256> GetSproutNoteNullifier(
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache = true) const;
     
     void ChainTip(const CBlockIndex *pindex, const CBlock *pblock, SproutMerkleTree sproutTree, SaplingMerkleTree saplingTree, bool added);
+    void AddPendingSaplingMigrationTx(const CTransaction& tx);
     void RunSaplingMigration(int blockHeight);
+    void RunSaplingConsolidation(int blockHeight);
+    void CommitConsolidationTx(const CTransaction& tx);
     /** Saves witness caches and best block locator to disk. */
     void SetBestChain(const CBlockLocator& loc);
     std::set<std::pair<libzcash::PaymentAddress, uint256>> GetNullifiersForAddresses(const std::set<libzcash::PaymentAddress> & addresses);
@@ -1411,6 +1415,8 @@ boost::optional<uint256> GetSproutNoteNullifier(
     bool SetHDSeed(const HDSeed& seed);
     bool SetCryptedHDSeed(const uint256& seedFp, const std::vector<unsigned char> &vchCryptedSecret);
 
+    /* Returns the wallet's HD seed or throw JSONRPCError(...) */
+    HDSeed GetHDSeedForRPC() const;
     /* Set the HD chain model (chain child index counters) */
     void SetHDChain(const CHDChain& chain, bool memonly);
     const CHDChain& GetHDChain() const { return hdChain; }
@@ -1421,7 +1427,7 @@ boost::optional<uint256> GetSproutNoteNullifier(
     bool LoadCryptedHDSeed(const uint256& seedFp, const std::vector<unsigned char>& seed);
     
     /* Find notes filtered by payment address, min depth, ability to spend */
-    void GetFilteredNotes(std::vector<CSproutNotePlaintextEntry>& sproutEntries,
+    void GetFilteredNotes(std::vector<SproutNoteEntry>& sproutEntries,
                           std::vector<SaplingNoteEntry>& saplingEntries,
                           std::string address,
                           int minDepth=1,
@@ -1430,7 +1436,7 @@ boost::optional<uint256> GetSproutNoteNullifier(
 
     /* Find notes filtered by payment addresses, min depth, max depth, if they are spent,
        if a spending key is required, and if they are locked */
-    void GetFilteredNotes(std::vector<CSproutNotePlaintextEntry>& sproutEntries,
+    void GetFilteredNotes(std::vector<SproutNoteEntry>& sproutEntries,
                           std::vector<SaplingNoteEntry>& saplingEntries,
                           std::set<libzcash::PaymentAddress>& filterAddresses,
                           int minDepth=1,

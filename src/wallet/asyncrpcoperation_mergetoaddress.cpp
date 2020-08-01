@@ -5,6 +5,7 @@
 #include "asyncrpcoperation_mergetoaddress.h"
 
 #include "amount.h"
+#include "asyncrpcoperation_common.h"
 #include "asyncrpcqueue.h"
 #include "core_io.h"
 #include "init.h"
@@ -296,7 +297,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
      * SCENARIO #0
      *
      * Sprout not involved, so we just use the TransactionBuilder and we're done.
-     * 
+     *
      * This is based on code from AsyncRPCOperation_sendmany::main_impl() and should be refactored.
      */
     if (isUsingBuilder_) {
@@ -338,13 +339,11 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
             if (!witnesses[i]) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "Missing witness for Sapling note");
             }
-            assert(builder_.AddSaplingSpend(expsks[i], saplingNotes[i], anchor, witnesses[i].get()));
+            builder_.AddSaplingSpend(expsks[i], saplingNotes[i], anchor, witnesses[i].get());
         }
 
         if (isToTaddr_) {
-            if (!builder_.AddTransparentOutput(toTaddr_, sendAmount)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid output address, not a valid taddr.");
-            }
+            builder_.AddTransparentOutput(toTaddr_, sendAmount);
         } else {
             std::string zaddr = std::get<0>(recipient_);
             std::string memo = std::get<1>(recipient_);
@@ -359,12 +358,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
                 // generate a common one from the HD seed. This ensures the data is
                 // recoverable, while keeping it logically separate from the ZIP 32
                 // Sapling key hierarchy, which the user might not be using.
-                HDSeed seed;
-                if (!pwalletMain->GetHDSeed(seed)) {
-                    throw JSONRPCError(
-                        RPC_WALLET_ERROR,
-                        "AsyncRPCOperation_sendmany: HD seed not found");
-                }
+                HDSeed seed = pwalletMain->GetHDSeedForRPC();
                 ovk = ovkForShieldingFromTaddr(seed);
             }
             if (!ovk) {
@@ -373,38 +367,11 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
             builder_.AddSaplingOutput(ovk.get(), *saplingPaymentAddress, sendAmount, hexMemo);
         }
 
-
         // Build the transaction
-        auto maybe_tx = builder_.Build();
-        if (!maybe_tx) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Failed to build transaction.");
-        }
-        tx_ = maybe_tx.get();
+        tx_ = builder_.Build().GetTxOrThrow();
 
-        // Send the transaction
-        // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
-        auto signedtxn = EncodeHexTx(tx_);
-        if (!testmode) {
-            UniValue params = UniValue(UniValue::VARR);
-            params.push_back(signedtxn);
-            UniValue sendResultValue = sendrawtransaction(params, false);
-            if (sendResultValue.isNull()) {
-                throw JSONRPCError(RPC_WALLET_ERROR, "sendrawtransaction did not return an error or a txid.");
-            }
-
-            auto txid = sendResultValue.get_str();
-
-            UniValue o(UniValue::VOBJ);
-            o.push_back(Pair("txid", txid));
-            set_result(o);
-        } else {
-            // Test mode does not send the transaction to the network.
-            UniValue o(UniValue::VOBJ);
-            o.push_back(Pair("test", 1));
-            o.push_back(Pair("txid", tx_.GetHash().ToString()));
-            o.push_back(Pair("hex", signedtxn));
-            set_result(o);
-        }
+        UniValue sendResult = SendTransaction(tx_, boost::none, testmode);
+        set_result(sendResult);
 
         return true;
     }
@@ -423,7 +390,9 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
     if (isPureTaddrOnlyTx) {
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("rawtxn", EncodeHexTx(tx_)));
-        sign_send_raw_transaction(obj);
+        auto txAndResult = SignSendRawTransaction(obj, boost::none, testmode);
+        tx_ = txAndResult.first;
+        set_result(txAndResult.second);
         return true;
     }
     /**
@@ -458,9 +427,10 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
         }
         info.vjsout.push_back(jso);
 
-        UniValue obj(UniValue::VOBJ);
-        obj = perform_joinsplit(info);
-        sign_send_raw_transaction(obj);
+        UniValue obj = perform_joinsplit(info);
+        auto txAndResult = SignSendRawTransaction(obj, boost::none, testmode);
+        tx_ = txAndResult.first;
+        set_result(txAndResult.second);
         return true;
     }
     /**
@@ -665,7 +635,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
                 wtxHeight = mapBlockIndex[wtx.hashBlock]->nHeight;
                 wtxDepth = wtx.GetDepthInMainChain();
             }
-            LogPrint("zrpcunsafe", "%s: spending note (txid=%s, vjoinsplit=%d, ciphertext=%d, amount=%s, height=%d, confirmations=%d)\n",
+            LogPrint("zrpcunsafe", "%s: spending note (txid=%s, vJoinSplit=%d, jsoutindex=%d, amount=%s, height=%d, confirmations=%d)\n",
                      getId(),
                      jso.hash.ToString().substr(0, 10),
                      jso.js,
@@ -759,7 +729,9 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
     assert(zInputsDeque.size() == 0);
     assert(vpubNewProcessed);
 
-    sign_send_raw_transaction(obj);
+    auto txAndResult = SignSendRawTransaction(obj, boost::none, testmode);
+    tx_ = txAndResult.first;
+    set_result(txAndResult.second);
     return true;
 }
 
@@ -911,7 +883,6 @@ UniValue AsyncRPCOperation_mergetoaddress::perform_joinsplit(
     uint256 esk; // payment disclosure - secret
 
     JSDescription jsdesc = JSDescription::Randomized(
-        mtx.fOverwintered && (mtx.nVersion >= SAPLING_TX_VERSION),
         *psnowgemParams,
         joinSplitPubKey_,
         anchor,

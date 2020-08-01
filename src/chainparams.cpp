@@ -486,6 +486,13 @@ public:
         assert(idx > Consensus::BASE_SPROUT && idx < Consensus::MAX_NETWORK_UPGRADES);
         consensus.vUpgrades[idx].nActivationHeight = nActivationHeight;
     }
+
+    void UpdateRegtestPow(int64_t nPowMaxAdjustDown, int64_t nPowMaxAdjustUp, uint256 powLimit)
+    {
+        consensus.nPowMaxAdjustDown = nPowMaxAdjustDown;
+        consensus.nPowMaxAdjustUp = nPowMaxAdjustUp;
+        consensus.powLimit = powLimit;
+    }
 };
 static CRegTestParams regTestParams;
 
@@ -614,4 +621,8 @@ int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const C
 void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)
 {
     regTestParams.UpdateNetworkUpgradeParameters(idx, nActivationHeight);
+}
+
+void UpdateRegtestPow(int64_t nPowMaxAdjustDown, int64_t nPowMaxAdjustUp, uint256 powLimit) {
+    regTestParams.UpdateRegtestPow(nPowMaxAdjustDown, nPowMaxAdjustUp, powLimit);
 }

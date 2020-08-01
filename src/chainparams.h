@@ -204,4 +204,5 @@ int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const C
  * Allows modifying the network upgrade regtest parameters.
  */
 void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight);
+void UpdateRegtestPow(int64_t nPowMaxAdjustDown, int64_t nPowMaxAdjustUp, uint256 powLimit);
 #endif // BITCOIN_CHAINPARAMS_H

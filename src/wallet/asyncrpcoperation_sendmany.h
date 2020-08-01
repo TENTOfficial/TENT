@@ -108,7 +108,7 @@ private:
     TransactionBuilder builder_;
     CTransaction tx_;
    
-    void add_taddr_change_output_to_tx(CAmount amount);
+    void add_taddr_change_output_to_tx(CReserveKey& keyChange, CAmount amount);
     void add_taddr_outputs_to_tx();
     bool find_unspent_notes();
     bool find_utxos(bool fAcceptCoinbase);
@@ -151,8 +151,8 @@ public:
     
     // Delegated methods
     
-    void add_taddr_change_output_to_tx(CAmount amount) {
-        delegate->add_taddr_change_output_to_tx(amount);
+    void add_taddr_change_output_to_tx(CReserveKey& keyChange, CAmount amount) {
+        delegate->add_taddr_change_output_to_tx(keyChange, amount);
     }
     
     void add_taddr_outputs_to_tx() {
