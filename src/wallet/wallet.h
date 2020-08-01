@@ -7,6 +7,7 @@
 #define BITCOIN_WALLET_WALLET_H
 
 #include "amount.h"
+#include "asyncrpcoperation.h"
 #include "coins.h"
 #include "key.h"
 #include "keystore.h"
@@ -837,6 +838,12 @@ private:
     TxNullifiers mapTxSproutNullifiers;
     TxNullifiers mapTxSaplingNullifiers;
 
+    std::vector<CTransaction> pendingSaplingMigrationTxs;
+    AsyncRPCOperationId saplingMigrationOperationId;
+
+    std::vector<CTransaction> pendingSaplingConsolidationTxs;
+    AsyncRPCOperationId saplingConsolidationOperationId;
+
     void AddToTransparentSpends(const COutPoint& outpoint, const uint256& wtxid);
     void AddToSproutSpends(const uint256& nullifier, const uint256& wtxid);
     void AddToSaplingSpends(const uint256& nullifier, const uint256& wtxid);
@@ -857,6 +864,7 @@ public:
      */
     int64_t nWitnessCacheSize;
 
+    bool fSaplingMigrationEnabled = false;
     bool fSaplingConsolidationEnabled = false;
     void ClearNoteWitnessCache();
 
@@ -1240,7 +1248,7 @@ public:
                            std::string& strFailReason, const CCoinControl *coinControl = NULL, bool sign = true, AvailableCoinsType coin_type=ALL_COINS, bool useIX=false, CAmount nFeePay=0);
     bool CreateTransaction(CScript scriptPubKey, const CAmount& nValue,
                            CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, std::string& strFailReason, const CCoinControl *coinControl = NULL, AvailableCoinsType coin_type=ALL_COINS, bool useIX=false, CAmount nFeePay=0);
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand="tx");
+    bool CommitTransaction(CWalletTx& wtxNew, boost::optional<CReserveKey&> reservekey, std::string strCommand="tx");
 
     static CFeeRate minTxFee;
     static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool);
@@ -1312,6 +1320,7 @@ boost::optional<uint256> GetSproutNoteNullifier(
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache = true) const;
     
     void ChainTip(const CBlockIndex *pindex, const CBlock *pblock, SproutMerkleTree sproutTree, SaplingMerkleTree saplingTree, bool added);
+    void RunSaplingMigration(int blockHeight);
     /** Saves witness caches and best block locator to disk. */
     void SetBestChain(const CBlockLocator& loc);
     std::set<std::pair<libzcash::PaymentAddress, uint256>> GetNullifiersForAddresses(const std::set<libzcash::PaymentAddress> & addresses);

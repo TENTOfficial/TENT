@@ -5,6 +5,7 @@
 
 #include "wallet/wallet.h"
 
+#include "asyncrpcqueue.h"
 #include "checkpoints.h"
 #include "coincontrol.h"
 #include "consensus/upgrades.h"
@@ -16,6 +17,7 @@
 #include "masternode-budget.h"
 #include "net.h"
 #include "rpc/protocol.h"
+#include "rpc/server.h"
 #include "script/script.h"
 #include "script/sign.h"
 #include "spork.h"
@@ -24,6 +26,7 @@
 #include "utilmoneystr.h"
 #include "zcash/Note.hpp"
 #include "crypter.h"
+#include "wallet/asyncrpcoperation_saplingmigration.h"
 #include "zcash/zip32.h"
 
 #include <assert.h>
@@ -566,7 +569,7 @@ void CWallet::ChainTip(const CBlockIndex *pindex,
                        bool added)
 {
     if (added) {
-        bool initialDownloadCheck = IsInitialBlockDownload(Params());
+        bool initialDownloadCheck = IsInitialBlockDownload();
         if (!initialDownloadCheck &&
             pblock->GetBlockTime() > GetAdjustedTime() - 8640) //Last 144 blocks 2.4 * 60 * 60
         {
@@ -583,6 +586,46 @@ void CWallet::ChainTip(const CBlockIndex *pindex,
     } else {
         DecrementNoteWitnesses(pindex);
         UpdateNullifierNoteMapForBlock(pblock);
+    }
+}
+
+
+void CWallet::RunSaplingMigration(int blockHeight) {
+    if (!NetworkUpgradeActive(blockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
+        return;
+    }
+    LOCK(cs_wallet);
+    if (!fSaplingMigrationEnabled) {
+        return;
+    }
+    // The migration transactions to be sent in a particular batch can take
+    // significant time to generate, and this time depends on the speed of the user's
+    // computer. If they were generated only after a block is seen at the target
+    // height minus 1, then this could leak information. Therefore, for target
+    // height N, implementations SHOULD start generating the transactions at around
+    // height N-5
+    if (blockHeight % 500 == 495) {
+        std::shared_ptr<AsyncRPCQueue> q = getAsyncRPCQueue();
+        std::shared_ptr<AsyncRPCOperation> lastOperation = q->getOperationForId(saplingMigrationOperationId);
+        if (lastOperation != nullptr) {
+            lastOperation->cancel();
+        }
+        pendingSaplingMigrationTxs.clear();
+        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_saplingmigration(blockHeight + 5));
+        saplingMigrationOperationId = operation->getId();
+        q->addOperation(operation);
+    } else if (blockHeight % 500 == 499) {
+        std::shared_ptr<AsyncRPCQueue> q = getAsyncRPCQueue();
+        std::shared_ptr<AsyncRPCOperation> lastOperation = q->getOperationForId(saplingMigrationOperationId);
+        if (lastOperation != nullptr) {
+            lastOperation->cancel();
+        }
+        for (const CTransaction& transaction : pendingSaplingMigrationTxs) {
+            // Send the transaction
+            CWalletTx wtx(this, transaction);
+            CommitTransaction(wtx, boost::none);
+        }
+        pendingSaplingMigrationTxs.clear();
     }
 }
 
@@ -1079,7 +1122,6 @@ void CWallet::ClearNoteWitnessCache()
     //nWitnessCacheSize = 0;
 }
 
-template<typename NoteDataMap>
 void CWallet::DecrementNoteWitnesses(const CBlockIndex* pindex)
 {
     LOCK(cs_wallet);
@@ -1215,14 +1257,14 @@ int CWallet::VerifyAndSetInitialWitness(const CBlockIndex* pindex, bool witnessO
         //Cycle through blocks and transactions building sprout tree until the commitment needed is reached
         const CBlock* pblock;
         CBlock block;
-        ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+        ReadBlockFromDisk(block, pblockindex);
         pblock = &block;
 
         for (const CTransaction& tx : block.vtx) {
           auto hash = tx.GetHash();
 
-          for (size_t i = 0; i < tx.vJoinSplit.size(); i++) {
-            const JSDescription& jsdesc = tx.vJoinSplit[i];
+          for (size_t i = 0; i < tx.vjoinsplit.size(); i++) {
+            const JSDescription& jsdesc = tx.vjoinsplit[i];
             for (uint8_t j = 0; j < jsdesc.commitments.size(); j++) {
               const uint256& note_commitment = jsdesc.commitments[j];
 
@@ -1305,7 +1347,7 @@ int CWallet::VerifyAndSetInitialWitness(const CBlockIndex* pindex, bool witnessO
         //Cycle through blocks and transactions building sapling tree until the commitment needed is reached
         const CBlock* pblock;
         CBlock block;
-        ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+        ReadBlockFromDisk(block, pblockindex);
         pblock = &block;
 
         for (const CTransaction& tx : block.vtx) {
@@ -1379,7 +1421,7 @@ void CWallet::BuildWitnessCache(const CBlockIndex* pindex, bool witnessOnly)
 
     //Cycle through blocks and transactions building sapling tree until the commitment needed is reached
     CBlock block;
-    ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+    ReadBlockFromDisk(block, pblockindex);
 
     for (std::pair<const uint256, CWalletTx>& wtxItem : mapWallet) {
 
@@ -1401,8 +1443,8 @@ void CWallet::BuildWitnessCache(const CBlockIndex* pindex, bool witnessOnly)
             }
 
             for (const CTransaction& tx : block.vtx) {
-              for (size_t i = 0; i < tx.vJoinSplit.size(); i++) {
-                const JSDescription& jsdesc = tx.vJoinSplit[i];
+              for (size_t i = 0; i < tx.vjoinsplit.size(); i++) {
+                const JSDescription& jsdesc = tx.vjoinsplit[i];
                 for (uint8_t j = 0; j < jsdesc.commitments.size(); j++) {
                   const uint256& note_commitment = jsdesc.commitments[j];
                   nd->witnesses.front().append(note_commitment);
@@ -1664,10 +1706,10 @@ void CWallet::UpdateSproutNullifierNoteMapWithTx(CWalletTx& wtx) {
         else {
             if (GetNoteDecryptor(nd.address, dec)) {
                 auto i = item.first.js;
-                auto hSig = wtx.vJoinSplit[i].h_sig(
+                auto hSig = wtx.vjoinsplit[i].h_sig(
                     *psnowgemParams, wtx.joinSplitPubKey);
                 auto optNullifier = GetSproutNoteNullifier(
-                    wtx.vJoinSplit[i],
+                    wtx.vjoinsplit[i],
                     item.second.address,
                     dec,
                     hSig,
@@ -3198,8 +3240,8 @@ void CWallet::DeleteWalletTransactions(const CBlockIndex* pindex) {
             }
 
             //Check for outputs that no longer have parents in the wallet. Exclude parents that are in the same transaction. (Sprout)
-            for (int i = 0; i < wtx.vJoinSplit.size(); i++) {
-              const JSDescription& jsdesc = wtx.vJoinSplit[i];
+            for (int i = 0; i < wtx.vjoinsplit.size(); i++) {
+              const JSDescription& jsdesc = wtx.vjoinsplit[i];
               for (const uint256 &nullifier : jsdesc.nullifiers) {
                 // JSOutPoint op = pwalletMain->mapSproutNullifiersToNotes[nullifier];
                 if (pwalletMain->IsSproutNullifierFromMe(nullifier)) {
@@ -5032,7 +5074,7 @@ bool CWallet::CreateTransaction(CScript scriptPubKey, const CAmount& nValue,
 /**
  * Call after CreateTransaction unless you want to abort
  */
-bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand)
+bool CWallet::CommitTransaction(CWalletTx& wtxNew, boost::optional<CReserveKey&> reservekey, std::string strCommand)
 {
     {
         LOCK2(cs_main, cs_wallet);
@@ -5043,8 +5085,10 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std:
             // maybe makes sense; please don't do it anywhere else.
             CWalletDB* pwalletdb = fFileBacked ? new CWalletDB(strWalletFile,"r+") : NULL;
 
-            // Take key pair from key pool so it won't be used again
-            reservekey.KeepKey();
+            if (reservekey) {
+                // Take key pair from key pool so it won't be used again
+                reservekey.get().KeepKey();
+            }
 
             // Add tx to wallet, because if it has change it's also ours,
             // otherwise just for transaction history.

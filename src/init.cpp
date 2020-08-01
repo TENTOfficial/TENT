@@ -1738,6 +1738,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             pwalletMain->GenerateNewSeed();
         }
 
+        // Set sapling migration status
+        pwalletMain->fSaplingMigrationEnabled = GetBoolArg("-migration", false);
+
         //Set Transaction Deletion Options
         fTxDeleteEnabled = GetBoolArg("-deletetx", false);
         fTxConflictDeleteEnabled = GetBoolArg("-deleteconflicttx", true);
