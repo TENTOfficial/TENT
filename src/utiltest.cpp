@@ -9,6 +9,79 @@
 
 #include <array>
 
+
+// Sprout
+CMutableTransaction GetValidSproutReceiveTransaction(ZCJoinSplit& params,
+                                const libzcash::SproutSpendingKey& sk,
+                                CAmount value,
+                                bool randomInputs,
+                                uint32_t versionGroupId, /* = SAPLING_VERSION_GROUP_ID */
+                                int32_t version /* = SAPLING_TX_VERSION */) {
+    // We removed the ability to create pre-Sapling Sprout transactions
+    assert(version >= SAPLING_TX_VERSION);
+
+    CMutableTransaction mtx;
+    mtx.fOverwintered = true;
+    mtx.nVersionGroupId = versionGroupId;
+    mtx.nVersion = version;
+    mtx.vin.resize(2);
+    if (randomInputs) {
+        mtx.vin[0].prevout.hash = GetRandHash();
+        mtx.vin[1].prevout.hash = GetRandHash();
+    } else {
+        mtx.vin[0].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000001");
+        mtx.vin[1].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000002");
+    }
+    mtx.vin[0].prevout.n = 0;
+    mtx.vin[1].prevout.n = 0;
+
+    // Generate an ephemeral keypair.
+    uint256 joinSplitPubKey;
+    unsigned char joinSplitPrivKey[crypto_sign_SECRETKEYBYTES];
+    crypto_sign_keypair(joinSplitPubKey.begin(), joinSplitPrivKey);
+    mtx.joinSplitPubKey = joinSplitPubKey;
+
+    std::array<libzcash::JSInput, 2> inputs = {
+        libzcash::JSInput(), // dummy input
+        libzcash::JSInput() // dummy input
+    };
+
+    std::array<libzcash::JSOutput, 2> outputs = {
+        libzcash::JSOutput(sk.address(), value),
+        libzcash::JSOutput(sk.address(), value)
+    };
+
+    // Prepare JoinSplits
+    uint256 rt;
+    JSDescription jsdesc {params, mtx.joinSplitPubKey, rt,
+                          inputs, outputs, 2*value, 0, false};
+    mtx.vjoinsplit.push_back(jsdesc);
+
+    // Consider: The following is a bit misleading (given the name of this function)
+    // and should perhaps be changed, but currently a few tests in test_wallet.cpp
+    // depend on this happening.
+    if (version >= 4) {
+        // Shielded Output
+        OutputDescription od;
+        mtx.vShieldedOutput.push_back(od);
+    }
+
+    // Empty output script.
+    uint32_t consensusBranchId = SPROUT_BRANCH_ID;
+    CScript scriptCode;
+    CTransaction signTx(mtx);
+    uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
+
+    // Add the signature
+    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+                                dataToBeSigned.begin(), 32,
+                                joinSplitPrivKey
+                               ) == 0);
+
+    return mtx;
+}
+
+
 CWalletTx GetValidReceive(ZCJoinSplit& params,
                           const libzcash::SproutSpendingKey& sk, CAmount value,
                           bool randomInputs,
@@ -70,7 +143,6 @@ CWalletTx GetValidReceive(ZCJoinSplit& params,
     CWalletTx wtx {NULL, tx};
     return wtx;
 }
-
 
 CWalletTx GetValidSpend(ZCJoinSplit& params,
                         const libzcash::SproutSpendingKey& sk,
@@ -152,77 +224,6 @@ libzcash::SproutNote GetNote(ZCJoinSplit& params,
         hSig,
         (unsigned char) n);
     return note_pt.note(sk.address());
-}
-
-// Sprout
-CMutableTransaction GetValidSproutReceiveTransaction(ZCJoinSplit& params,
-                                const libzcash::SproutSpendingKey& sk,
-                                CAmount value,
-                                bool randomInputs,
-                                uint32_t versionGroupId, /* = SAPLING_VERSION_GROUP_ID */
-                                int32_t version /* = SAPLING_TX_VERSION */) {
-    // We removed the ability to create pre-Sapling Sprout transactions
-    assert(version >= SAPLING_TX_VERSION);
-
-    CMutableTransaction mtx;
-    mtx.fOverwintered = true;
-    mtx.nVersionGroupId = versionGroupId;
-    mtx.nVersion = version;
-    mtx.vin.resize(2);
-    if (randomInputs) {
-        mtx.vin[0].prevout.hash = GetRandHash();
-        mtx.vin[1].prevout.hash = GetRandHash();
-    } else {
-        mtx.vin[0].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000001");
-        mtx.vin[1].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000002");
-    }
-    mtx.vin[0].prevout.n = 0;
-    mtx.vin[1].prevout.n = 0;
-
-    // Generate an ephemeral keypair.
-    uint256 joinSplitPubKey;
-    unsigned char joinSplitPrivKey[crypto_sign_SECRETKEYBYTES];
-    crypto_sign_keypair(joinSplitPubKey.begin(), joinSplitPrivKey);
-    mtx.joinSplitPubKey = joinSplitPubKey;
-
-    std::array<libzcash::JSInput, 2> inputs = {
-        libzcash::JSInput(), // dummy input
-        libzcash::JSInput() // dummy input
-    };
-
-    std::array<libzcash::JSOutput, 2> outputs = {
-        libzcash::JSOutput(sk.address(), value),
-        libzcash::JSOutput(sk.address(), value)
-    };
-
-    // Prepare JoinSplits
-    uint256 rt;
-    JSDescription jsdesc {params, mtx.joinSplitPubKey, rt,
-                          inputs, outputs, 2*value, 0, false};
-    mtx.vjoinsplit.push_back(jsdesc);
-
-    // Consider: The following is a bit misleading (given the name of this function)
-    // and should perhaps be changed, but currently a few tests in test_wallet.cpp
-    // depend on this happening.
-    if (version >= 4) {
-        // Shielded Output
-        OutputDescription od;
-        mtx.vShieldedOutput.push_back(od);
-    }
-
-    // Empty output script.
-    uint32_t consensusBranchId = SPROUT_BRANCH_ID;
-    CScript scriptCode;
-    CTransaction signTx(mtx);
-    uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
-
-    // Add the signature
-    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
-                                dataToBeSigned.begin(), 32,
-                                joinSplitPrivKey
-                               ) == 0);
-
-    return mtx;
 }
 
 CWalletTx GetValidSproutReceive(ZCJoinSplit& params,

@@ -21,6 +21,26 @@ CWalletTx GetValidSpend(ZCJoinSplit& params,
                         const libzcash::SproutSpendingKey& sk,
                         const libzcash::SproutNote& note, CAmount value);
 
+CWalletTx GetValidSproutReceive(ZCJoinSplit& params,
+                                const libzcash::SproutSpendingKey& sk,
+                                CAmount value,
+                                bool randomInputs,
+                                uint32_t versionGroupId = SAPLING_VERSION_GROUP_ID,
+                                int32_t version = SAPLING_TX_VERSION);
+                                CWalletTx GetInvalidCommitmentSproutReceive(ZCJoinSplit& params,
+                                const libzcash::SproutSpendingKey& sk,
+                                CAmount value,
+                                bool randomInputs,
+                                uint32_t versionGroupId = SAPLING_VERSION_GROUP_ID,
+                                int32_t version = SAPLING_TX_VERSION);
+libzcash::SproutNote GetSproutNote(ZCJoinSplit& params,
+                                   const libzcash::SproutSpendingKey& sk,
+                                   const CTransaction& tx, size_t js, size_t n);
+CWalletTx GetValidSproutSpend(ZCJoinSplit& params,
+                              const libzcash::SproutSpendingKey& sk,
+                              const libzcash::SproutNote& note,
+                              CAmount value);
+
 // Sapling
 static const std::string T_SECRET_REGTEST = "cND2ZvtabDbJ1gucx9GWH6XT9kgTAqfb6cotPt5Q5CyxVDhid2EN";
 
