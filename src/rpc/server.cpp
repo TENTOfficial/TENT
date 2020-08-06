@@ -475,6 +475,9 @@ UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params
     if (!pcmd)
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Method not found");
 
+    if (!initWitnessesBuilt && pcmd->name == "z_sendmany")
+        throw JSONRPCError(RPC_DISABLED_BEFORE_WITNESSES, "RPC Command disabled until witnesses are built.");
+
     g_rpcSignals.PreCommand(*pcmd);
 
     try
