@@ -581,6 +581,7 @@ void CWallet::ChainTip(const CBlockIndex *pindex,
         {
             BuildWitnessCache(pindex, false);
             RunSaplingMigration(pindex->nHeight);
+            RunSaplingConsolidation(pindex->nHeight);
             DeleteWalletTransactions(pindex);
         } else {
             //Build intial witnesses on every block
