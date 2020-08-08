@@ -40,8 +40,8 @@ TEST(Transaction, JSDescriptionRandomized) {
         libzcash::JSOutput(addr, 50),
         libzcash::JSOutput(addr, 50)
     };
-    std::array<size_t, ZC_NUM_JS_INPUTS> inputMap;
-    std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
+    std::array<uint64_t, ZC_NUM_JS_INPUTS> inputMap;
+    std::array<uint64_t, ZC_NUM_JS_OUTPUTS> outputMap;
 
     {
         auto jsdesc = JSDescription::Randomized(

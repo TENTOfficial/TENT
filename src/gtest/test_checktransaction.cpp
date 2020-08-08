@@ -737,8 +737,8 @@ TEST(checktransaction_tests, SaplingSproutInputSumsTooLarge) {
             libzcash::JSOutput(),
             libzcash::JSOutput()
         };
-        std::array<size_t, ZC_NUM_JS_INPUTS> inputMap;
-        std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
+        std::array<uint64_t, ZC_NUM_JS_INPUTS> inputMap;
+        std::array<uint64_t, ZC_NUM_JS_OUTPUTS> outputMap;
 
         auto jsdesc = JSDescription::Randomized(
             *params, joinSplitPubKey, rt,
