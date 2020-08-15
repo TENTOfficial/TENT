@@ -12,17 +12,14 @@ confidentiality of transaction metadata. Technical details are available
 in our [Protocol Specification](https://github.com/snowgem/zips/raw/master/protocol/protocol.pdf).
 
 This software is the SnowGem client. It downloads and stores the entire history
-of Snowgem transactions; depending on the speed of your computer and network
+of SnowGem transactions; depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
 
 Security Warnings
 ---
 
-See important security warnings on the
-[Security Information page](https://snowgem.org/support/security/).
-
-**Snowgem is experimental and a work-in-progress.** Use at your own risk.
+**SnowGem is experimental and a work-in-progress.** Use at your own risk.
 
 Deprecation Policy
 ---
@@ -110,7 +107,7 @@ $ cd snowgem/
 $ ./zcutil/build.sh
 ```
 
-This should compile our dependencies and build snowgemd
+This should compile our dependencies and build `snowgemd`
 
 ### Build Windows
 
