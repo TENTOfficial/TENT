@@ -1,21 +1,23 @@
-Snowgem 2.0.1
-=============
+SnowGem
+===
+![](https://img.shields.io/github/v/release/snowgem/snowgem) ![](https://img.shields.io/github/release-date/snowgem/snowgem) ![](https://img.shields.io/github/downloads/snowgem/snowgem/latest/total) ![](https://img.shields.io/github/downloads/snowgem/snowgem/total) [![](https://img.shields.io/discord/398513312696107008)](https://discord.gg/78rVJcH)
+[![](https://img.shields.io/twitter/follow/SnowGemOfficial?label=Follow&style=social)](https://twitter.com/SnowGemOfficial)
 
-What is Snowgem?
-----------
-Snowgem(https://snowgem.org/) is an implementation of the "Zerocash" protocol.
+What is SnowGem?
+---
+SnowGem(https://snowgem.org/) is an implementation of the "Zerocash" protocol.
 Based on Bitcoin's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
 in our [Protocol Specification](https://github.com/snowgem/zips/raw/master/protocol/protocol.pdf).
 
-This software is the Snowgem client. It downloads and stores the entire history
+This software is the SnowGem client. It downloads and stores the entire history
 of Snowgem transactions; depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
 
 Security Warnings
------------------
+---
 
 See important security warnings on the
 [Security Information page](https://snowgem.org/support/security/).
@@ -23,7 +25,7 @@ See important security warnings on the
 **Snowgem is experimental and a work-in-progress.** Use at your own risk.
 
 Deprecation Policy
-------------------
+---
 
 This release is considered deprecated 16 weeks after the release day. There
 is an automatic deprecation shutdown feature which will halt the node some
@@ -31,7 +33,7 @@ time after this 16 week time period. The automatic feature is based on block
 height and can be explicitly disabled.
 
 Building
------------------
+---
 
 ### Install dependencies
 
@@ -119,14 +121,14 @@ $ cd snowgem/
 HOST=x86_64-w64-mingw32 ./zcutil/build.sh
 ```
 
---------
+---
 ### Need Help?
 
 * See the documentation at the [refer from Zcash Wiki](https://github.com/zcash/zcash/wiki/1.0-User-Guide)
   for help and more information.
-* Ask for help on the [Snowgem](https://forum.snowgem.org/) forum or contact us via email support@snowgem.org
+* Ask for help on the [SnowGem](https://discuss.snowgem.org/) forum or contact us via email support@snowgem.org
 
-Participation in the Snowgem project is subject to a
+Participation in the SnowGem project is subject to a
 [Code of Conduct](code_of_conduct.md).
 
 License
