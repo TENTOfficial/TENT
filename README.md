@@ -1,7 +1,9 @@
 SnowGem
 ===
-![](https://img.shields.io/github/v/release/snowgem/snowgem) ![](https://img.shields.io/github/release-date/snowgem/snowgem) ![](https://img.shields.io/github/downloads/snowgem/snowgem/latest/total) ![](https://img.shields.io/github/downloads/snowgem/snowgem/total) [![](https://img.shields.io/discord/398513312696107008)](https://discord.gg/78rVJcH)
+[![](https://img.shields.io/github/v/release/snowgem/snowgem)](https://github.com/Snowgem/Snowgem/releases) [![](https://img.shields.io/github/release-date/snowgem/snowgem)](https://github.com/Snowgem/Snowgem/releases) [![](https://img.shields.io/github/downloads/snowgem/snowgem/latest/total)](https://github.com/Snowgem/Snowgem/releases) [![](https://img.shields.io/github/downloads/snowgem/snowgem/total)](https://github.com/Snowgem/Snowgem/releases) [![](https://img.shields.io/discord/398513312696107008)](https://discord.gg/78rVJcH)
 [![](https://img.shields.io/twitter/follow/SnowGemOfficial?label=Follow&style=social)](https://twitter.com/SnowGemOfficial)
+
+![]()
 
 What is SnowGem?
 ---
