@@ -1,7 +1,8 @@
-#Snowgem 2.0.1
+Snowgem 2.0.1
+=============
 
-##What is Snowgem?
-
+What is Snowgem?
+----------
 Snowgem(https://snowgem.org/) is an implementation of the "Zerocash" protocol.
 Based on Bitcoin's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
