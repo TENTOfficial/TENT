@@ -133,4 +133,5 @@ Participation in the SnowGem project is subject to a
 License
 -------
 
+
 For license information see the file [COPYING](COPYING).
