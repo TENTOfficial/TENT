@@ -4220,6 +4220,16 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     return true;
 }
 
+bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+{
+    const CChainParams& chainParams = Params();
+    if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+    {
+        return false;
+    }
+    return true;
+}
+
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev)
 {
     const CChainParams& chainParams = Params();
@@ -4255,6 +4265,15 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(error("%s : rejected nVersion<4 block", __func__),
                              REJECT_OBSOLETE, "bad-version");
 
+    //check block timestamp
+    if(NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_WAKANDA))
+    {
+        if(!CheckBlockTimestamp(pindexPrev, &block))
+        {
+            return state.DoS(100, error("%s: new block is too fast", __func__),
+                    REJECT_INVALID, "block-too-fast");
+        }
+    }
     return true;
 }
 
@@ -4333,7 +4352,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     }
 
     //check treasury reward
-    if ((nHeight > consensusParams.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight) && (nHeight <= consensusParams.GetLastFoundersRewardBlockHeight())) {
+    if ((nHeight > consensusParams.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight) && (nHeight <= consensusParams.GetLastTreasuryRewardBlockHeight())) {
         bool found = false;
 
         BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
