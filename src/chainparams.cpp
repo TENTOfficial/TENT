@@ -71,7 +71,7 @@ class CMainParams : public CChainParams {
 public:
     CMainParams() {
         strNetworkID = "main";
-        strCurrencyUnits = "XSG";
+        strCurrencyUnits = "TENT";
         bip44CoinType = 407; // As registered in https://github.com/satoshilabs/slips/blob/master/slip-0044.md
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nSubsidySlowStartInterval = 8000;
