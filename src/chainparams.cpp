@@ -105,7 +105,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 916000;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
-        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1547888;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
@@ -293,7 +293,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 12600;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
-        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 13000;
+        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 22500;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;

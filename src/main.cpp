@@ -4270,7 +4270,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     {
         if(!CheckBlockTimestamp(pindexPrev, &block))
         {
-            return state.DoS(100, error("%s: new block is too fast", __func__),
+            return state.Invalid(error("%s: new block is too fast", __func__),
                     REJECT_INVALID, "block-too-fast");
         }
     }
@@ -4365,7 +4365,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         }
 
         if (!found) {
-            return state.DoS(100, error("%s: treasury reward missing", __func__), REJECT_INVALID, "cb-no-treasury-reward");
+            return state.Invalid(error("%s: treasury reward missing", __func__), REJECT_INVALID, "cb-no-treasury-reward");
         }
     }
 
