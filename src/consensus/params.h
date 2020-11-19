@@ -31,6 +31,7 @@ enum UpgradeIndex {
     UPGRADE_DIFA,
     UPGRADE_ALFHEIMR,
     UPGRADE_KNOWHERE,
+    UPGRADE_WAKANDA,
     // NOTE: Also add new upgrades to NetworkUpgradeInfo in upgrades.cpp
     MAX_NETWORK_UPGRADES
 };
@@ -89,7 +90,11 @@ struct Params {
     int SubsidySlowStartShift() const { return nSubsidySlowStartInterval / 2; }
     int nSubsidyHalvingInterval;
     int GetLastFoundersRewardBlockHeight() const {
-        //return nSubsidyHalvingInterval + SubsidySlowStartShift() - 1;
+        return nSubsidyHalvingInterval + SubsidySlowStartShift() - 1;
+        // return 99999999;
+    }
+
+    int GetLastTreasuryRewardBlockHeight() const {
         return 99999999;
     }
 

@@ -336,12 +336,15 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
     if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
         // Take some reward away from us
         txNew.vout[0].nValue -= vFoundersReward;
-        txNew.vout[0].nValue -= vTreasuryReward;
 
         // And give it to the founders
         txNew.vout.push_back(CTxOut(vFoundersReward, Params().GetFoundersRewardScriptAtHeight(nHeight)));
+    }
+
+    if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastTreasuryRewardBlockHeight())) {
         if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
         {
+            txNew.vout[0].nValue -= vTreasuryReward;
             txNew.vout.push_back(CTxOut(vTreasuryReward, Params().GetTreasuryRewardScriptAtHeight(nHeight)));
         }
     }
