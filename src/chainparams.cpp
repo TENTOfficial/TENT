@@ -105,7 +105,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_ALFHEIMR].nProtocolVersion = 170008;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight = 916000;
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
-        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1547888;
+        consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1570000;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
