@@ -439,12 +439,15 @@ static UniValue BIP22ValidationResult(const CValidationState& state)
 
 UniValue getblockchainsyncstatus(const UniValue& params, bool fHelp)
 {
+    if (vNodes.empty())
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Snowgem is not connected!");
+
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Snowgem is downloading blocks...");
     
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("IsBlockchainSync", true));
-    return result
+    return result;
 
 }
 UniValue getblocktemplate(const UniValue& params, bool fHelp)
@@ -1026,6 +1029,7 @@ static const CRPCCommand commands[] =
     { "mining",             "getnetworkhashps",       &getnetworkhashps,       true  },
     { "mining",             "getmininginfo",          &getmininginfo,          true  },
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  true  },
+    { "mining",             "getblockchainsyncstatus",       &getblockchainsyncstatus,       true  },
     { "mining",             "getblocktemplate",       &getblocktemplate,       true  },
     { "mining",             "submitblock",            &submitblock,            true  },
     { "mining",             "getblocksubsidy",        &getblocksubsidy,        true  },
