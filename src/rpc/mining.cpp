@@ -437,6 +437,16 @@ static UniValue BIP22ValidationResult(const CValidationState& state)
     return "valid?";
 }
 
+UniValue getblockchainsyncstatus(const UniValue& params, bool fHelp)
+{
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Snowgem is downloading blocks...");
+    
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("IsBlockchainSync", true));
+    return result
+
+}
 UniValue getblocktemplate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
