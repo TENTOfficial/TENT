@@ -356,7 +356,7 @@ UniValue startalias(const UniValue& params, bool fHelp)
     if (!masternodeSync.IsSynced())
     {
         UniValue obj(UniValue::VOBJ);
-        std::string error = "Masternode is not synced, please wait. Current status: " + masternodeSync.GetSyncStatus();
+        std::string error = "Syncing masternodes list, please wait. Current status: " + masternodeSync.GetSyncStatus();
         obj.push_back(Pair("result", error));
         return obj;
     }
@@ -565,7 +565,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
             failed++;
             {
-                std::string error = "Masternode is not synced, please wait. Current status: " + masternodeSync.GetSyncStatus();
+                std::string error = "Syncing masternodes list, please wait. Current status: " + masternodeSync.GetSyncStatus();
                 statusObj.push_back(Pair("error", error));
             }
             resultsObj.push_back(statusObj);
