@@ -107,6 +107,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1545000;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nProtocolVersion = 170010;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
@@ -295,6 +297,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 22500;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nProtocolVersion = 170010;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;
@@ -603,6 +607,17 @@ CScript CChainParams::GetTreasuryRewardScriptAtHeight(int nHeight) const {
 std::string CChainParams::GetTreasuryRewardAddressAtIndex(int i) const {
     assert(i >= 0 && i < vTreasuryRewardAddress.size());
     return vTreasuryRewardAddress[i];
+}
+
+bool CChainParams::GetCoinbaseProtected(int height) const{
+    if(!NetworkUpgradeActive(height, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const CChainParams& params){

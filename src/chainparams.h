@@ -133,6 +133,7 @@ public:
 
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    bool GetCoinbaseProtected(int height) const;
     int GetNewTimeRule() const { return newTimeRule; }
     int GetMasternodeProtectionBlock() const { return masternodeProtectionBlock; }
     int GetMasternodeCollateral() const { return masternodeCollateral; }
