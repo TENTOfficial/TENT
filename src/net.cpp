@@ -56,7 +56,6 @@ using namespace zen;
 #endif
 
 #define USE_TLS
-#define TLS1_2_VERSION
 
 #if defined(USE_TLS) && !defined(TLS1_2_VERSION)
     // minimum secure protocol is 1.2
