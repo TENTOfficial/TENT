@@ -98,15 +98,21 @@ BITCOIN_TESTS =\
   test/torcontrol_tests.cpp \
   test/transaction_tests.cpp \
   test/uint256_tests.cpp \
-  test/univalue_tests.cpp \
+  #test/univalue_tests.cpp \
   test/util_tests.cpp \
   test/sha256compress_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
   test/accounting_tests.cpp \
-  wallet/test/wallet_tests.cpp \
-  test/rpc_wallet_tests.cpp
+  wallet/test/wallet_tests.cpp
+
+
+if !TARGET_WINDOWS
+BITCOIN_TESTS += test/rpc_wallet_tests.cpp
+endif
+
+
 endif
 
 test_test_bitcoin_SOURCES = $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
