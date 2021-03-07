@@ -135,8 +135,8 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
         if (!(stats.addrLocal.empty()))
             obj.push_back(Pair("addrlocal", stats.addrLocal));
         obj.push_back(Pair("services", strprintf("%016x", stats.nServices)));
-        obj.push_back(Pair("tls_established", stats.fTLSEstablished);
-        obj.push_back(Pair("tls_verified", stats.fTLSVerified);
+        obj.push_back(Pair("tls_established", stats.fTLSEstablished));
+        obj.push_back(Pair("tls_verified", stats.fTLSVerified));
         obj.push_back(Pair("lastsend", stats.nLastSend));
         obj.push_back(Pair("lastrecv", stats.nLastRecv));
         obj.push_back(Pair("bytessent", stats.nSendBytes));
@@ -481,7 +481,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("localservices",       strprintf("%016x", nLocalServices)));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
-    obj.pus_back(Pair("tls_cert_verified", ValidateCertificate(tls_ctx_server)));
+    obj.push_back(Pair("tls_cert_verified", ValidateCertificate(tls_ctx_server)));
     obj.push_back(Pair("networks",      GetNetworksInfo()));
     obj.push_back(Pair("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK())));
     UniValue localAddresses(UniValue::VARR);
