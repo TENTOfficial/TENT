@@ -203,16 +203,15 @@ void ConnectMetricsScreen()
 int printStats(bool mining)
 {
     // Number of lines that are always displayed
-    int lines = 4;
+    int lines = 5;
 
-    int height;
+    int height = chainActive.Height();
     int64_t tipmediantime;
-    size_t connections;
-    int64_t netsolps;
+    int connections = 0;
     int tlsConnections = 0;
+    int64_t netsolps;
     {
         LOCK2(cs_main, cs_vNodes);
-        height = chainActive.Height();
         tipmediantime = chainActive.Tip()->GetMedianTimePast();
         connections = vNodes.size();
         tlsConnections = std::count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});
