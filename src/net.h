@@ -179,6 +179,8 @@ extern CCriticalSection cs_nLastNodeId;
 extern SSL_CTX *tls_ctx_server;
 extern SSL_CTX *tls_ctx_client;
 
+extern std::string strSubVersion;
+
 struct LocalServiceInfo {
     int nScore;
     int nPort;
