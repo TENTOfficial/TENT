@@ -8,6 +8,7 @@
 
 #include "coins.h"
 #include "dbwrapper.h"
+#include "leveldbwrapper.h"
 
 #include <map>
 #include <string>
