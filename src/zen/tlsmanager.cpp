@@ -13,7 +13,7 @@
 #include "utiltls.h"
 
 using namespace std;
-namespace tent
+namespace zen
 {
 
 // this is the 'dh crypto environment' to be shared between two peers and it is meant to be public, therefore
