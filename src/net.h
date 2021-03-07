@@ -20,7 +20,7 @@
 #include "ui_interface.h"
 #include "crypto/common.h"
 #include "masternodeman.h"
-#include "zen/utiltls.h"
+#include "tent/utiltls.h"
 
 #ifdef WIN32
 #include <string.h>
