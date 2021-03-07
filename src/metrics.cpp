@@ -218,12 +218,6 @@ int printStats(bool mining)
         tlsConnections = std::count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});
     }
     auto localsolps = GetLocalSolPS();
-// OpenSSL related statistics
-    tlsvalidate = GetArg("-tlsvalidate","");
-    cipherdescription = cipherdescription.length() == 0 ? "Not Encrypted" : cipherdescription;
-    securitylevel = securitylevel.length() == 0 ? "INACTIVE" : securitylevel;
-    routingsecrecy = routingsecrecy.length() == 0 ? GetArg("-onlynet", "") : routingsecrecy;
-    validationdescription = (tlsvalidate == "1" ? "YES" : "PUBLIC");
 
     if (IsInitialBlockDownload()) {
         int netheight = EstimateNetHeight(height, tipmediantime, Params());
