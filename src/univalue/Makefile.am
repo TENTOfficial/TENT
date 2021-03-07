@@ -12,6 +12,7 @@ pkgconfig_DATA = pc/libunivalue.pc
 
 libunivalue_la_SOURCES = \
 	lib/univalue.cpp \
+	lib/univalue_get.cpp \
 	lib/univalue_read.cpp \
 	lib/univalue_write.cpp
 
@@ -20,7 +21,7 @@ libunivalue_la_LDFLAGS = \
 	-no-undefined
 libunivalue_la_CXXFLAGS = -I$(top_srcdir)/include
 
-TESTS = test/unitester test/no_nul
+TESTS = test/object test/unitester test/no_nul
 
 GENBIN = gen/gen$(BUILD_EXEEXT)
 GEN_SRCS = gen/gen.cpp
