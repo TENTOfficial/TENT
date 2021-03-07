@@ -209,6 +209,7 @@ int printStats(bool mining)
     int64_t tipmediantime;
     size_t connections;
     int64_t netsolps;
+    int tlsConnections = 0;
     {
         LOCK2(cs_main, cs_vNodes);
         height = chainActive.Height();
