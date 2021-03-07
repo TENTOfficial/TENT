@@ -1,4 +1,4 @@
-namespace zen
+namespace tent
 {
 typedef enum { SSL_ACCEPT,
                SSL_CONNECT,

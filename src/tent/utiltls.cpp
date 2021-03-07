@@ -16,7 +16,7 @@
 #include "util.h"
 #include "utiltls.h"
 
-namespace zen {
+namespace tent {
 
 // Set of most common default trusted certificates directories used by OpenSSL
 static const char* defaultTrustedDirs[] =
