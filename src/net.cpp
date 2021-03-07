@@ -19,8 +19,8 @@
 #include "scheduler.h"
 #include "ui_interface.h"
 #include "crypto/common.h"
-#include "masternodeman.h"
 #include "zen/utiltls.h"
+#include "masternodeman.h"
 
 #ifdef WIN32
 #include <string.h>
@@ -93,8 +93,9 @@ static list<CNode*> vNodesDisconnected;
 CAddrMan addrman;
 int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
-std::string strSubVersion;
 TLSManager tlsmanager = TLSManager();
+std::string strSubVersion;
+
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
 map<CInv, CDataStream> mapRelay;
@@ -567,13 +568,9 @@ void DisconnectNodes()
 void CNode::CloseSocketDisconnect()
 {
     fDisconnect = true;
-    
+    if (hSocket != INVALID_SOCKET)
     {
-        LOCK(cs_hSocket);
-        
-        if (hSocket != INVALID_SOCKET)
-        {
-            try
+    	try
             {
                 LogPrint("net", "disconnecting peer=%d\n", id);
             }
@@ -593,7 +590,6 @@ void CNode::CloseSocketDisconnect()
             }
             CloseSocket(hSocket);
         }
-    }
 
     // in case this fails, we'll empty the recv buffer when the CNode is deleted
     TRY_LOCK(cs_vRecvMsg, lockRecv);
@@ -860,8 +856,8 @@ void SocketSendData(CNode *pnode)
     {
         const CSerializeData &data = *it;
         assert(data.size() > pnode->nSendOffset);
-
         bool bIsSSL = false;
+       
         int nBytes = 0, nRet = 0;
         {
             LOCK(pnode->cs_hSocket);
@@ -939,8 +935,7 @@ void SocketSendData(CNode *pnode)
         }
     }
 
-    if (it == pnode->vSendMsg.end())
-    {
+    if (it == pnode->vSendMsg.end()) {
         assert(pnode->nSendOffset == 0);
         assert(pnode->nSendSize == 0);
     }
@@ -1293,7 +1288,6 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
 #endif // USE_TLS
 
     CNode* pnode = new CNode(hSocket, addr, "", true, ssl);
-    
     pnode->AddRef();
     pnode->fWhitelisted = whitelisted;
 
@@ -1413,8 +1407,6 @@ void ThreadSocketHandler()
             LOCK(cs_vNodes);
             BOOST_FOREACH(CNode* pnode, vNodes)
             {
-                LOCK(pnode->cs_hSocket);
-                
                 if (pnode->hSocket == INVALID_SOCKET)
                     continue;
                 FD_SET(pnode->hSocket, &fdsetError);
@@ -1495,9 +1487,7 @@ void ThreadSocketHandler()
         BOOST_FOREACH(CNode* pnode, vNodesCopy)
         {
             boost::this_thread::interruption_point();
-			if (tlsmanager.threadSocketHandler(pnode,fdsetRecv,fdsetSend,fdsetError)==-1){
-            	continue;
-            	}
+
             //
             // Receive
             //
@@ -2538,48 +2528,6 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
         PushVersion();
 
     GetNodeSignals().InitializeNode(GetId(), this);
-}
-
-bool CNode::GetTlsFallbackNonTls()
-{
-    if (tlsFallbackNonTls == eTlsOption::FALLBACK_UNSET)
-    {
-        // one time only setting of static class attribute
-        if ( GetBoolArg("-tlsfallbacknontls", true))
-        {
-            LogPrint("tls", "%s():%d - Non-TLS connections will be used in case of failure of TLS\n",
-                __func__, __LINE__);
-            tlsFallbackNonTls = eTlsOption::FALLBACK_TRUE;
-        }
-        else
-        {
-            LogPrint("tls", "%s():%d - Non-TLS connections will NOT be used in case of failure of TLS\n",
-                __func__, __LINE__);
-            tlsFallbackNonTls = eTlsOption::FALLBACK_FALSE;
-        }
-    }
-    return (tlsFallbackNonTls == eTlsOption::FALLBACK_TRUE);
-}
-
-bool CNode::GetTlsValidate()
-{
-    if (tlsValidate == eTlsOption::FALLBACK_UNSET)
-    {
-        // one time only setting of static class attribute
-        if ( GetBoolArg("-tlsvalidate", false))
-        {
-            LogPrint("tls", "%s():%d - TLS certificates will be validated\n",
-                __func__, __LINE__);
-            tlsValidate = eTlsOption::FALLBACK_TRUE;
-        }
-        else
-        {
-            LogPrint("tls", "%s():%d - TLS certificates will NOT be validated\n",
-                __func__, __LINE__);
-            tlsValidate = eTlsOption::FALLBACK_FALSE;
-        }
-    }
-    return (tlsValidate == eTlsOption::FALLBACK_TRUE);
 }
 
 CNode::~CNode()
