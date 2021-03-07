@@ -21,6 +21,11 @@
 #include "crypto/common.h"
 #include "masternodeman.h"
 #include "tent/utiltls.h"
+#include <openssl/conf.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <tent/tlsmanager.cpp>
+
 
 #ifdef WIN32
 #include <string.h>
@@ -30,11 +35,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
-
-#include <openssl/conf.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <tent/tlsmanager.cpp>
 
 
 // Dump addresses to peers.dat every 15 minutes (900s)
