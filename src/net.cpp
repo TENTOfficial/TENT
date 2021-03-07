@@ -710,22 +710,24 @@ void CNode::AddWhitelistedRange(const CSubNet &subnet) {
     vWhitelistedRange.push_back(subnet);
 }
 
+#undef X
+#define X(name) stats.name = name
 void CNode::copyStats(CNodeStats &stats)
 {
     stats.nodeid = this->GetId();
-    stats.nServices = nServices;
-    stats.nLastSend = nLastSend;
-    stats.nLastRecv = nLastRecv;
-    stats.nTimeConnected = nTimeConnected;
-    stats.nTimeOffset = nTimeOffset;
-    stats.addrName = addrName;
-    stats.nVersion = nVersion;
-    stats.cleanSubVer = cleanSubVer;
-    stats.fInbound = fInbound;
-    stats.nStartingHeight = nStartingHeight;
-    stats.nSendBytes = nSendBytes;
-    stats.nRecvBytes = nRecvBytes;
-    stats.fWhitelisted = fWhitelisted;
+    X(nServices);
+    X(nLastSend);
+    X(nLastRecv);
+    X(nTimeConnected);
+    X(nTimeOffset);
+    X(addrName);
+    X(nVersion);
+    X(cleanSubVer);
+    X(fInbound);
+    X(nStartingHeight);
+    X(nSendBytes);
+    X(nRecvBytes);
+    X(fWhitelisted);
 
     // It is common for nodes with good ping times to suddenly become lagged,
     // due to a new block arriving or other large transfer.
@@ -752,6 +754,7 @@ void CNode::copyStats(CNodeStats &stats)
         stats.fTLSVerified = (ssl != NULL) && ValidatePeerCertificate(ssl);
     }
 }
+#undef X
 
 // requires LOCK(cs_vRecvMsg)
 bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes)
@@ -941,6 +944,8 @@ void SocketSendData(CNode *pnode)
     }
     pnode->vSendMsg.erase(pnode->vSendMsg.begin(), it);
 }
+
+static list<CNode*> vNodesDisconnected;
 
 class CNodeRef {
 public:
