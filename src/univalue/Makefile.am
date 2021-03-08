@@ -53,6 +53,11 @@ test_no_nul_LDADD = libunivalue.la
 test_no_nul_CXXFLAGS = -I$(top_srcdir)/include
 test_no_nul_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
 
+test_object_SOURCES = test/object.cpp
+test_object_LDADD = libunivalue.la
+test_object_CXXFLAGS = -I$(top_srcdir)/include
+test_object_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
+
 TEST_FILES = \
 	$(TEST_DATA_DIR)/fail10.json \
 	$(TEST_DATA_DIR)/fail11.json \
@@ -89,6 +94,8 @@ TEST_FILES = \
 	$(TEST_DATA_DIR)/fail40.json \
 	$(TEST_DATA_DIR)/fail41.json \
 	$(TEST_DATA_DIR)/fail42.json \
+	$(TEST_DATA_DIR)/fail44.json \
+	$(TEST_DATA_DIR)/fail45.json \
 	$(TEST_DATA_DIR)/fail3.json \
 	$(TEST_DATA_DIR)/fail4.json \
 	$(TEST_DATA_DIR)/fail5.json \
@@ -99,6 +106,7 @@ TEST_FILES = \
 	$(TEST_DATA_DIR)/pass1.json \
 	$(TEST_DATA_DIR)/pass2.json \
 	$(TEST_DATA_DIR)/pass3.json \
+	$(TEST_DATA_DIR)/pass4.json \
 	$(TEST_DATA_DIR)/round1.json \
 	$(TEST_DATA_DIR)/round2.json \
 	$(TEST_DATA_DIR)/round3.json \
