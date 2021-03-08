@@ -1230,8 +1230,7 @@ public:
          std::vector<uint256> commitments,
          std::vector<boost::optional<SproutWitness>>& witnesses,
          uint256 &final_anchor);
-    void ReorderWalletTransactions(std::map<std::
-    <int,int>, CWalletTx*> &mapSorted, int64_t &maxOrderPos);
+    void ReorderWalletTransactions(std::map<std::pair<int,int>, CWalletTx*> &mapSorted, int64_t &maxOrderPos);
     void UpdateWalletTransactionOrder(std::map<std::pair<int,int>, CWalletTx*> &mapSorted, bool resetOrder);
     void DeleteTransactions(std::vector<uint256> &removeTxs);
     void DeleteWalletTransactions(const CBlockIndex* pindex);
