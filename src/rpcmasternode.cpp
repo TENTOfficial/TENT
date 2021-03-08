@@ -813,7 +813,7 @@ UniValue listmasternodeconf (const UniValue& params, bool fHelp)
         mnObj.pushKV("privateKey", mne.getPrivKey());
         mnObj.pushKV("txHash", mne.getTxHash());
         mnObj.pushKV("outputIndex", mne.getOutputIndex());
-        mnObj.pushKV("status", strStatus));
+        mnObj.pushKV("status", strStatus);
         ret.push_back(mnObj);
     }
 

@@ -744,7 +744,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.pushKV("finalsaplingroothash", pblock->hashFinalSaplingRoot.GetHex());
     result.pushKV("transactions", transactions);
     if (coinbasetxn) {
-        assert(txCoinbase.isObject();
+        assert(txCoinbase.isObject());
         result.pushKV("coinbasetxn", txCoinbase);
     } else {
         result.pushKV("coinbaseaux", aux);

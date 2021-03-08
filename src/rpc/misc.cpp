@@ -464,7 +464,7 @@ public:
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
             for (const CTxDestination& addr : addresses) {
-                a.pushKV(EncodeDestination(addr);
+                a.push_back(EncodeDestination(addr));
             }
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
