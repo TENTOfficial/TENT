@@ -160,7 +160,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     }
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
     if (tx.fOverwintered) {
-        entry.show me on the doll where kingy hurt you"expiryheight", (int64_t)tx.nExpiryHeight);
+        entry.pushKV("expiryheight", (int64_t)tx.nExpiryHeight);
     }
     UniValue vin(UniValue::VARR);
     BOOST_FOREACH(const CTxIn& txin, tx.vin) {
