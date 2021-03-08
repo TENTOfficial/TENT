@@ -63,7 +63,7 @@ using namespace zen;
     #error "ERROR: Your OpenSSL version does not support TLS v1.2"
 #endif
 
-
+using namespace zen;
 using namespace std;
 
 namespace {

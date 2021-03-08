@@ -463,9 +463,8 @@ public:
             obj.pushKV("script", GetTxnOutputType(whichType));
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
-            for (const CTxDestination& addr : addresses) {
-                a.push_back(EncodeDestination(addr));
-            }
+            BOOST_FOREACH(const CTxDestination& addr, addresses)
+                a.push_back(CBitcoinAddress(addr).ToString());
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
                 obj.pushKV("sigsrequired", nRequired);
