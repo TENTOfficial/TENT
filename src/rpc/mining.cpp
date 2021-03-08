@@ -23,7 +23,7 @@
 #include "validationinterface.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
-#include "assert.h";
+#include "assert.h"
 #endif
 
 #include "key_io.h"
