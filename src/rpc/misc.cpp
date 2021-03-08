@@ -3,7 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
+
 #include "clientversion.h"
 #include "init.h"
 #include "key_io.h"
@@ -464,8 +464,9 @@ public:
             obj.pushKV("script", GetTxnOutputType(whichType));
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
-            BOOST_FOREACH(const CTxDestination& addr, addresses)
-                a.push_back(CBitcoinAddress(addr).ToString());
+            for (const CTxDestination& addr : addresses) {
+                a.push_back(EncodeDestination(addr));
+            }
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
                 obj.pushKV("sigsrequired", nRequired);
