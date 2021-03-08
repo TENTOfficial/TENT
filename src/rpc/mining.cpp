@@ -22,7 +22,7 @@
 #include "util.h"
 #include "validationinterface.h"
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h
+#include "wallet/wallet.h"
 #endif
 
 #include "key_io.h"
@@ -31,7 +31,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include <univalue.h>
+//#include <univalue.h>
 
 using namespace std;
 
