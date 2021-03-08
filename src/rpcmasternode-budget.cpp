@@ -25,27 +25,27 @@ void budgetToJSON(CBudgetProposal* pbudgetProposal, UniValue& bObj)
     CTxDestination address1;
     ExtractDestination(pbudgetProposal->GetPayee(), address1);
 
-    bObj.push_back(Pair("Name", pbudgetProposal->GetName()));
-    bObj.push_back(Pair("URL", pbudgetProposal->GetURL()));
-    bObj.push_back(Pair("Hash", pbudgetProposal->GetHash().ToString()));
-    bObj.push_back(Pair("FeeHash", pbudgetProposal->nFeeTXHash.ToString()));
-    bObj.push_back(Pair("BlockStart", (int64_t)pbudgetProposal->GetBlockStart()));
-    bObj.push_back(Pair("BlockEnd", (int64_t)pbudgetProposal->GetBlockEnd()));
-    bObj.push_back(Pair("TotalPaymentCount", (int64_t)pbudgetProposal->GetTotalPaymentCount()));
-    bObj.push_back(Pair("RemainingPaymentCount", (int64_t)pbudgetProposal->GetRemainingPaymentCount()));
-    bObj.push_back(Pair("PaymentAddress", EncodeDestination(address1)));
-    bObj.push_back(Pair("Ratio", pbudgetProposal->GetRatio()));
-    bObj.push_back(Pair("Yeas", (int64_t)pbudgetProposal->GetYeas()));
-    bObj.push_back(Pair("Nays", (int64_t)pbudgetProposal->GetNays()));
-    bObj.push_back(Pair("Abstains", (int64_t)pbudgetProposal->GetAbstains()));
-    bObj.push_back(Pair("TotalPayment", ValueFromAmount(pbudgetProposal->GetAmount() * pbudgetProposal->GetTotalPaymentCount())));
-    bObj.push_back(Pair("MonthlyPayment", ValueFromAmount(pbudgetProposal->GetAmount())));
-    bObj.push_back(Pair("IsEstablished", pbudgetProposal->IsEstablished()));
+    bObj.pushKV("Name", pbudgetProposal->GetName());
+    bObj.pushKV("URL", pbudgetProposal->GetURL());
+    bObj.pushKV("Hash", pbudgetProposal->GetHash().ToString());
+    bObj.pushKV("FeeHash", pbudgetProposal->nFeeTXHash.ToString());
+    bObj.pushKV("BlockStart", (int64_t)pbudgetProposal->GetBlockStart());
+    bObj.pushKV("BlockEnd", (int64_t)pbudgetProposal->GetBlockEnd());
+    bObj.pushKV("TotalPaymentCount", (int64_t)pbudgetProposal->GetTotalPaymentCount());
+    bObj.pushKV("RemainingPaymentCount", (int64_t)pbudgetProposal->GetRemainingPaymentCount());
+    bObj.pushKV("PaymentAddress", EncodeDestination(address1));
+    bObj.pushKV("Ratio", pbudgetProposal->GetRatio());
+    bObj.pushKV("Yeas", (int64_t)pbudgetProposal->GetYeas());
+    bObj.pushKV("Nays", (int64_t)pbudgetProposal->GetNays());
+    bObj.pushKV("Abstains", (int64_t)pbudgetProposal->GetAbstains());
+    bObj.pushKV("TotalPayment", ValueFromAmount(pbudgetProposal->GetAmount() * pbudgetProposal->GetTotalPaymentCount()));
+    bObj.pushKV("MonthlyPayment", ValueFromAmount(pbudgetProposal->GetAmount()));
+    bObj.pushKV("IsEstablished", pbudgetProposal->IsEstablished());
 
     std::string strError = "";
-    bObj.push_back(Pair("IsValid", pbudgetProposal->IsValid(strError)));
-    bObj.push_back(Pair("IsValidReason", strError.c_str()));
-    bObj.push_back(Pair("fValid", pbudgetProposal->fValid));
+    bObj.pushKV("IsValid", pbudgetProposal->IsValid(strError));
+    bObj.pushKV("IsValidReason", strError.c_str());
+    bObj.pushKV("fValid", pbudgetProposal->fValid);
 }
 
 // This command is retained for backwards compatibility, but is depreciated.
@@ -394,9 +394,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
         while (true) {
             if (!obfuScationSigner.SetKey(strMasterNodePrivKey, errorMessage, keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("node", "local"));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Masternode signing error, could not set key correctly: " + errorMessage));
+                statusObj.pushKV("node", "local");
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Masternode signing error, could not set key correctly: " + errorMessage);
                 resultsObj.push_back(statusObj);
                 break;
             }
@@ -404,9 +404,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             CMasternode* pmn = mnodeman.Find(activeMasternode.vin);
             if (pmn == NULL) {
                 failed++;
-                statusObj.push_back(Pair("node", "local"));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Failure to find masternode in list : " + activeMasternode.vin.ToString()));
+                statusObj.pushKV("node", "local");
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Failure to find masternode in list : " + activeMasternode.vin.ToString());
                 resultsObj.push_back(statusObj);
                 break;
             }
@@ -414,9 +414,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             CBudgetVote vote(activeMasternode.vin, hash, nVote);
             if (!vote.Sign(keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("node", "local"));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Failure to sign."));
+                statusObj.pushKV("node", "local");
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Failure to sign.");
                 resultsObj.push_back(statusObj);
                 break;
             }
@@ -426,22 +426,22 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
                 success++;
                 budget.mapSeenMasternodeBudgetVotes.insert(make_pair(vote.GetHash(), vote));
                 vote.Relay();
-                statusObj.push_back(Pair("node", "local"));
-                statusObj.push_back(Pair("result", "success"));
-                statusObj.push_back(Pair("error", ""));
+                statusObj.pushKV("node", "local");
+                statusObj.pushKV("result", "success");
+                statusObj.pushKV("error", "");
             } else {
                 failed++;
-                statusObj.push_back(Pair("node", "local"));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Error voting : " + strError));
+                statusObj.pushKV("node", "local");
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Error voting : " + strError);
             }
             resultsObj.push_back(statusObj);
             break;
         }
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.push_back(Pair("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed)));
-        returnObj.push_back(Pair("detail", resultsObj));
+        returnObj.pushKV("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed));
+        returnObj.pushKV("detail", resultsObj);
 
         return returnObj;
     }
@@ -461,9 +461,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
 
             if (!obfuScationSigner.SetKey(mne.getPrivKey(), errorMessage, keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Masternode signing error, could not set key correctly: " + errorMessage));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Masternode signing error, could not set key correctly: " + errorMessage);
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -471,9 +471,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             CMasternode* pmn = mnodeman.Find(pubKeyMasternode);
             if (pmn == NULL) {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Can't find masternode by pubkey"));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Can't find masternode by pubkey");
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -481,9 +481,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             CBudgetVote vote(pmn->vin, hash, nVote);
             if (!vote.Sign(keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Failure to sign."));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Failure to sign.");
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -493,22 +493,22 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
                 budget.mapSeenMasternodeBudgetVotes.insert(make_pair(vote.GetHash(), vote));
                 vote.Relay();
                 success++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "success"));
-                statusObj.push_back(Pair("error", ""));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "success");
+                statusObj.pushKV("error", "");
             } else {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", strError.c_str()));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", strError.c_str());
             }
 
             resultsObj.push_back(statusObj);
         }
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.push_back(Pair("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed)));
-        returnObj.push_back(Pair("detail", resultsObj));
+        returnObj.pushKV("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed));
+        returnObj.pushKV("detail", resultsObj);
 
         return returnObj;
     }
@@ -535,9 +535,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
 
             if(!obfuScationSigner.SetKey(mne.getPrivKey(), errorMessage, keyMasternode, pubKeyMasternode)){
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Masternode signing error, could not set key correctly: " + errorMessage));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Masternode signing error, could not set key correctly: " + errorMessage);
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -546,9 +546,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             if(pmn == NULL)
             {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Can't find masternode by pubkey"));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Can't find masternode by pubkey");
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -556,9 +556,9 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
             CBudgetVote vote(pmn->vin, hash, nVote);
             if(!vote.Sign(keyMasternode, pubKeyMasternode)){
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", "Failure to sign."));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", "Failure to sign.");
                 resultsObj.push_back(statusObj);
                 continue;
             }
@@ -568,22 +568,22 @@ UniValue mnbudgetvote(const UniValue& params, bool fHelp)
                 budget.mapSeenMasternodeBudgetVotes.insert(make_pair(vote.GetHash(), vote));
                 vote.Relay();
                 success++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "success"));
-                statusObj.push_back(Pair("error", ""));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "success");
+                statusObj.pushKV("error", "");
             } else {
                 failed++;
-                statusObj.push_back(Pair("node", mne.getAlias()));
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("error", strError.c_str()));
+                statusObj.pushKV("node", mne.getAlias());
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("error", strError.c_str());
             }
 
             resultsObj.push_back(statusObj);
         }
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.push_back(Pair("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed)));
-        returnObj.push_back(Pair("detail", resultsObj));
+        returnObj.pushKV("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed));
+        returnObj.pushKV("detail", resultsObj);
 
         return returnObj;
     }
@@ -626,11 +626,11 @@ UniValue getbudgetvotes(const UniValue& params, bool fHelp)
     std::map<uint256, CBudgetVote>::iterator it = pbudgetProposal->mapVotes.begin();
     while (it != pbudgetProposal->mapVotes.end()) {
         UniValue bObj(UniValue::VOBJ);
-        bObj.push_back(Pair("mnId", (*it).second.vin.prevout.hash.ToString()));
-        bObj.push_back(Pair("nHash", (*it).first.ToString().c_str()));
-        bObj.push_back(Pair("Vote", (*it).second.GetVoteString()));
-        bObj.push_back(Pair("nTime", (int64_t)(*it).second.nTime));
-        bObj.push_back(Pair("fValid", (*it).second.fValid));
+        bObj.pushKV("mnId", (*it).second.vin.prevout.hash.ToString());
+        bObj.pushKV("nHash", (*it).first.ToString().c_str());
+        bObj.pushKV("Vote", (*it).second.GetVoteString());
+        bObj.pushKV("nTime", (int64_t)(*it).second.nTime);
+        bObj.pushKV("fValid", (*it).second.fValid);
 
         ret.push_back(bObj);
 
@@ -709,8 +709,8 @@ UniValue getbudgetprojection(const UniValue& params, bool fHelp)
 
         UniValue bObj(UniValue::VOBJ);
         budgetToJSON(pbudgetProposal, bObj);
-        bObj.push_back(Pair("Alloted", ValueFromAmount(pbudgetProposal->GetAllotted())));
-        bObj.push_back(Pair("TotalBudgetAlloted", ValueFromAmount(nTotalAllotted)));
+        bObj.pushKV("Alloted", ValueFromAmount(pbudgetProposal->GetAllotted()));
+        bObj.pushKV("TotalBudgetAlloted", ValueFromAmount(nTotalAllotted));
 
         ret.push_back(bObj);
     }
@@ -888,18 +888,18 @@ UniValue mnfinalbudget(const UniValue& params, bool fHelp)
 
             if (!obfuScationSigner.SetKey(mne.getPrivKey(), errorMessage, keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("errorMessage", "Masternode signing error, could not set key correctly: " + errorMessage));
-                resultsObj.push_back(Pair(mne.getAlias(), statusObj));
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("errorMessage", "Masternode signing error, could not set key correctly: " + errorMessage);
+                resultsObj.pushKV(mne.getAlias(), statusObj);
                 continue;
             }
 
             CMasternode* pmn = mnodeman.Find(pubKeyMasternode);
             if (pmn == NULL) {
                 failed++;
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("errorMessage", "Can't find masternode by pubkey"));
-                resultsObj.push_back(Pair(mne.getAlias(), statusObj));
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("errorMessage", "Can't find masternode by pubkey");
+                resultsObj.pushKV(mne.getAlias(), statusObj);
                 continue;
             }
 
@@ -907,9 +907,9 @@ UniValue mnfinalbudget(const UniValue& params, bool fHelp)
             CFinalizedBudgetVote vote(pmn->vin, hash);
             if (!vote.Sign(keyMasternode, pubKeyMasternode)) {
                 failed++;
-                statusObj.push_back(Pair("result", "failed"));
-                statusObj.push_back(Pair("errorMessage", "Failure to sign."));
-                resultsObj.push_back(Pair(mne.getAlias(), statusObj));
+                statusObj.pushKV("result", "failed");
+                statusObj.pushKV("errorMessage", "Failure to sign.");
+                resultsObj.pushKV(mne.getAlias(), statusObj);
                 continue;
             }
 
@@ -918,18 +918,18 @@ UniValue mnfinalbudget(const UniValue& params, bool fHelp)
                 budget.mapSeenFinalizedBudgetVotes.insert(make_pair(vote.GetHash(), vote));
                 vote.Relay();
                 success++;
-                statusObj.push_back(Pair("result", "success"));
+                statusObj.pushKV("result", "success");
             } else {
                 failed++;
-                statusObj.push_back(Pair("result", strError.c_str()));
+                statusObj.pushKV("result", strError.c_str());
             }
 
-            resultsObj.push_back(Pair(mne.getAlias(), statusObj));
+            resultsObj.pushKV(mne.getAlias(), statusObj);
         }
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.push_back(Pair("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed)));
-        returnObj.push_back(Pair("detail", resultsObj));
+        returnObj.pushKV("overall", strprintf("Voted successfully %d time(s) and failed %d time(s).", success, failed));
+        returnObj.pushKV("detail", resultsObj);
 
         return returnObj;
     }
@@ -975,19 +975,19 @@ UniValue mnfinalbudget(const UniValue& params, bool fHelp)
         std::vector<CFinalizedBudget*> winningFbs = budget.GetFinalizedBudgets();
         BOOST_FOREACH (CFinalizedBudget* finalizedBudget, winningFbs) {
             UniValue bObj(UniValue::VOBJ);
-            bObj.push_back(Pair("FeeTX", finalizedBudget->nFeeTXHash.ToString()));
-            bObj.push_back(Pair("Hash", finalizedBudget->GetHash().ToString()));
-            bObj.push_back(Pair("BlockStart", (int64_t)finalizedBudget->GetBlockStart()));
-            bObj.push_back(Pair("BlockEnd", (int64_t)finalizedBudget->GetBlockEnd()));
-            bObj.push_back(Pair("Proposals", finalizedBudget->GetProposals()));
-            bObj.push_back(Pair("VoteCount", (int64_t)finalizedBudget->GetVoteCount()));
-            bObj.push_back(Pair("Status", finalizedBudget->GetStatus()));
+            bObj.pushKV("FeeTX", finalizedBudget->nFeeTXHash.ToString());
+            bObj.pushKV("Hash", finalizedBudget->GetHash().ToString());
+            bObj.pushKV("BlockStart", (int64_t)finalizedBudget->GetBlockStart());
+            bObj.pushKV("BlockEnd", (int64_t)finalizedBudget->GetBlockEnd());
+            bObj.pushKV("Proposals", finalizedBudget->GetProposals());
+            bObj.pushKV("VoteCount", (int64_t)finalizedBudget->GetVoteCount());
+            bObj.pushKV("Status", finalizedBudget->GetStatus());
 
             std::string strError = "";
-            bObj.push_back(Pair("IsValid", finalizedBudget->IsValid(strError)));
-            bObj.push_back(Pair("IsValidReason", strError.c_str()));
+            bObj.pushKV("IsValid", finalizedBudget->IsValid(strError));
+            bObj.pushKV("IsValidReason", strError.c_str());
 
-            resultObj.push_back(Pair(finalizedBudget->GetName(), bObj));
+            resultObj.pushKV(finalizedBudget->GetName(), bObj);
         }
 
         return resultObj;
@@ -1010,11 +1010,11 @@ UniValue mnfinalbudget(const UniValue& params, bool fHelp)
         std::map<uint256, CFinalizedBudgetVote>::iterator it = pfinalBudget->mapVotes.begin();
         while (it != pfinalBudget->mapVotes.end()) {
             UniValue bObj(UniValue::VOBJ);
-            bObj.push_back(Pair("nHash", (*it).first.ToString().c_str()));
-            bObj.push_back(Pair("nTime", (int64_t)(*it).second.nTime));
-            bObj.push_back(Pair("fValid", (*it).second.fValid));
+            bObj.pushKV("nHash", (*it).first.ToString().c_str());
+            bObj.pushKV("nTime", (int64_t)(*it).second.nTime);
+            bObj.pushKV("fValid", (*it).second.fValid);
 
-            obj.push_back(Pair((*it).second.vin.prevout.ToStringShort(), bObj));
+            obj.pushKV((*it).second.vin.prevout.ToStringShort(), bObj);
 
             it++;
         }
