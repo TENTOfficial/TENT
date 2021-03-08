@@ -262,6 +262,34 @@ BOOST_AUTO_TEST_CASE(sighash_test)
     #if defined(PRINT_SIGHASH_JSON)
     std::cout << "]\n";
     #endif
+
+}
+
+// Goal: check that SignatureHash generates correct hash by checking if serialization matches with the one implemented in CTransaction
+BOOST_AUTO_TEST_CASE(sighash_from_tx)
+{
+	int nRandomTests = 500;
+
+	for (int i=0; i<nRandomTests; i++) {
+		CMutableTransaction txTo;
+		uint256 interpreterSH, checkSH;
+		CScript scriptCode;
+
+		RandomTransaction(txTo, false, true);
+		CTransaction::joinsplit_sig_t nullSig = {};
+		txTo.joinSplitSig = nullSig;
+
+		interpreterSH = SignatureHash(scriptCode, txTo, NOT_AN_INPUT, SIGHASH_ALL);
+
+
+		// Serialize and hash
+		CHashWriter ss(SER_GETHASH, 0);
+		ss << txTo << (int)SIGHASH_ALL;
+		checkSH = ss.GetHash();
+		BOOST_CHECK(checkSH == interpreterSH);
+
+	}
+
 }
 
 // Goal: check that SignatureHash generates correct hash
