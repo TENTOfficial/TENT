@@ -583,8 +583,8 @@ UniValue listbanned(const UniValue& params, bool fHelp)
     for (std::map<CSubNet, int64_t>::iterator it = banMap.begin(); it != banMap.end(); it++)
     {
         UniValue rec(UniValue::VOBJ);
-        rec.pushKV("address", (*it).first.ToString()));
-        rec.pushKV("banned_until", (*it).second));
+        rec.pushKV("address", (*it).first.ToString());
+        rec.pushKV("banned_until", (*it).second);
         bannedAddresses.push_back(rec);
     }
 

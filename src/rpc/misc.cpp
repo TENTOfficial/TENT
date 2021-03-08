@@ -356,7 +356,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
         obj.pushKV("keypoolsize",   (int)pwalletMain->GetKeyPoolSize());
     }
     if (pwalletMain && pwalletMain->IsCrypted())
-    obj.ppushKV("unlocked_until", nWalletUnlockTime);
+    obj.pushKV("unlocked_until", nWalletUnlockTime);
     obj.pushKV("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK()));
 #endif
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
@@ -1172,7 +1172,7 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
 
         UniValue delta(UniValue::VOBJ);
         delta.pushKV("satoshis", it->second);
-        delta.ppushKV("txid", it->first.txhash.GetHex());
+        delta.pushKV("txid", it->first.txhash.GetHex());
         delta.pushKV("index", (int)it->first.index);
         delta.pushKV("blockindex", (int)it->first.txindex);
         delta.pushKV("height", it->first.blockHeight);
