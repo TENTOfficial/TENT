@@ -218,22 +218,54 @@ int printStats(bool mining)
         tlsConnections = std::count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});
 		netsolps = GetNetworkHashPS(120, -1);
     }
-    auto localsolps = GetLocalSolPS();
+    unsigned long mempool_count = mempool.size();
+/*
+    // OpenSSL related statistics
+    tlsvalidate = GetArg("-tlsvalidate","");
+    cipherdescription = cipherdescription.length() == 0 ? "Not Encrypted" : cipherdescription;
+    securitylevel = securitylevel.length() == 0 ? "INACTIVE" : securitylevel;
+    routingsecrecy = routingsecrecy.length() == 0 ? GetArg("-onlynet", "") : routingsecrecy;
+    validationdescription = (tlsvalidate == "1" ? "YES" : "PUBLIC");
 
-    if (IsInitialBlockDownload()) {
-        int netheight = EstimateNetHeight(height, tipmediantime, Params());
-        int downloadPercent = netheight == 0 ? 0 : height * 100 / netheight;
-        std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (" << downloadPercent << "%)" << std::endl;
-    } else {
-        std::cout << "           " << _("Block height") << " | " << height << std::endl;
+    if (routingsecrecy == "" || routingsecrecy == "ipv4" || routingsecrecy == "ipv6") routingsecrecy = "CLEARNET";
+    else if (routingsecrecy == "onion") routingsecrecy = "TOR NETWORK";
+
+    {
+        LOCK2(cs_main, cs_vNodes);
+
+        // Find first encrypted connection and populate states
+        if (connections > 0) {
+            for (int i = 0; i < vNodes.size(); i++) {
+                if (vNodes[i]->ssl != NULL && SSL_get_state(vNodes[i]->ssl) == TLS_ST_OK) {
+                    char *tmp = new char[256];
+                    cipherdescription = SSL_CIPHER_get_name(SSL_get_current_cipher(vNodes[i]->ssl));
+                    securitylevel = "ACTIVE";
+                    break;
+                }
+                else if (cipherdescription == "Not Encrypted") {
+                    securitylevel = "INACTIVE";
+                }
+            }
+        }
     }
-    std::cout << "            " << _("Connections") << " | " << connections << std::endl;
+*/
+        auto localsolps = GetLocalSolPS();
+    
+/*
+    std::cout << "          " << _("COMSEC STATUS") << " | " << securitylevel << std::endl;
+    std::cout << "      " << _("Encryption Cipher") << " | " << cipherdescription << std::endl;
+    std::cout << "        " << _("Routing Secrecy") << " | " << routingsecrecy << std::endl;
+    std::cout << "         " << _("Validate Peers") << " | " << validationdescription << std::endl;
+    std::cout << std::endl;
+*/
+    std::cout << "           " << _("Block height") << " | " << height << std::endl;
+    std::cout << "            " << _("Connections") << " | " << connections << " (TLS: " << tlsConnections << ")" << std::endl;
     std::cout << "  " << _("Network solution rate") << " | " << netsolps << " Sol/s" << std::endl;
     if (mining && miningTimer.running()) {
         std::cout << "    " << _("Local solution rate") << " | " << strprintf("%.4f Sol/s", localsolps) << std::endl;
         lines++;
     }
-    std::cout << std::endl;
+        std::cout << std::endl;
 
     return lines;
 }
