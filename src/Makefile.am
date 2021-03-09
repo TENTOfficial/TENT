@@ -99,6 +99,10 @@ if BUILD_BITCOIN_UTILS
   bin_PROGRAMS += snowgem-cli snowgem-tx
 endif
 
+LIBTENT_H = \
+    tent/utiltls.h \
+    tent/tlsmanager.h
+
 libzcash_H = \
   zcash/IncrementalMerkleTree.hpp \
   zcash/NoteEncryption.hpp \
@@ -244,14 +248,17 @@ BITCOIN_CORE_H = \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
-LIBTENT_H = \
-    tent/utiltls.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh $(abs_top_builddir)/src/obj/build.h \
 	  $(abs_top_srcdir)
 libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
+
+# tent-specific sources #
+libtent_a_SOURCES = \
+    tent/utiltls.cpp\
+    tent/tlsmanager.cpp
 
 # server: snowgemd
 libbitcoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
@@ -608,10 +615,7 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 #
 
-# tent-specific sources #
-libtent_a_SOURCES = \
-    tent/utiltls.cpp\
-    tent/tlsmanager.cpp
+
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
