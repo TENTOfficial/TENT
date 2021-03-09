@@ -94,7 +94,7 @@ int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
 TLSManager tlsmanager = TLSManager();
 std::string strSubVersion;
-auto ctx = my::UniquePtr<SSL_CTX>(SSL_CTX_new(TLS_client_method()));
+auto ctx = zen::UniquePtr<SSL_CTX>(SSL_CTX_new(TLS_client_method()));
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
 map<CInv, CDataStream> mapRelay;
