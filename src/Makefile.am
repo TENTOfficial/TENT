@@ -245,8 +245,6 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
 
-LIBTENT_H = \
-    tent/utiltls.h\
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
