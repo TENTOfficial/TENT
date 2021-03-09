@@ -18,7 +18,7 @@
 
 using namespace std;
 
-namespace zen
+namespace tent
 {
 typedef struct _NODE_ADDR {
     std::string ipAddr;
