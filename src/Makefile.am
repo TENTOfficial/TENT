@@ -69,7 +69,7 @@ EXTRA_LIBRARIES = \
   libbitcoin_server.a \
   libbitcoin_cli.a \
   libzcash.a \
-  libsnowgem.a
+  libzencash.a
 
 if ENABLE_WALLET
 BITCOIN_INCLUDES += $(BDB_CPPFLAGS)
@@ -244,8 +244,6 @@ BITCOIN_CORE_H = \
 
 LIBZENCASH_H = \
     zen/utiltls.h\
-    zen/forkmanager.h\
-    zen/replayprotectionlevel.h
 
 
 obj/build.h: FORCE
