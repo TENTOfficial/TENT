@@ -19,7 +19,7 @@
 #include "scheduler.h"
 #include "ui_interface.h"
 #include "crypto/common.h"
-#include "tent/utiltls.h"
+#include "zen/utiltls.h"
 #include "masternodeman.h"
 
 #ifdef WIN32
@@ -34,8 +34,8 @@
 #include <openssl/conf.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <tent/tlsmanager.cpp>
-using namespace tent;
+#include <zen/tlsmanager.cpp>
+using namespace zen;
 
 // Dump addresses to peers.dat every 15 minutes (900s)
 #define DUMP_ADDRESSES_INTERVAL 900
@@ -63,7 +63,7 @@ using namespace tent;
     #error "ERROR: Your OpenSSL version does not support TLS v1.2"
 #endif
 
-using namespace tent;
+using namespace zen;
 using namespace std;
 
 namespace {

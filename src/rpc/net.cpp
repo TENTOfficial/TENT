@@ -13,7 +13,7 @@
 #include "timedata.h"
 #include "util.h"
 #include "version.h"
-#include "tent/utiltls.h"
+#include "zen/utiltls.h"
 #include "deprecation.h"
 
 #include <boost/foreach.hpp>
@@ -21,7 +21,7 @@
 #include <univalue.h>
 
 using namespace std;
-using namespace tent;
+using namespace zen;
 
 UniValue getconnectioncount(const UniValue& params, bool fHelp)
 {
