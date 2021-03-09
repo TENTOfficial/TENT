@@ -114,7 +114,7 @@ libzcash_H = \
   zcash/zip32.h
 
 .PHONY: FORCE collate-libsnark check-symbols check-security
-# bitcoin core #
+# bitcoin core 
 BITCOIN_CORE_H = \
   activemasternode.h \
   addressindex.h \
@@ -466,7 +466,7 @@ libbitcoin_cli_a_SOURCES = \
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 
 
-# bitcoind binary #
+# bitcoind binary
 snowgemd_SOURCES = bitcoind.cpp
 snowgemd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 snowgemd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -505,7 +505,7 @@ snowgemd_LDADD += \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
 
-# bitcoin-cli binary #
+# bitcoin-cli binary 
 snowgem_cli_SOURCES = bitcoin-cli.cpp
 snowgem_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 snowgem_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -530,7 +530,7 @@ snowgem_cli_LDADD = \
   $(libzcash_LIBS)
 
 
-# snowgem-tx binary #
+# snowgem-tx binary 
 snowgem_tx_SOURCES = bitcoin-tx.cpp
 snowgem_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 snowgem_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -540,7 +540,7 @@ if TARGET_WINDOWS
 snowgem_tx_SOURCES += bitcoin-tx-res.rc
 endif
 
-# FIXME: Is libzcash needed for snowgem_tx? #
+# FIXME: Is libzcash needed for snowgem_tx? 
 snowgem_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
@@ -555,7 +555,7 @@ snowgem_tx_LDADD = \
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 
 
-# snowgem protocol primitives #
+# snowgem protocol primitives 
 libzcash_a_SOURCES = \
   zcash/IncrementalMerkleTree.cpp \
   zcash/NoteEncryption.cpp \
@@ -581,7 +581,7 @@ libzcash_a_LDFLAGS = $(AM_LDFLAGS)
 
 libzcash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 
-# snowgemconsensus library #
+# snowgemconsensus library 
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/snowgemconsensus.h
 libzcashconsensus_la_SOURCES = \
@@ -612,9 +612,9 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 
 
-# zencash-specific sources #
+# zencash-specific sources 
 libzencash_a_SOURCES = \
-    zen/utiltls.cpp\
+    zen/utiltls.cpp \
     zen/tlsmanager.cpp
     
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
