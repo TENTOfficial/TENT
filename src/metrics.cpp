@@ -205,16 +205,18 @@ int printStats(bool mining)
     // Number of lines that are always displayed
     int lines = 5;
 
-    int height = chainActive.Height();
+    int height;
     int64_t tipmediantime;
-    int connections = 0;
-    int tlsConnections = 0;
+    size_t connections;
+    size_t tlsConnections;
     int64_t netsolps;
     {
         LOCK2(cs_main, cs_vNodes);
+        height = chainActive.Height();
         tipmediantime = chainActive.Tip()->GetMedianTimePast();
         connections = vNodes.size();
         tlsConnections = std::count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});
+		netsolps = GetNetworkHashPS(120, -1);
     }
     auto localsolps = GetLocalSolPS();
 

@@ -34,8 +34,6 @@
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 
-
-
 class CAddrMan;
 class CBlockIndex;
 class CScheduler;

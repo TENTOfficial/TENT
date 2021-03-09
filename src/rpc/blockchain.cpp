@@ -819,12 +819,12 @@ UniValue gettxout(const UniValue& params, bool fHelp)
         ret.pushKV("confirmations", 0);
     else
         ret.pushKV("confirmations", pindex->nHeight - coins.nHeight + 1);
-    ret.pushKV("value", ValueFromAmount(coins.vout[n].nValue));
-    UniValue o(UniValue::VOBJ);
-    ScriptPubKeyToJSON(coins.vout[n].scriptPubKey, o, true);
-    ret.pushKV("scriptPubKey", o);
-    ret.pushKV("version", coins.nVersion);
-    ret.pushKV("coinbase", coins.fCoinBase);
+    	ret.pushKV("value", ValueFromAmount(coins.vout[n].nValue));
+    	UniValue o(UniValue::VOBJ);
+    	ScriptPubKeyToJSON(coins.vout[n].scriptPubKey, o, true);
+    	ret.pushKV("scriptPubKey", o);
+    	ret.pushKV("version", coins.nVersion);
+    	ret.pushKV("coinbase", coins.fCoinBase);
 
     return ret;
 }

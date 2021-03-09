@@ -35,7 +35,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <zen/tlsmanager.cpp>
-using namespace zen;
 
 // Dump addresses to peers.dat every 15 minutes (900s)
 #define DUMP_ADDRESSES_INTERVAL 900
@@ -104,10 +103,10 @@ CCriticalSection cs_mapRelay;
 limitedmap<CInv, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static deque<string> vOneShots;
-CCriticalSection cs_vOneShots;
+static CCriticalSection cs_vOneShots;
 
-set<CNetAddr> setservAddNodeAddresses;
-CCriticalSection cs_setservAddNodeAddresses;
+static set<CNetAddr> setservAddNodeAddresses;
+static CCriticalSection cs_setservAddNodeAddresses;
 
 vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
@@ -116,7 +115,7 @@ NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
 static CSemaphore *semOutbound = NULL;
-boost::condition_variable messageHandlerCondition;
+static boost::condition_variable messageHandlerCondition;
 
 // Signals for message handling
 static CNodeSignals g_signals;
@@ -595,6 +594,7 @@ void CNode::CloseSocketDisconnect()
             CloseSocket(hSocket);
         }
     }
+
     // in case this fails, we'll empty the recv buffer when the CNode is deleted
     TRY_LOCK(cs_vRecvMsg, lockRecv);
     if (lockRecv)
@@ -714,24 +714,22 @@ void CNode::AddWhitelistedRange(const CSubNet &subnet) {
     vWhitelistedRange.push_back(subnet);
 }
 
-#undef X
-#define X(name) stats.name = name
 void CNode::copyStats(CNodeStats &stats)
 {
     stats.nodeid = this->GetId();
-    X(nServices);
-    X(nLastSend);
-    X(nLastRecv);
-    X(nTimeConnected);
-    X(nTimeOffset);
-    X(addrName);
-    X(nVersion);
-    X(cleanSubVer);
-    X(fInbound);
-    X(nStartingHeight);
-    X(nSendBytes);
-    X(nRecvBytes);
-    X(fWhitelisted);
+    stats.nServices = nServices;
+    stats.nLastSend = nLastSend;
+    stats.nLastRecv = nLastRecv;
+    stats.nTimeConnected = nTimeConnected;
+    stats.nTimeOffset = nTimeOffset;
+    stats.addrName = addrName;
+    stats.nVersion = nVersion;
+    stats.cleanSubVer = cleanSubVer;
+    stats.fInbound = fInbound;
+    stats.nStartingHeight = nStartingHeight;
+    stats.nSendBytes = nSendBytes;
+    stats.nRecvBytes = nRecvBytes;
+    stats.fWhitelisted = fWhitelisted;
 
     // It is common for nodes with good ping times to suddenly become lagged,
     // due to a new block arriving or other large transfer.
@@ -758,7 +756,6 @@ void CNode::copyStats(CNodeStats &stats)
         stats.fTLSVerified = (ssl != NULL) && ValidatePeerCertificate(ssl);
     }
 }
-#undef X
 
 // requires LOCK(cs_vRecvMsg)
 bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes)
@@ -859,8 +856,7 @@ void SocketSendData(CNode *pnode)
 {
     std::deque<CSerializeData>::iterator it = pnode->vSendMsg.begin();
 
-    while (it != pnode->vSendMsg.end())
-    {
+    while (it != pnode->vSendMsg.end()) {
         const CSerializeData &data = *it;
         assert(data.size() > pnode->nSendOffset);
         bool bIsSSL = false;
@@ -948,8 +944,6 @@ void SocketSendData(CNode *pnode)
     }
     pnode->vSendMsg.erase(pnode->vSendMsg.begin(), it);
 }
-
-
 
 class CNodeRef {
 public:

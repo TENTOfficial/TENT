@@ -133,7 +133,7 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
         obj.pushKV("id", stats.nodeid);
         obj.pushKV("addr", stats.addrName);
         if (!(stats.addrLocal.empty()))
-            obj.pushKV("addrlocal", stats.addrLocal);
+        obj.pushKV("addrlocal", stats.addrLocal);
         obj.pushKV("services", strprintf("%016x", stats.nServices));
         obj.pushKV("tls_established", stats.fTLSEstablished);
         obj.pushKV("tls_verified", stats.fTLSVerified);
@@ -145,7 +145,7 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
         obj.pushKV("timeoffset", stats.nTimeOffset);
         obj.pushKV("pingtime", stats.dPingTime);
         if (stats.dPingWait > 0.0)
-            obj.pushKV("pingwait", stats.dPingWait);
+        obj.pushKV("pingwait", stats.dPingWait);
         obj.pushKV("version", stats.nVersion);
         // Use the sanitized form of subver here, to avoid tricksy remote peers from
         // corrupting or modifiying the JSON output by putting special characters in
