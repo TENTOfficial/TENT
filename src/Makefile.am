@@ -38,17 +38,27 @@ LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 LIBZCASH=libzcash.a
 LIBTENT=libtent.a
+if ENABLE_ZMQ
+LIBBITCOIN_ZMQ=libbitcoin_zmq.a
+endif
+if ENABLE_PROTON
+LIBBITCOIN_PROTON=libbitcoin_proton.a
+endif
+if BUILD_BITCOIN_LIBS
+LIBZCASH_CONSENSUS=libzcashconsensus.la
+endif
+if ENABLE_WALLET
+LIBBITCOIN_WALLET=libbitcoin_wallet.a
+endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
-
 
 LIBSNARK_CXXFLAGS = $(AM_CXXFLAGS) $(PIC_FLAGS) -DBINARY_OUTPUT -DNO_PT_COMPRESSION=1 -fstack-protector-all
 LIBSNARK_CONFIG_FLAGS = CURVE=ALT_BN128 NO_PROCPS=1 NO_DOCS=1 STATIC=1 NO_SUPERCOP=1 FEATUREFLAGS=-DMONTGOMERY_OUTPUT NO_COPY_DEPINST=1 NO_COMPILE_LIBGTEST=1
 if HAVE_OPENMP
 LIBSNARK_CONFIG_FLAGS += MULTICORE=1
 endif
-LIBSNARK_OPTFLAGS =-O2
 if TARGET_DARWIN
 LIBSNARK_CONFIG_FLAGS += PLATFORM=darwin
 endif
@@ -70,6 +80,9 @@ EXTRA_LIBRARIES = \
   libbitcoin_common.a \
   libbitcoin_server.a \
   libbitcoin_cli.a \
+  libbitcoin_wallet.a \
+  libbitcoin_zmq.a \
+  libbitcoin_proton.a \
   libzcash.a \
   libtent.a
 
@@ -515,6 +528,7 @@ snowgem_cli_LDADD = \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
+#
 
 # snowgem-tx binary #
 snowgem_tx_SOURCES = bitcoin-tx.cpp
