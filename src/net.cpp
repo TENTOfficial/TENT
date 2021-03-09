@@ -89,7 +89,6 @@ static bool vfLimited[NET_MAX] = {};
 static CNode* pnodeLocalHost = NULL;
 uint64_t nLocalHostNonce = 0;
 static std::vector<ListenSocket> vhListenSocket;
-static list<CNode*> vNodesDisconnected;
 CAddrMan addrman;
 int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
@@ -104,10 +103,10 @@ CCriticalSection cs_mapRelay;
 limitedmap<CInv, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static deque<string> vOneShots;
-static CCriticalSection cs_vOneShots;
+CCriticalSection cs_vOneShots;
 
-static set<CNetAddr> setservAddNodeAddresses;
-static CCriticalSection cs_setservAddNodeAddresses;
+set<CNetAddr> setservAddNodeAddresses;
+CCriticalSection cs_setservAddNodeAddresses;
 
 vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
@@ -116,7 +115,7 @@ NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
 static CSemaphore *semOutbound = NULL;
-static boost::condition_variable messageHandlerCondition;
+boost::condition_variable messageHandlerCondition;
 
 // Signals for message handling
 static CNodeSignals g_signals;
@@ -715,22 +714,24 @@ void CNode::AddWhitelistedRange(const CSubNet &subnet) {
     vWhitelistedRange.push_back(subnet);
 }
 
+#undef X
+#define X(name) stats.name = name
 void CNode::copyStats(CNodeStats &stats)
 {
     stats.nodeid = this->GetId();
-    stats.nServices = nServices;
-    stats.nLastSend = nLastSend;
-    stats.nLastRecv = nLastRecv;
-    stats.nTimeConnected = nTimeConnected;
-    stats.nTimeOffset = nTimeOffset;
-    stats.addrName = addrName;
-    stats.nVersion = nVersion;
-    stats.cleanSubVer = cleanSubVer;
-    stats.fInbound = fInbound;
-    stats.nStartingHeight = nStartingHeight;
-    stats.nSendBytes = nSendBytes;
-    stats.nRecvBytes = nRecvBytes;
-    stats.fWhitelisted = fWhitelisted;
+    X(nServices);
+    X(nLastSend);
+    X(nLastRecv);
+    X(nTimeConnected);
+    X(nTimeOffset);
+    X(addrName);
+    X(nVersion);
+    X(cleanSubVer);
+    X(fInbound);
+    X(nStartingHeight);
+    X(nSendBytes);
+    X(nRecvBytes);
+    X(fWhitelisted);
 
     // It is common for nodes with good ping times to suddenly become lagged,
     // due to a new block arriving or other large transfer.
@@ -757,6 +758,7 @@ void CNode::copyStats(CNodeStats &stats)
         stats.fTLSVerified = (ssl != NULL) && ValidatePeerCertificate(ssl);
     }
 }
+#undef X
 
 // requires LOCK(cs_vRecvMsg)
 bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes)
@@ -857,11 +859,12 @@ void SocketSendData(CNode *pnode)
 {
     std::deque<CSerializeData>::iterator it = pnode->vSendMsg.begin();
 
-    while (it != pnode->vSendMsg.end()) {
+    while (it != pnode->vSendMsg.end())
+    {
         const CSerializeData &data = *it;
         assert(data.size() > pnode->nSendOffset);
+
         bool bIsSSL = false;
-       
         int nBytes = 0, nRet = 0;
         {
             LOCK(pnode->cs_hSocket);
@@ -934,17 +937,21 @@ void SocketSendData(CNode *pnode)
                     }
                 }
             }
+
             // couldn't send anything at all
             break;
         }
     }
 
-    if (it == pnode->vSendMsg.end()) {
+    if (it == pnode->vSendMsg.end())
+    {
         assert(pnode->nSendOffset == 0);
         assert(pnode->nSendSize == 0);
     }
     pnode->vSendMsg.erase(pnode->vSendMsg.begin(), it);
 }
+
+static list<CNode*> vNodesDisconnected;
 
 class CNodeRef {
 public:
@@ -1131,6 +1138,7 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
 
     return true;
 }
+
 
 static void AcceptConnection(const ListenSocket& hListenSocket) {
     struct sockaddr_storage sockaddr;
@@ -1411,8 +1419,11 @@ void ThreadSocketHandler()
             LOCK(cs_vNodes);
             BOOST_FOREACH(CNode* pnode, vNodes)
             {
+                LOCK(pnode->cs_hSocket);
+                
                 if (pnode->hSocket == INVALID_SOCKET)
                     continue;
+                
                 FD_SET(pnode->hSocket, &fdsetError);
                 hSocketMax = max(hSocketMax, pnode->hSocket);
                 have_fds = true;
@@ -1432,6 +1443,7 @@ void ThreadSocketHandler()
                 // * We send some data.
                 // * We wait for data to be received (and disconnect after timeout).
                 // * We process a message in the buffer (message handler thread).
+
                 {
                     TRY_LOCK(pnode->cs_vSend, lockSend);
                     if (lockSend && !pnode->vSendMsg.empty()) {
@@ -1492,6 +1504,8 @@ void ThreadSocketHandler()
         {
             boost::this_thread::interruption_point();
 
+     if (tlsmanager.threadSocketHandler(pnode,fdsetRecv,fdsetSend,fdsetError)==-1){
+     	continue;
             //
             // Receive
             //
@@ -1547,6 +1561,7 @@ void ThreadSocketHandler()
                 if (lockSend)
                     SocketSendData(pnode);
             }
+        }
 
             //
             // Inactivity checking
