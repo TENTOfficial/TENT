@@ -36,7 +36,7 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-LIBZCASH=libzcash.a
+libzcash=libzcash.a
 LIBTENT=libtent.a
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -74,17 +74,17 @@ $(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
-EXTRA_LIBRARIES = \
-  crypto/libbitcoin_crypto.a \
-  libbitcoin_util.a \
-  libbitcoin_common.a \
-  libbitcoin_server.a \
-  libbitcoin_cli.a \
-  libbitcoin_wallet.a \
-  libbitcoin_zmq.a \
-  libbitcoin_proton.a \
-  libzcash.a \
-  libtent.a
+EXTRA_LIBRARIES += \
+  $(LIBBITCOIN_CRYPTO) \
+  $(LIBBITCOIN_UTIL) \
+  $(LIBBITCOIN_COMMON) \
+  $(LIBBITCOIN_SERVER) \
+  $(LIBBITCOIN_CLI) \
+  $(LIBBITCOIN_WALLET) \
+  $(LIBBITCOIN_ZMQ) \
+  $(LIBBITCOIN_PROTON) \
+  $(libzcash) \
+  $(libtent)
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -247,7 +247,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
 
 LIBTENT_H = \
-    tnet/utiltls.h
+    tent/utiltls.h
 
 
 obj/build.h: FORCE

@@ -19,7 +19,6 @@
 #include "httpserver.h"
 #include "httprpc.h"
 #include "key.h"
-
 #ifdef ENABLE_MINING
 #include "key_io.h"
 #endif
