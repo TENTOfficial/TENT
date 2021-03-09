@@ -467,7 +467,7 @@ libbitcoin_cli_a_SOURCES = \
   $(libzcash_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
-#
+
 
 # bitcoind binary #
 snowgemd_SOURCES = bitcoind.cpp
@@ -613,7 +613,7 @@ libzcashconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/sec
 libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
-#
+
 
 # zencash-specific sources #
 libzencash_a_SOURCES = \
