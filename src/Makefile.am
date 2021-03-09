@@ -249,7 +249,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
 
 LIBZENCASH_H = \
-    zen/utiltls.h\
+    zen/utiltls.h
 
 
 obj/build.h: FORCE
@@ -619,16 +619,7 @@ endif
 libzencash_a_SOURCES = \
     zen/utiltls.cpp\
     zen/tlsmanager.cpp
-if HAVE_OPENMP
-libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
-endif
-libzencash_a_CPPFLAGS := $(libzencash_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
-
-libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
-
-libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
-
-libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
+    
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
