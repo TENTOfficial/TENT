@@ -74,17 +74,17 @@ $(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
-EXTRA_LIBRARIES += \
-  $(LIBBITCOIN_CRYPTO) \
-  $(LIBBITCOIN_UTIL) \
-  $(LIBBITCOIN_COMMON) \
-  $(LIBBITCOIN_SERVER) \
-  $(LIBBITCOIN_CLI) \
-  $(LIBBITCOIN_WALLET) \
-  $(LIBBITCOIN_ZMQ) \
-  $(LIBBITCOIN_PROTON) \
-  $(libzcash) \
-  $(libzencash)
+EXTRA_LIBRARIES = \
+  crypto/libbitcoin_crypto.a \
+  libbitcoin_util.a \
+  libbitcoin_common.a \
+  libbitcoin_server.a \
+  libbitcoin_cli.a \
+  libbitcoin_wallet.a \
+  libbitcoin_zqm.a \
+  libbitcon_proton.a \
+  libzcash.a \
+  libzencash.a
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
