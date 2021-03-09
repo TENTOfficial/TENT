@@ -29,7 +29,6 @@ BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
 BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
-
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CLI=libbitcoin_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
@@ -38,7 +37,7 @@ LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 libzcash=libzcash.a
-LIBZENCASH=libzencash.a
+
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
 endif
@@ -84,8 +83,7 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
-  $(libzcash) \
-  $(libzencash)
+  $(libzcash)
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -114,7 +112,7 @@ libzcash_H = \
   zcash/zip32.h
 
 .PHONY: FORCE collate-libsnark check-symbols check-security
-# bitcoin core 
+# bitcoin core #
 BITCOIN_CORE_H = \
   activemasternode.h \
   addressindex.h \
@@ -233,7 +231,7 @@ BITCOIN_CORE_H = \
   wallet/asyncrpcoperation_common.h \
   wallet/asyncrpcoperation_mergetoaddress.h \
   wallet/asyncrpcoperation_saplingmigration.h \
-  wallet/asyncrpcoperation_saplingconsolidation.h \
+	wallet/asyncrpcoperation_saplingconsolidation.h \
   wallet/asyncrpcoperation_sendmany.h \
   wallet/asyncrpcoperation_shieldcoinbase.h \
   wallet/crypter.h \
@@ -247,8 +245,6 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
 
-LIBZENCASH_H = \
-    zen/utiltls.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -302,7 +298,6 @@ libbitcoin_server_a_SOURCES = \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
   $(libzcash_H)
-  
 
 if ENABLE_ZMQ
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
@@ -321,11 +316,6 @@ libbitcoin_proton_a_SOURCES = \
   amqp/amqpnotificationinterface.cpp \
   amqp/amqppublishnotifier.cpp
 endif
-
-# zencash-specific sources 
-libzencash_a_SOURCES = \
-    zen/utiltls.cpp \
-    zen/tlsmanager.cpp
 
 # wallet: snowgemd, but only linked when wallet enabled
 libbitcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -469,9 +459,9 @@ libbitcoin_cli_a_SOURCES = \
   $(libzcash_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
+#
 
-
-# bitcoind binary
+# bitcoind binary #
 snowgemd_SOURCES = bitcoind.cpp
 snowgemd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 snowgemd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -491,7 +481,6 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
@@ -510,7 +499,7 @@ snowgemd_LDADD += \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
 
-# bitcoin-cli binary 
+# bitcoin-cli binary #
 snowgem_cli_SOURCES = bitcoin-cli.cpp
 snowgem_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 snowgem_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -529,13 +518,12 @@ snowgem_cli_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
+#
 
-
-# snowgem-tx binary 
+# snowgem-tx binary #
 snowgem_tx_SOURCES = bitcoin-tx.cpp
 snowgem_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 snowgem_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -545,22 +533,21 @@ if TARGET_WINDOWS
 snowgem_tx_SOURCES += bitcoin-tx-res.rc
 endif
 
-# FIXME: Is libzcash needed for snowgem_tx? 
+# FIXME: Is libzcash needed for snowgem_tx?
 snowgem_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
 
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+#
 
-
-# snowgem protocol primitives 
+# snowgem protocol primitives #
 libzcash_a_SOURCES = \
   zcash/IncrementalMerkleTree.cpp \
   zcash/NoteEncryption.cpp \
@@ -586,7 +573,7 @@ libzcash_a_LDFLAGS = $(AM_LDFLAGS)
 
 libzcash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 
-# snowgemconsensus library 
+# snowgemconsensus library #
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/snowgemconsensus.h
 libzcashconsensus_la_SOURCES = \
@@ -615,7 +602,8 @@ libzcashconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/sec
 libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
-   
+#
+
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
