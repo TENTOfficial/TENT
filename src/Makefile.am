@@ -611,12 +611,12 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
 
-
+#
 # zencash-specific sources 
 libzencash_a_SOURCES = \
     zen/utiltls.cpp \
     zen/tlsmanager.cpp
-    
+ #   
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
