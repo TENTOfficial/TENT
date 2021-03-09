@@ -46,6 +46,7 @@ testScripts=(
     'getblocktemplate.py'
     'bip65-cltv-p2p.py'
     'bipdersig-p2p.py'
+	'tlsprotocols.py'
 );
 testScriptsExt=(
     'getblocktemplate_longpoll.py'
