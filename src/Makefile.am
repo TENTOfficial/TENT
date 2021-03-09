@@ -616,6 +616,13 @@ endif
 libtent_a_SOURCES = \
     tent/utiltls.cpp\
     tent/tlsmanager.cpp
+if HAVE_OPENMP
+libtent_a_CPPFLAGS = -DMULTICORE -fopenmp
+endif
+libtent_a_CPPFLAGS := $(libtent_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
+libtent_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
+libtent_a_LDFLAGS = $(HARDENED_LDFLAGS)
+libtent_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
