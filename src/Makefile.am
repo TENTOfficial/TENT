@@ -616,18 +616,8 @@ endif
 # zencash-specific sources #
 libzencash_a_SOURCES = \
     zen/utiltls.cpp\
-    zen/forkmanager.cpp\
-    zen/forks/fork.cpp\
-    zen/forks/fork0_originalfork.cpp\
-    zen/forks/fork1_chainsplitfork.cpp\
-    zen/forks/fork2_replayprotectionfork.cpp\
-    zen/forks/fork3_communityfundandrpfixfork.cpp\
-    zen/forks/fork4_nulltransactionfork.cpp\
-    zen/forks/fork5_shieldfork.cpp\
-    zen/forks/fork6_timeblockfork.cpp\
-    zen/forks/fork7_replayprotectionfixfork.cpp\
-    zen/tlsmanager.cpp\
-    zen/delay.cpp
+    zen/tlsmanager.cpp
+
 
 if HAVE_OPENMP
 libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
