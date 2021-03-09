@@ -29,6 +29,7 @@ BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
 BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
+LIBBITCOIN_WALLET=libbitcoin_wallet.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CLI=libbitcoin_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
@@ -36,7 +37,8 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-libzcash=libzcash.a
+LIBZCASH=libzcash.a
+LIBZENCASH=libzencash.a
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
 endif
@@ -73,16 +75,25 @@ $(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
-EXTRA_LIBRARIES += \
-  $(LIBBITCOIN_CRYPTO) \
-  $(LIBBITCOIN_UTIL) \
-  $(LIBBITCOIN_COMMON) \
-  $(LIBBITCOIN_SERVER) \
-  $(LIBBITCOIN_CLI) \
-  $(LIBBITCOIN_WALLET) \
-  $(LIBBITCOIN_ZMQ) \
-  $(LIBBITCOIN_PROTON) \
-  $(libzcash)
+EXTRA_LIBRARIES = \
+  crypto/libbitcoin_crypto.a \
+  libbitcoin_util.a \
+  libbitcoin_common.a \
+  libbitcoin_server.a \
+  libbitcoin_cli.a \
+  libzcash.a \
+  libzencash.a
+
+if ENABLE_WALLET
+BITCOIN_INCLUDES += $(BDB_CPPFLAGS)
+EXTRA_LIBRARIES += libbitcoin_wallet.a
+endif
+if ENABLE_ZMQ
+EXTRA_LIBRARIES += libbitcoin_zmq.a
+endif
+if ENABLE_PROTON
+EXTRA_LIBRARIES += libbitcoin_proton.a
+endif
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -244,6 +255,11 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
 
+LIBZENCASH_H = \
+    zen/utiltls.h\
+    zen/forkmanager.h\
+    zen/replayprotectionlevel.h
+
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -299,6 +315,8 @@ libbitcoin_server_a_SOURCES = \
   $(libzcash_H)
 
 if ENABLE_ZMQ
+LIBBITCOIN_ZMQ=libbitcoin_zmq.a
+
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
 libbitcoin_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_zmq_a_SOURCES = \
@@ -479,7 +497,8 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash) \
+  $(LIBZCASH) \
+  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
@@ -496,7 +515,11 @@ snowgemd_LDADD += \
   $(ZMQ_LIBS) \
   $(PROTON_LIBS) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZCASH_LIBS)
+
+if ENABLE_PROTON
+zend_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
+endif
 
 # bitcoin-cli binary #
 snowgem_cli_SOURCES = bitcoin-cli.cpp
@@ -538,7 +561,8 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
-  $(libzcash) \
+  $(LIBZCASH) \
+  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
@@ -603,6 +627,12 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 #
 
+# zencash-specific sources #
+libzencash_a_SOURCES = \
+    zen/utiltls.cpp\
+    zen/tlsmanager.cpp\
+
+
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
@@ -645,3 +675,5 @@ if ENABLE_TESTS
 include Makefile.test.include
 include Makefile.gtest.include
 endif
+
+include Makefile.zcash.include
