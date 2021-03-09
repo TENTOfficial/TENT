@@ -15,7 +15,7 @@
 
 #include "util.h"
 #include "utiltls.h"
-
+using namespace std;
 namespace tent {
 
 // Set of most common default trusted certificates directories used by OpenSSL

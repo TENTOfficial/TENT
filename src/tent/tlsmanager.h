@@ -18,7 +18,6 @@
 
 using namespace std;
 
-namespace tent
 {
 typedef struct _NODE_ADDR {
     std::string ipAddr;
