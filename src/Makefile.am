@@ -99,10 +99,6 @@ if BUILD_BITCOIN_UTILS
   bin_PROGRAMS += snowgem-cli snowgem-tx
 endif
 
-LIBTENT_H = \
-    tent/utiltls.h \
-    tent/tlsmanager.h
-
 libzcash_H = \
   zcash/IncrementalMerkleTree.hpp \
   zcash/NoteEncryption.hpp \
@@ -215,6 +211,8 @@ BITCOIN_CORE_H = \
   support/events.h \
   support/pagelocker.h \
   sync.h \
+  tent/utiltls.h \
+  tent/tlsmanager.h \
   threadsafety.h \
   timedata.h \
   tinyformat.h \
@@ -299,14 +297,15 @@ libbitcoin_server_a_SOURCES = \
   rpc/server.cpp \
   script/sigcache.cpp \
   sporkdb.cpp \
+  tent/utiltls.cpp\
+  tent/tlsmanager.cpp
   timedata.cpp \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H) \
-  $(LIBTENT_H)
+  $(libzcash_H)
 
 if ENABLE_ZMQ
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
