@@ -165,7 +165,6 @@ BITCOIN_CORE_H = \
   key_io.h \
   keystore.h \
   dbwrapper.h \
-
   limitedmap.h \
   main.h \
   memusage.h \
@@ -251,7 +250,6 @@ BITCOIN_CORE_H = \
 LIBZENCASH_H = \
     zen/utiltls.h
 
-
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh $(abs_top_builddir)/src/obj/build.h \
@@ -276,7 +274,6 @@ libbitcoin_server_a_SOURCES = \
   httpserver.cpp \
   init.cpp \
   dbwrapper.cpp \
-
   main.cpp \
   merkleblock.cpp \
   metrics.cpp \
@@ -543,7 +540,7 @@ if TARGET_WINDOWS
 snowgem_tx_SOURCES += bitcoin-tx-res.rc
 endif
 
-# FIXME: Is libzcash needed for snowgem_tx?
+# FIXME: Is libzcash needed for snowgem_tx? #
 snowgem_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
