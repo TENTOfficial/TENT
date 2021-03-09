@@ -29,6 +29,7 @@ BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
 BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
+LIBBITCOIN_WALLET=libbitcoin_wallet.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CLI=libbitcoin_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
@@ -36,20 +37,8 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-libzcash=libzcash.a
+LIBZCASH=libzcash.a
 LIBTENT=libtent.a
-if ENABLE_ZMQ
-LIBBITCOIN_ZMQ=libbitcoin_zmq.a
-endif
-if ENABLE_PROTON
-LIBBITCOIN_PROTON=libbitcoin_proton.a
-endif
-if BUILD_BITCOIN_LIBS
-LIBZCASH_CONSENSUS=libzcashconsensus.la
-endif
-if ENABLE_WALLET
-LIBBITCOIN_WALLET=libbitcoin_wallet.a
-endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
@@ -74,17 +63,14 @@ $(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
-EXTRA_LIBRARIES += \
-  $(LIBBITCOIN_CRYPTO) \
-  $(LIBBITCOIN_UTIL) \
-  $(LIBBITCOIN_COMMON) \
-  $(LIBBITCOIN_SERVER) \
-  $(LIBBITCOIN_CLI) \
-  $(LIBBITCOIN_WALLET) \
-  $(LIBBITCOIN_ZMQ) \
-  $(LIBBITCOIN_PROTON) \
-  $(libzcash) \
-  $(LIBTENT)
+EXTRA_LIBRARIES = \
+  crypto/libbitcoin_crypto.a \
+  libbitcoin_util.a \
+  libbitcoin_common.a \
+  libbitcoin_server.a \
+  libbitcoin_cli.a \
+  libzcash.a \
+  libtent.a
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -245,6 +231,9 @@ BITCOIN_CORE_H = \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
+
+LIBTENT_H = \
+    tnet/utiltls.h
 
 
 obj/build.h: FORCE
@@ -521,10 +510,10 @@ snowgem_cli_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(libzcash) \
+  $(LIBTENT) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
-#
 
 # snowgem-tx binary #
 snowgem_tx_SOURCES = bitcoin-tx.cpp
@@ -608,6 +597,10 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 #
 
+# tent-specific sources #
+libtent_a_SOURCES = \
+    zen/utiltls.cpp\
+    zen/tlsmanager.cpp
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
