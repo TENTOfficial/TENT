@@ -94,7 +94,6 @@ int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 bool fAddressesInitialized = false;
 TLSManager tlsmanager = TLSManager();
 std::string strSubVersion;
-auto ctx = zen::UniquePtr<SSL_CTX>(SSL_CTX_new(TLS_client_method()));
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
 map<CInv, CDataStream> mapRelay;
@@ -110,7 +109,6 @@ CCriticalSection cs_setservAddNodeAddresses;
 
 vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
-
 NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
@@ -122,7 +120,7 @@ static CNodeSignals g_signals;
 CNodeSignals& GetNodeSignals() { return g_signals; }
 
 // OpenSSL server and client contexts
-ctx *tls_ctx_server, *tls_ctx_client;
+zen.SSL_CTX *tls_ctx_server, *tls_ctx_client;
 
 static bool operator==(_NODE_ADDR a, _NODE_ADDR b)
 {
