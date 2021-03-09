@@ -322,6 +322,11 @@ libbitcoin_proton_a_SOURCES = \
   amqp/amqppublishnotifier.cpp
 endif
 
+# zencash-specific sources 
+libzencash_a_SOURCES = \
+    zen/utiltls.cpp \
+    zen/tlsmanager.cpp
+
 # wallet: snowgemd, but only linked when wallet enabled
 libbitcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -610,13 +615,7 @@ libzcashconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/sec
 libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
-
-#
-# zencash-specific sources 
-libzencash_a_SOURCES = \
-    zen/utiltls.cpp \
-    zen/tlsmanager.cpp
- #   
+   
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
