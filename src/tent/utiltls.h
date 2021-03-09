@@ -4,7 +4,7 @@
 
 #ifndef UTILTLS_H
 #define UTILTLS_H
-using namespace std;
+
 #include <boost/filesystem/path.hpp>
 namespace tent {
 
