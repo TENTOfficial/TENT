@@ -13,7 +13,7 @@
 #include "utiltls.h"
 
 using namespace std;
-namespace tent
+namespace zen
 {
 
 // this is the 'dh crypto environment' to be shared between two peers and it is meant to be public, therefore
@@ -57,14 +57,26 @@ static DH *get_dh2048(void)
     BIGNUM *p, *g;
 
     if (dh == NULL)
+    {
+        unsigned long err_code = ERR_get_error();
+        const char* error_str = ERR_error_string(err_code, NULL);
+        LogPrintf("TLS: %s: %s():%d - ERROR: mem allocation failed (err=%s)\n",
+            __FILE__, __func__, __LINE__, error_str);
         return NULL;
+    }
+
     p = BN_bin2bn(dhp_2048, sizeof(dhp_2048), NULL);
     g = BN_bin2bn(dhg_2048, sizeof(dhg_2048), NULL);
-    if (p == NULL || g == NULL
-            || !DH_set0_pqg(dh, p, NULL, g)) {
+
+    if (p == NULL || g == NULL || !DH_set0_pqg(dh, p, NULL, g))
+    {
+        unsigned long err_code = ERR_get_error();
+        const char* error_str = ERR_error_string(err_code, NULL);
         DH_free(dh);
         BN_free(p);
         BN_free(g);
+        LogPrintf("TLS: %s: %s():%d - ERROR: p[%p], g[%p] (err=%s)\n",
+            __FILE__, __func__, __LINE__, p, g, error_str);
         return NULL;
     }
     return dh;
