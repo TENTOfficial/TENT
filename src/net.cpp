@@ -19,7 +19,7 @@
 #include "scheduler.h"
 #include "ui_interface.h"
 #include "crypto/common.h"
-#include "zen/utiltls.h"
+#include "tent/utiltls.h"
 #include "masternodeman.h"
 
 #ifdef WIN32
@@ -62,7 +62,7 @@
     #error "ERROR: Your OpenSSL version does not support TLS v1.2"
 #endif
 
-using namespace zen;
+using namespace tent;
 using namespace std;
 
 namespace {
