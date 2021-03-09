@@ -846,14 +846,6 @@ int CNetMessage::readData(const char *pch, unsigned int nBytes)
     return nCopy;
 }
 
-
-
-
-
-
-
-
-
 // requires LOCK(cs_vSend)
 void SocketSendData(CNode *pnode)
 {
@@ -1139,7 +1131,6 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
     return true;
 }
 
-
 static void AcceptConnection(const ListenSocket& hListenSocket) {
     struct sockaddr_storage sockaddr;
     socklen_t len = sizeof(sockaddr);
@@ -1217,10 +1208,9 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
     setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (void*)&set, sizeof(int));
 #endif
 
-
-    SSL *ssl = NULL;
+SSL *ssl = NULL;
     
-    SetSocketNonBlocking(hSocket, true);
+SetSocketNonBlocking(hSocket, true);
     
 #ifdef USE_TLS
     /* TCP connection is ready. Do server side SSL. */
@@ -1504,7 +1494,8 @@ void ThreadSocketHandler()
         {
             boost::this_thread::interruption_point();
 
-     if (tlsmanager.threadSocketHandler(pnode,fdsetRecv,fdsetSend,fdsetError)==-1){
+     if (tlsmanager.threadSocketHandler(pnode,fdsetRecv,fdsetSend,fdsetError)==-1)
+        {
      	continue;
             //
             // Receive
