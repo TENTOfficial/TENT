@@ -165,7 +165,7 @@ BITCOIN_CORE_H = \
   key_io.h \
   keystore.h \
   dbwrapper.h \
-  leveldbwrapper.h \
+
   limitedmap.h \
   main.h \
   memusage.h \
@@ -276,7 +276,7 @@ libbitcoin_server_a_SOURCES = \
   httpserver.cpp \
   init.cpp \
   dbwrapper.cpp \
-  leveldbwrapper.cpp \
+
   main.cpp \
   merkleblock.cpp \
   metrics.cpp \
@@ -556,7 +556,7 @@ snowgem_tx_LDADD = \
   $(libzcash_LIBS)
 
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
-#
+
 
 # snowgem protocol primitives #
 libzcash_a_SOURCES = \
