@@ -247,7 +247,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
 
 LIBTENT_H = \
-    tent/utiltls.h
+    utiltls.h
 
 
 obj/build.h: FORCE
@@ -614,8 +614,8 @@ endif
 
 # tent-specific sources #
 libtent_a_SOURCES = \
-    tent/utiltls.cpp\
-    tent/tlsmanager.cpp
+    utiltls.cpp\
+    tlsmanager.cpp
 if HAVE_OPENMP
 libtent_a_CPPFLAGS = -DMULTICORE -fopenmp
 endif
