@@ -29,7 +29,6 @@ BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
 BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
-
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CLI=libbitcoin_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
@@ -37,7 +36,6 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-LIBBITCOIN_WALLET=libbitcoin_wallet.a
 libzcash=libzcash.a
 LIBZENCASH=libzencash.a
 
@@ -50,6 +48,9 @@ LIBBITCOIN_PROTON=libbitcoin_proton.a
 endif
 if BUILD_BITCOIN_LIBS
 LIBZCASH_CONSENSUS=libzcashconsensus.la
+endif
+if ENABLE_WALLET
+LIBBITCOIN_WALLET=libbitcoin_wallet.a
 endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
@@ -75,17 +76,17 @@ $(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
-EXTRA_LIBRARIES = \
-  crypto/libbitcoin_crypto.a \
-  libbitcoin_util.a \
-  libbitcoin_common.a \
-  libbitcoin_server.a \
-  libbitcoin_cli.a \
-  libbitcon_wallet.a \
-  libbitcon_zmq.a \
-  libzcash.a \
-  libzencash.a
-
+EXTRA_LIBRARIES += \
+  $(LIBBITCOIN_CRYPTO) \
+  $(LIBBITCOIN_UTIL) \
+  $(LIBBITCOIN_COMMON) \
+  $(LIBBITCOIN_SERVER) \
+  $(LIBBITCOIN_CLI) \
+  $(LIBBITCOIN_WALLET) \
+  $(LIBBITCOIN_ZMQ) \
+  $(LIBBITCOIN_PROTON) \
+  $(libzcash) \
+  $(LIBZENCASH)
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -307,8 +308,6 @@ libbitcoin_server_a_SOURCES = \
   $(LIBZENCASH_H)
 
 if ENABLE_ZMQ
-LIBBITCOIN_ZMQ=libbitcoin_zmq.a
-
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
 libbitcoin_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_zmq_a_SOURCES = \
@@ -318,8 +317,6 @@ libbitcoin_zmq_a_SOURCES = \
 endif
 
 if ENABLE_PROTON
-LIBBITCOIN_PROTON=libbitcoin_proton.a
-
 libbitcoin_proton_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_proton_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_proton_a_SOURCES = \
@@ -431,7 +428,7 @@ libbitcoin_common_a_SOURCES = \
   sporkdb.cpp \
   transaction_builder.cpp \
   $(BITCOIN_CORE_H) \
-  $(LIBZCASH_H)
+  $(libzcash_H)
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
@@ -455,7 +452,7 @@ libbitcoin_util_a_SOURCES = \
   utilstrencodings.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H) \
-  $(LIBZCASH_H)
+  $(libzcash_H)
 
 if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
@@ -467,7 +464,7 @@ libbitcoin_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_cli_a_SOURCES = \
   rpc/client.cpp \
   $(BITCOIN_CORE_H) \
-  $(LIBZCASH_H)
+  $(libzcash_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
@@ -491,7 +488,7 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
-  $(LIBZCASH) \
+  $(libzcash) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
@@ -509,7 +506,7 @@ snowgemd_LDADD += \
   $(ZMQ_LIBS) \
   $(PROTON_LIBS) \
   $(LIBBITCOIN_CRYPTO) \
-  $(LIBZCASH_LIBS)
+  $(libzcash_LIBS)
 
 # bitcoin-cli binary #
 snowgem_cli_SOURCES = bitcoin-cli.cpp
@@ -529,7 +526,7 @@ snowgem_cli_LDADD = \
   $(SSL_LIBS) \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
-  $(LIBZCASH) \
+  $(libzcash) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
@@ -552,11 +549,11 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
-  $(LIBZCASH) \
+  $(libzcash) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
-  $(LIBZCASH_LIBS)
+  $(libzcash_LIBS)
 
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
