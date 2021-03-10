@@ -37,7 +37,7 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-LIBZCASH=libzcash.a
+libzcash=libzcash.a
 LIBZENCASH=libzencash.a
 
 
@@ -250,9 +250,9 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
   
 # Zencash #
-LIBZENCASH_H = \
-  zen/utiltls.h 
-
+LIBZENCASH_H= \  
+  zen/utiltls.h \
+  zen/tlsmanager.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -305,7 +305,8 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
-LIBZENCASH_H = \
+  $(libzcash_H) \
+  $(LIBZENCASH_H)
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -432,7 +433,7 @@ libbitcoin_common_a_SOURCES = \
   sporkdb.cpp \
   transaction_builder.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
@@ -456,7 +457,7 @@ libbitcoin_util_a_SOURCES = \
   utilstrencodings.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
@@ -468,7 +469,7 @@ libbitcoin_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_cli_a_SOURCES = \
   rpc/client.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
@@ -510,7 +511,7 @@ snowgemd_LDADD += \
   $(ZMQ_LIBS) \
   $(PROTON_LIBS) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZCASH_LIBS)
 
 # bitcoin-cli binary #
 snowgem_cli_SOURCES = bitcoin-cli.cpp
@@ -557,7 +558,7 @@ snowgem_tx_LDADD = \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZCASH_LIBS)
 
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
@@ -620,21 +621,9 @@ endif
 #
 
 # zencash-specific sources #
-libzencash_a_SOURCES = \
+LIBZENCASH_A_SOURCES = \
     zen/utiltls.cpp \
     zen/tlsmanager.cpp
-
-if HAVE_OPENMP
-libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
-endif
-libzencash_a_CPPFLAGS := $(libzencash_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
-
-libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
-
-libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
-
-libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
-
 
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
