@@ -39,9 +39,8 @@ LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 libzcash=libzcash.a
 LIBZENCASH=libzencash.a
-if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
-endif
+
 if ENABLE_PROTON
 LIBBITCOIN_PROTON=libbitcoin_proton.a
 endif
