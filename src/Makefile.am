@@ -37,6 +37,7 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
+LIBBITCOIN_WALLET=libbitcoin_wallet.a
 libzcash=libzcash.a
 LIBZENCASH=libzencash.a
 
@@ -49,9 +50,6 @@ LIBBITCOIN_PROTON=libbitcoin_proton.a
 endif
 if BUILD_BITCOIN_LIBS
 LIBZCASH_CONSENSUS=libzcashconsensus.la
-endif
-if ENABLE_WALLET
-LIBBITCOIN_WALLET=libbitcoin_wallet.a
 endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
