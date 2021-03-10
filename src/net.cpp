@@ -2568,7 +2568,6 @@ bool CNode::GetTlsFallback()
 }
 
 // 0 - unset, 1 - false, 2 - true
-Not used, we don't have DNS records
 bool CNode::GetTlsValidate()
 {
     if (tlsValidate == eTlsOption::FALLBACK_UNSET)
