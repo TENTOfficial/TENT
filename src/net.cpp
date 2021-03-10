@@ -1248,22 +1248,16 @@ SetSocketNonBlocking(hSocket, true);
         }
         else
         {
-            //LogPrintf ("TLS: Connection from %s will be unencrypted\n", addr.ToStringIP());
-            LogPrintf ("TLS: Connection from %s is not encripted will be closed.\n", addr.ToString());
-            
-            // Not sure if we need this if connection is closed
-            /*vNonTLSNodesInbound.erase(
+            LogPrintf ("TLS: Connection from %s will be unencrypted\n", addr.ToStringIP());
+
+            vNonTLSNodesInbound.erase(
                     remove(
                             vNonTLSNodesInbound.begin(),
                             vNonTLSNodesInbound.end(),
                             nodeAddr
                     ),
                     vNonTLSNodesInbound.end());
-            */
-            SSL_shutdown(ssl);
-            CloseSocket(hSocket);
-            SSL_free(ssl);
-            return;
+            
         }
     }
     else
