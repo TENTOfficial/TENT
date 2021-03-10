@@ -248,7 +248,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
 
 LIBZENCASH_H = \
-    zen/utiltls.h
+    tent/utiltls.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -614,8 +614,8 @@ endif
 
 # zencash-specific sources #
 libzencash_a_SOURCES = \
-    zen/utiltls.cpp\
-    zen/tlsmanager.cpp
+    tent/utiltls.cpp\
+    tent/tlsmanager.cpp
 if HAVE_OPENMP
 libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
 endif

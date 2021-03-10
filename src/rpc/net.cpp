@@ -13,7 +13,7 @@
 #include "timedata.h"
 #include "util.h"
 #include "version.h"
-#include "zen/utiltls.h"
+#include "tent/utiltls.h"
 #include "deprecation.h"
 
 #include <boost/foreach.hpp>
@@ -21,7 +21,7 @@
 #include <univalue.h>
 
 using namespace std;
-using namespace zen;
+using namespace tent;
 
 UniValue getconnectioncount(const UniValue& params, bool fHelp)
 {
@@ -446,6 +446,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
             "  \"localservices\": \"xxxxxxxxxxxxxxxx\", (string) the services we offer to the network\n"
             "  \"timeoffset\": xxxxx,                   (numeric) the time offset\n"
             "  \"connections\": xxxxx,                  (numeric) the number of connections\n"
+            "  \"connections_TLS\": xxxxx,              (numeric) the number of TLS connections\n"
             "  \"tls_cert_verified\": true|flase,       (boolean) true if the certificate of the current node is verified\n"
             "  \"networks\": [                          (array) information per network\n"
             "  {\n"
@@ -481,6 +482,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
     obj.pushKV("localservices",       strprintf("%016x", nLocalServices));
     obj.pushKV("timeoffset",    GetTimeOffset());
     obj.pushKV("connections",   (int)vNodes.size());
+    obj.pushKV("connections_tls", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});)
     obj.pushKV("tls_cert_verified", ValidateCertificate(tls_ctx_server));
     obj.pushKV("networks",      GetNetworksInfo());
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
