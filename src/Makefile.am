@@ -250,7 +250,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
   
 # Zencash #
-LIBZENCASH_H= \  
+libzencash_H= \  
   zen/utiltls.h \
   zen/tlsmanager.h
 
@@ -306,7 +306,7 @@ libbitcoin_server_a_SOURCES = \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
   $(libzcash_H) \
-  $(LIBZENCASH_H)
+  $(libzencash_H)
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -494,7 +494,7 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash) \
-  $(LIBZENCASH) \
+  $(libzencash) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
@@ -532,7 +532,7 @@ snowgem_cli_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(libzcash) \
-  $(LIBZENCASH) \
+  $(libzencash) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
@@ -555,7 +555,7 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
   $(libzcash) \
-  $(LIBZENCASH) \
+  $(libzencash) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
@@ -621,7 +621,7 @@ endif
 #
 
 # zencash-specific sources #
-LIBZENCASH_A_SOURCES = \
+libzencash_A_SOURCES = \
     zen/utiltls.cpp \
     zen/tlsmanager.cpp
 
