@@ -84,7 +84,8 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
-  $(libzcash)
+  $(libzcash) \
+  $(LIBZENCASH)
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
