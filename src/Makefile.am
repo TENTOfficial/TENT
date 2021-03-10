@@ -230,7 +230,7 @@ BITCOIN_CORE_H = \
   wallet/asyncrpcoperation_common.h \
   wallet/asyncrpcoperation_mergetoaddress.h \
   wallet/asyncrpcoperation_saplingmigration.h \
-	wallet/asyncrpcoperation_saplingconsolidation.h \
+  wallet/asyncrpcoperation_saplingconsolidation.h \
   wallet/asyncrpcoperation_sendmany.h \
   wallet/asyncrpcoperation_shieldcoinbase.h \
   wallet/crypter.h \
@@ -242,11 +242,10 @@ BITCOIN_CORE_H = \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
-  zmq/zmqpublishnotifier.h
-LIBZENCASH_H = \
-    zen/utiltls.h\
-    zen/forkmanager.h\
-    zen/replayprotectionlevel.h
+  zmq/zmqpublishnotifier.h \
+  zen/utiltls.h \
+  zen/forkmanager.h \
+  zen/replayprotectionlevel.h
 
 
 obj/build.h: FORCE
