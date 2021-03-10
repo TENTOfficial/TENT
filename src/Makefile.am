@@ -38,7 +38,6 @@ LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 libzcash=libzcash.a
 LIBZENCASH=libzencash.a
-libzencash=libzencash.a
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -247,10 +246,7 @@ BITCOIN_CORE_H = \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
-  zmq/zmqpublishnotifier.h
-  
-# Zencash #
-LIBZENCASH_H= \  
+  zmq/zmqpublishnotifier.h \
   zen/utiltls.h
 
 obj/build.h: FORCE
