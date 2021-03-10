@@ -251,7 +251,8 @@ BITCOIN_CORE_H = \
   
 # Zencash #
 LIBZENCASH = \  
-  zen/utiltls.h 
+  zen/utiltls.h \
+  zen/tlsmanager.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
