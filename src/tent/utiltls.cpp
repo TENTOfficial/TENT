@@ -388,7 +388,7 @@ bool GenerateCredentials(
 //
 // Validates peer certificate using a chain of CA certificates.
 // If some of intermediate CA certificates are absent in the trusted certificates store, then validation status will be 'false')
-//
+// 
 bool ValidatePeerCertificate(SSL *ssl)
 {
     if (!ssl)

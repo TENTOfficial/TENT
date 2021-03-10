@@ -30,7 +30,7 @@ class tlsproto(BitcoinTestFramework):
         self.nodes = start_nodes(NUMB_OF_NODES, self.options.tmpdir,
             extra_args = [
                 ["-logtimemicros", "-debug=net", "-debug=tls", "-debug=py"],
-                ["-logtimemicros", "-debug=net", "-debug=tls", "-debug=py", "-tlsfallbacknontls=0"]
+                ["-logtimemicros", "-debug=net", "-debug=tls", "-debug=py", "-tlsfallback=0"]
             ])
 
         connect_nodes_bi(self.nodes, 0, 1)

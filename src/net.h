@@ -339,7 +339,7 @@ protected:
         FALLBACK_FALSE = 1,
         FALLBACK_TRUE = 2
     };
-    static eTlsOption tlsFallbackNonTls;
+    static eTlsOption tlsFallback;
     static eTlsOption tlsValidate;
 
 public:
@@ -732,8 +732,8 @@ public:
     // resource deallocation on cleanup, called at node shutdown
     static void NetCleanup();
 
-    // returns the value of the tlsfallbacknontls and tlsvalidate flags set at zend startup (see init.cpp)
-    static bool GetTlsFallbackNonTls();
+    // returns the value of the tlsfallback and tlsvalidate flags set at snowgemd startup (see init.cpp)
+    static bool GetTlsFallback();
     static bool GetTlsValidate();
 };
 

@@ -345,7 +345,7 @@ void AddressCurrentlyConnected(const CService& addr)
 }
 
 
-CNode::eTlsOption CNode::tlsFallbackNonTls = CNode::eTlsOption::FALLBACK_UNSET;
+CNode::eTlsOption CNode::tlsFallback = CNode::eTlsOption::FALLBACK_UNSET;
 CNode::eTlsOption CNode::tlsValidate       = CNode::eTlsOption::FALLBACK_UNSET;
 
 uint64_t CNode::nTotalBytesRecv = 0;
@@ -445,7 +445,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
         
 #ifdef USE_TLS
         /* TCP connection is ready. Do client side SSL. */
-        if (CNode::GetTlsFallbackNonTls())
+        if (CNode::GetTlsFallback())
         {
             {
                 LOCK(cs_vNonTLSNodesOutbound);
@@ -507,7 +507,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool obfuScationMa
             }
         }
         
-        // certificate validation is disabled by default    
+        // certificate validation is disabled by default
         if (CNode::GetTlsValidate())
         {
             if (ssl && !ValidatePeerCertificate(ssl))
@@ -1212,7 +1212,7 @@ SetSocketNonBlocking(hSocket, true);
     
 #ifdef USE_TLS
     /* TCP connection is ready. Do server side SSL. */
-    if (CNode::GetTlsFallbackNonTls())
+    if (CNode::GetTlsFallback())
     {
         LOCK(cs_vNonTLSNodesInbound);
     
@@ -1248,15 +1248,22 @@ SetSocketNonBlocking(hSocket, true);
         }
         else
         {
-            LogPrintf ("TLS: Connection from %s will be unencrypted\n", addr.ToStringIP());
+            //LogPrintf ("TLS: Connection from %s will be unencrypted\n", addr.ToStringIP());
+            LogPrintf ("TLS: Connection from %s is not encripted will be closed.\n", addr.ToString());
             
-            vNonTLSNodesInbound.erase(
+            // Not sure if we need this if connection is closed
+            /*vNonTLSNodesInbound.erase(
                     remove(
                             vNonTLSNodesInbound.begin(),
                             vNonTLSNodesInbound.end(),
                             nodeAddr
                     ),
                     vNonTLSNodesInbound.end());
+            */
+            SSL_shutdown(ssl);
+            CloseSocket(hSocket);
+            SSL_free(ssl);
+            return;
         }
     }
     else
@@ -1272,7 +1279,7 @@ SetSocketNonBlocking(hSocket, true);
         }
     }
     
-    // certificate validation is disabled by default    
+    // certificate validation is disabled by default 
     if (CNode::GetTlsValidate())
     {
         if (ssl && !ValidatePeerCertificate(ssl))
@@ -1861,7 +1868,7 @@ bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOu
     boost::this_thread::interruption_point();
     
 #if defined(USE_TLS)
-    if (CNode::GetTlsFallbackNonTls())
+    if (CNode::GetTlsFallback())
     {
         if (!pnode)
         {
@@ -2183,7 +2190,7 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
 
 #if defined(USE_TLS)
-    if (CNode::GetTlsFallbackNonTls())
+    if (CNode::GetTlsFallback())
     {
         // Clean pools of addresses for non-TLS connections
         threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "poolscleaner", &ThreadNonTLSPoolsCleaner));
@@ -2538,27 +2545,30 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
     GetNodeSignals().InitializeNode(GetId(), this);
 }
 
-bool CNode::GetTlsFallbackNonTls()
+// 0 - unset, 1 - false, 2 - true
+bool CNode::GetTlsFallback()
 {
-    if (tlsFallbackNonTls == eTlsOption::FALLBACK_UNSET)
+    if (tlsFallback == eTlsOption::FALLBACK_UNSET)
     {
         // one time only setting of static class attribute
-        if ( GetBoolArg("-tlsfallbacknontls", true))
+        if ( GetBoolArg("-tlsfallback", true))
         {
             LogPrint("tls", "%s():%d - Non-TLS connections will be used in case of failure of TLS\n",
                 __func__, __LINE__);
-            tlsFallbackNonTls = eTlsOption::FALLBACK_TRUE;
+            tlsFallback = eTlsOption::FALLBACK_TRUE;
         }
         else
         {
             LogPrint("tls", "%s():%d - Non-TLS connections will NOT be used in case of failure of TLS\n",
                 __func__, __LINE__);
-            tlsFallbackNonTls = eTlsOption::FALLBACK_FALSE;
+            tlsFallback = eTlsOption::FALLBACK_FALSE;
         }
     }
-    return (tlsFallbackNonTls == eTlsOption::FALLBACK_TRUE);
+    return (tlsFallback == eTlsOption::FALLBACK_TRUE);
 }
 
+// 0 - unset, 1 - false, 2 - true
+Not used, we don't have DNS records
 bool CNode::GetTlsValidate()
 {
     if (tlsValidate == eTlsOption::FALLBACK_UNSET)

@@ -91,7 +91,6 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
             "    \"addrlocal\":\"ip:port\",   (string) local address\n"
             "    \"services\":\"xxxxxxxxxxxxxxxx\",   (string) The services offered\n"
             "    \"tls_established\": true:false,     (boolean) Status of TLS connection\n"
-            "    \"tls_verified\": true:false,        (boolean) Status of peer certificate. Will be true if a peer certificate can be verified with some trusted root certs \n"
             "    \"lastsend\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last send\n"
             "    \"lastrecv\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last receive\n"
             "    \"bytessent\": n,            (numeric) The total bytes sent\n"
@@ -136,7 +135,6 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
         obj.pushKV("addrlocal", stats.addrLocal);
         obj.pushKV("services", strprintf("%016x", stats.nServices));
         obj.pushKV("tls_established", stats.fTLSEstablished);
-        obj.pushKV("tls_verified", stats.fTLSVerified);
         obj.pushKV("lastsend", stats.nLastSend);
         obj.pushKV("lastrecv", stats.nLastRecv);
         obj.pushKV("bytessent", stats.nSendBytes);
@@ -445,7 +443,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
             "  \"protocolversion\": xxxxx,              (numeric) the protocol version\n"
             "  \"localservices\": \"xxxxxxxxxxxxxxxx\", (string) the services we offer to the network\n"
             "  \"timeoffset\": xxxxx,                   (numeric) the time offset\n"
-            "  \"non_encrypted_connections\": xxxxx,    (numeric) the number of non encrypted connections\n"
+            "  \"connections\": xxxxx,                  (numeric) the number of total connections\n"
             "  \"encrypted_connections\": xxxxx,        (numeric) the number of encrypted connections\n"
             "  \"networks\": [                          (array) information per network\n"
             "  {\n"
@@ -480,7 +478,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
     obj.pushKV("protocolversion",PROTOCOL_VERSION);
     obj.pushKV("localservices",       strprintf("%016x", nLocalServices));
     obj.pushKV("timeoffset",    GetTimeOffset());
-    obj.pushKV("non_encrypted_connections",   count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl = NULL;}));
+    obj.pushKV("connections",   (int)vNodes.size());
     obj.pushKV("encrypted_connections", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;}));
     obj.pushKV("networks",      GetNetworksInfo());
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
