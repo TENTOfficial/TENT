@@ -306,7 +306,7 @@ libbitcoin_server_a_SOURCES = \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
   $(libzcash_H) \
-  $(LIBZENCASH_H)
+  $(libzencash_H)
 
 if ENABLE_ZMQ
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
@@ -618,7 +618,7 @@ endif
 
 # zencash-specific sources #
 libzencash_a_SOURCES = \
-    zen/utiltls.cpp\
+    zen/utiltls.cpp \
     zen/tlsmanager.cpp
 
 
