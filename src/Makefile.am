@@ -38,7 +38,7 @@ LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 libzcash=libzcash.a
 LIBZENCASH=libzencash.a
-
+libzencash=libzencash.a
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -302,6 +302,7 @@ libbitcoin_server_a_SOURCES = \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
+  zen/
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
   $(libzcash_H)
