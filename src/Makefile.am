@@ -87,7 +87,7 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
   $(LIBZCASH) \
-  $(LIBZENCASh) 
+  $(LIBZENCASH) 
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -621,21 +621,21 @@ endif
 #
 
 # zencash-specific sources #
-libzencash_a_SOURCES = \
+LIBZENCASH_A_SOURCES = \
     zen/utiltls.cpp \
     zen/tlsmanager.cpp
 
 
 if HAVE_OPENMP
-libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
+LIBZENCASH_A_CPPFLAGS = -DMULTICORE -fopenmp
 endif
-libzencash_a_CPPFLAGS := $(libzencash_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
+LIBZENCASH_A_CPPFLAGS := $(LIBZENCASH_A_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
 
-libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
+LIBZENCASH_A_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
 
-libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
+LIBZENCASH_A_LDFLAGS = $(HARDENED_LDFLAGS)
 
-libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
+LIBZENCASH_A_CPPFLAGS += -DMONTGOMERY_OUTPUT
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
