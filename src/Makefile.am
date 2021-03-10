@@ -307,7 +307,6 @@ libbitcoin_server_a_SOURCES = \
 LIBZENCASH_H = \
 
 if ENABLE_ZMQ
-LIBBITCOIN_ZMQ=libbitcoin_zmq.a
 
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
 libbitcoin_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -318,7 +317,7 @@ libbitcoin_zmq_a_SOURCES = \
 endif
 
 if ENABLE_PROTON
-LIBBITCOIN_PROTON=libbitcoin_proton.a
+
 
 libbitcoin_proton_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_proton_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
