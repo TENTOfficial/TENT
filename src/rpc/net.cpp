@@ -482,7 +482,7 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
     obj.pushKV("localservices",       strprintf("%016x", nLocalServices));
     obj.pushKV("timeoffset",    GetTimeOffset());
     obj.pushKV("connections",   (int)vNodes.size());
-    obj.pushKV("connections_tls", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;});)
+    obj.pushKV("connections_tls", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;}));
     obj.pushKV("tls_cert_verified", ValidateCertificate(tls_ctx_server));
     obj.pushKV("networks",      GetNetworksInfo());
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
