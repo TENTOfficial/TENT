@@ -37,7 +37,7 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
-libzcash=libzcash.a
+LIBZCASH=libzcash.a
 LIBZENCASH=libzencash.a
 
 
@@ -86,8 +86,8 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
-  $(libzcash) \
-  $(libzencash) 
+  $(LIBZCASH) \
+  $(LIBZENCASH) 
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -103,7 +103,7 @@ if BUILD_BITCOIN_UTILS
   bin_PROGRAMS += snowgem-cli snowgem-tx
 endif
 
-libzcash_H = \
+LIBZCASH_H = \
   zcash/IncrementalMerkleTree.hpp \
   zcash/NoteEncryption.hpp \
   zcash/Address.hpp \
@@ -307,7 +307,7 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H) \
+  $(LIBZCASH_H) \
   $(LIBZENCASH_H)
 
 if ENABLE_ZMQ
@@ -363,7 +363,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/wallet_ismine.cpp \
   wallet/walletdb.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 # crypto primitives library
 crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES)
@@ -431,7 +431,7 @@ libbitcoin_common_a_SOURCES = \
   sporkdb.cpp \
   transaction_builder.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
@@ -455,7 +455,7 @@ libbitcoin_util_a_SOURCES = \
   utilstrencodings.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
@@ -467,7 +467,7 @@ libbitcoin_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_cli_a_SOURCES = \
   rpc/client.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H)
+  $(LIBZCASH_H)
 
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
@@ -491,7 +491,7 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash) \
+  $(LIBZCASH) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
@@ -509,7 +509,7 @@ snowgemd_LDADD += \
   $(ZMQ_LIBS) \
   $(PROTON_LIBS) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZCASH_LIBS)
 
 # bitcoin-cli binary #
 snowgem_cli_SOURCES = bitcoin-cli.cpp
@@ -529,11 +529,11 @@ snowgem_cli_LDADD = \
   $(SSL_LIBS) \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
-  $(libzcash) \
+  $(LIBZCASH) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZENCASH_LIBS)
 #
 
 # snowgem-tx binary #
@@ -552,17 +552,17 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
-  $(libzcash) \
+  $(LIBZCASH) \
   $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
-  $(libzcash_LIBS)
+  $(LIBZCASH_LIBS)
 
 snowgem_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
 # snowgem protocol primitives #
-libzcash_a_SOURCES = \
+LIBZCASH_a_SOURCES = \
   zcash/IncrementalMerkleTree.cpp \
   zcash/NoteEncryption.cpp \
   zcash/Address.cpp \
@@ -579,13 +579,13 @@ libzcash_a_SOURCES = \
   zcash/circuit/prfs.tcc \
   zcash/circuit/utils.tcc
 
-libzcash_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS) -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
-libzcash_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libzcash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
+LIBZCASH_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS) -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
+LIBZCASH_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+LIBZCASH_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
 
-libzcash_a_LDFLAGS = $(AM_LDFLAGS)
+LIBZCASH_a_LDFLAGS = $(AM_LDFLAGS)
 
-libzcash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
+LIBZCASH_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 
 # snowgemconsensus library #
 if BUILD_BITCOIN_LIBS
@@ -619,21 +619,21 @@ endif
 #
 
 # zencash-specific sources #
-libzencash_a_SOURCES = \
+LIBZENCASH_a_SOURCES = \
     zen/utiltls.cpp\
     zen/tlsmanager.cpp
 
 
 if HAVE_OPENMP
-libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
+LIBZENCASH_a_CPPFLAGS = -DMULTICORE -fopenmp
 endif
-libzencash_a_CPPFLAGS := $(libzencash_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
+LIBZENCASH_a_CPPFLAGS := $(LIBZENCASH_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
 
-libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
+LIBZENCASH_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
 
-libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
+LIBZENCASH_a_LDFLAGS = $(HARDENED_LDFLAGS)
 
-libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
+LIBZENCASH_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
