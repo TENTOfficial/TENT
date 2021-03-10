@@ -304,8 +304,8 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H) \
-  $(LIBZENCASH_H)
+  $(libzcash_H)
+
 
 if ENABLE_ZMQ
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
