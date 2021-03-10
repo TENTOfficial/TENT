@@ -250,7 +250,7 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h
   
 # Zencash #
-LIBZENCASH = \  
+libzencash = \  
   zen/utiltls.h \
   zen/tlsmanager.h
 
