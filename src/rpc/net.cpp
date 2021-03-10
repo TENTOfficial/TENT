@@ -445,9 +445,8 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
             "  \"protocolversion\": xxxxx,              (numeric) the protocol version\n"
             "  \"localservices\": \"xxxxxxxxxxxxxxxx\", (string) the services we offer to the network\n"
             "  \"timeoffset\": xxxxx,                   (numeric) the time offset\n"
-            "  \"connections\": xxxxx,                  (numeric) the number of connections\n"
-            "  \"connections_TLS\": xxxxx,              (numeric) the number of TLS connections\n"
-            "  \"tls_cert_verified\": true|flase,       (boolean) true if the certificate of the current node is verified\n"
+            "  \"non_encrypted_connections\": xxxxx,    (numeric) the number of non encrypted connections\n"
+            "  \"encrypted_connections\": xxxxx,        (numeric) the number of encrypted connections\n"
             "  \"networks\": [                          (array) information per network\n"
             "  {\n"
             "    \"name\": \"xxx\",                     (string) network (ipv4, ipv6 or onion)\n"
@@ -481,9 +480,8 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
     obj.pushKV("protocolversion",PROTOCOL_VERSION);
     obj.pushKV("localservices",       strprintf("%016x", nLocalServices));
     obj.pushKV("timeoffset",    GetTimeOffset());
-    obj.pushKV("connections",   (int)vNodes.size());
-    obj.pushKV("connections_tls", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;}));
-    obj.pushKV("tls_cert_verified", ValidateCertificate(tls_ctx_server));
+    obj.pushKV("non_encrypted_connections",   count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl = NULL;}));
+    obj.pushKV("encrypted_connections", count_if(vNodes.begin(), vNodes.end(), [](CNode* n) {return n->ssl != NULL;}));
     obj.pushKV("networks",      GetNetworksInfo());
     obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
     UniValue localAddresses(UniValue::VARR);
