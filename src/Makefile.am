@@ -61,6 +61,7 @@ LIBSNARK_CONFIG_FLAGS = CURVE=ALT_BN128 NO_PROCPS=1 NO_DOCS=1 STATIC=1 NO_SUPERC
 if HAVE_OPENMP
 LIBSNARK_CONFIG_FLAGS += MULTICORE=1
 endif
+LIBSNARK_OPTFLAGS =-O2
 if TARGET_DARWIN
 LIBSNARK_CONFIG_FLAGS += PLATFORM=darwin
 endif
@@ -315,8 +316,6 @@ libbitcoin_zmq_a_SOURCES = \
 endif
 
 if ENABLE_PROTON
-
-
 libbitcoin_proton_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_proton_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_proton_a_SOURCES = \
@@ -630,6 +629,7 @@ libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
 libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
 
 libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
+
 
 
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
