@@ -251,9 +251,8 @@ BITCOIN_CORE_H = \
   
 # Zencash #
 LIBZENCASH = \  
-  zen/utiltls.h \
-  zen/forkmanager.h \
-  zen/replayprotectionlevel.h
+  zen/utiltls.h
+
 
 
 obj/build.h: FORCE
