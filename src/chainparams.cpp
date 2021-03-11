@@ -149,7 +149,7 @@ public:
         vSeeds.push_back(CDNSSeedData("dnsseed3.snowgem.org", "dnsseed3.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //TENT seed node
         vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //TENT seed node
-        vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //TENT seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //TENT seed nod
 
         // guarantees the first 2 characters, when base58 encoded, are "s1"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0x28};
