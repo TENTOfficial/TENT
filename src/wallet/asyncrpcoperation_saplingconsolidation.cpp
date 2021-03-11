@@ -191,13 +191,13 @@ bool AsyncRPCOperation_saplingconsolidation::main_impl() {
 
 void AsyncRPCOperation_saplingconsolidation::setConsolidationResult(int numTxCreated, const CAmount& amountConsolidated, const std::vector<std::string>& consolidationTxIds) {
     UniValue res(UniValue::VOBJ);
-    res.push_back(Pair("num_tx_created", numTxCreated));
-    res.push_back(Pair("amount_consolidated", FormatMoney(amountConsolidated)));
+    res.pushKV("num_tx_created", numTxCreated);
+    res.pushKV("amount_consolidated", FormatMoney(amountConsolidated));
     UniValue txIds(UniValue::VARR);
     for (const std::string& txId : consolidationTxIds) {
         txIds.push_back(txId);
     }
-    res.push_back(Pair("consolidation_txids", txIds));
+    res.pushKV("consolidation_txids", txIds);
     set_result(res);
 }
 
@@ -208,7 +208,7 @@ void AsyncRPCOperation_saplingconsolidation::cancel() {
 UniValue AsyncRPCOperation_saplingconsolidation::getStatus() const {
     UniValue v = AsyncRPCOperation::getStatus();
     UniValue obj = v.get_obj();
-    obj.push_back(Pair("method", "saplingconsolidation"));
-    obj.push_back(Pair("target_height", targetHeight_));
+    obj.pushKV("method", "saplingconsolidation");
+    obj.pushKV("target_height", targetHeight_);
     return obj;
 }

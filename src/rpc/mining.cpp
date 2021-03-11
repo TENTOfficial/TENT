@@ -367,20 +367,20 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     UniValue obj(UniValue::VOBJ);
-    obj.push_back(Pair("blocks",           (int)chainActive.Height()));
-    obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
-    obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
-    obj.push_back(Pair("difficulty",       (double)GetNetworkDifficulty()));
-    obj.push_back(Pair("errors",           GetWarnings("statusbar")));
-    obj.push_back(Pair("genproclimit",     (int)GetArg("-genproclimit", -1)));
-    obj.push_back(Pair("localsolps"  ,     getlocalsolps(params, false)));
-    obj.push_back(Pair("networksolps",     getnetworksolps(params, false)));
-    obj.push_back(Pair("networkhashps",    getnetworksolps(params, false)));
-    obj.push_back(Pair("pooledtx",         (uint64_t)mempool.size()));
-    obj.push_back(Pair("testnet",          Params().TestnetToBeDeprecatedFieldRPC()));
-    obj.push_back(Pair("chain",            Params().NetworkIDString()));
+    obj.pushKV("blocks",           (int)chainActive.Height());
+    obj.pushKV("currentblocksize", (uint64_t)nLastBlockSize);
+    obj.pushKV("currentblocktx",   (uint64_t)nLastBlockTx);
+    obj.pushKV("difficulty",       (double)GetNetworkDifficulty());
+    obj.pushKV("errors",           GetWarnings("statusbar"));
+    obj.pushKV("genproclimit",     (int)GetArg("-genproclimit", -1));
+    obj.pushKV("localsolps"  ,     getlocalsolps(params, false));
+    obj.pushKV("networksolps",     getnetworksolps(params, false));
+    obj.pushKV("networkhashps",    getnetworksolps(params, false));
+    obj.pushKV("pooledtx",         (uint64_t)mempool.size());
+    obj.pushKV("testnet",          Params().TestnetToBeDeprecatedFieldRPC());
+    obj.pushKV("chain",            Params().NetworkIDString());
 #ifdef ENABLE_MINING
-    obj.push_back(Pair("generate",         getgenerate(params, false)));
+    obj.pushKV("generate",         getgenerate(params, false));
 #endif
     return obj;
 }
@@ -446,7 +446,7 @@ UniValue getblockchainsyncstatus(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Snowgem is downloading blocks...");
     
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("IsBlockchainSync", true));
+    result.pushKV("IsBlockchainSync", true);
     return result;
 
 }
@@ -694,9 +694,9 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
 
         UniValue entry(UniValue::VOBJ);
 
-        entry.push_back(Pair("data", EncodeHexTx(tx)));
+        entry.pushKV("data", EncodeHexTx(tx));
 
-        entry.push_back(Pair("hash", txHash.GetHex()));
+        entry.pushKV("hash", txHash.GetHex());
 
         UniValue deps(UniValue::VARR);
         BOOST_FOREACH (const CTxIn &in, tx.vin)
@@ -704,19 +704,19 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             if (setTxIndex.count(in.prevout.hash))
                 deps.push_back(setTxIndex[in.prevout.hash]);
         }
-        entry.push_back(Pair("depends", deps));
+        entry.pushKV("depends", deps);
 
         int index_in_template = i - 1;
-        entry.push_back(Pair("fee", pblocktemplate->vTxFees[index_in_template]));
-        entry.push_back(Pair("sigops", pblocktemplate->vTxSigOps[index_in_template]));
+        entry.pushKV("fee", pblocktemplate->vTxFees[index_in_template]);
+        entry.pushKV("sigops", pblocktemplate->vTxSigOps[index_in_template]);
 
         if (tx.IsCoinBase()) {
             // Show founders' reward if it is required
             if (pblock->vtx[0].vout.size() > 1) {
                 // Correct this if GetBlockTemplate changes the order
-                entry.push_back(Pair("foundersreward", (int64_t)tx.vout[1].nValue));
+                entry.pushKV("foundersreward", (int64_t)tx.vout[1].nValue);
             }
-            entry.push_back(Pair("required", true));
+            entry.pushKV("required", true);
             txCoinbase = entry;
         } else {
             transactions.push_back(entry);
@@ -724,7 +724,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     }
 
     UniValue aux(UniValue::VOBJ);
-    aux.push_back(Pair("flags", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end())));
+    aux.pushKV("flags", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end()));
 
     arith_uint256 hashTarget = arith_uint256().SetCompact(pblock->nBits);
 
@@ -738,45 +738,45 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
 
     UniValue aVotes(UniValue::VARR);
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("capabilities", aCaps));
-    result.push_back(Pair("version", pblock->nVersion));
-    result.push_back(Pair("previousblockhash", pblock->hashPrevBlock.GetHex()));
-    result.push_back(Pair("finalsaplingroothash", pblock->hashFinalSaplingRoot.GetHex()));
-    result.push_back(Pair("transactions", transactions));
+    result.pushKV("capabilities", aCaps);
+    result.pushKV("version", pblock->nVersion);
+    result.pushKV("previousblockhash", pblock->hashPrevBlock.GetHex());
+    result.pushKV("finalsaplingroothash", pblock->hashFinalSaplingRoot.GetHex());
+    result.pushKV("transactions", transactions);
     if (coinbasetxn) {
         assert(txCoinbase.isObject());
-        result.push_back(Pair("coinbasetxn", txCoinbase));
+        result.pushKV("coinbasetxn", txCoinbase);
     } else {
-        result.push_back(Pair("coinbaseaux", aux));
-        result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0].vout[0].nValue));
+        result.pushKV("coinbaseaux", aux);
+        result.pushKV("coinbasevalue", (int64_t)pblock->vtx[0].vout[0].nValue);
     }
-    result.push_back(Pair("longpollid", chainActive.Tip()->GetBlockHash().GetHex() + i64tostr(nTransactionsUpdatedLast)));
-    result.push_back(Pair("target", hashTarget.GetHex()));
-    result.push_back(Pair("mintime", (int64_t)pindexPrev->GetMedianTimePast()+1));
-    result.push_back(Pair("mutable", aMutable));
-    result.push_back(Pair("noncerange", "00000000ffffffff"));
-    result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
-    result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0)));
-    result.push_back(Pair("curtime", pblock->GetBlockTime()));
-    result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
-    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight + 1)));
-    result.push_back(Pair("votes", aVotes));
+    result.pushKV("longpollid", chainActive.Tip()->GetBlockHash().GetHex() + i64tostr(nTransactionsUpdatedLast));
+    result.pushKV("target", hashTarget.GetHex());
+    result.pushKV("mintime", (int64_t)pindexPrev->GetMedianTimePast()+1);
+    result.pushKV("mutable", aMutable);
+    result.pushKV("noncerange", "00000000ffffffff");
+    result.pushKV("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS);
+    result.pushKV("sizelimit", (int64_t)MAX_BLOCK_SIZE(chainActive.Tip() ? chainActive.Tip()->nHeight+1 : 0));
+    result.pushKV("curtime", pblock->GetBlockTime());
+    result.pushKV("bits", strprintf("%08x", pblock->nBits));
+    result.pushKV("height", (int64_t)(pindexPrev->nHeight + 1));
+    result.pushKV("votes", aVotes);
 
 
     if(pblock->payee != CScript()){
         CTxDestination address1;
         ExtractDestination(pblock->payee, address1);
 
-        result.push_back(Pair("payee", EncodeDestination(address1)));
+        result.pushKV("payee", EncodeDestination(address1));
         CAmount val = pblock->vtx[0].vout[pblock->vtx[0].vout.size() - 1].nValue;
-        result.push_back(Pair("payee_amount", (int64_t)val));
+        result.pushKV("payee_amount", (int64_t)val);
     } else {
-        result.push_back(Pair("payee", ""));
-        result.push_back(Pair("payee_amount", ""));
+        result.pushKV("payee", "");
+        result.pushKV("payee_amount", "");
     }
 
-    result.push_back(Pair("masternode_payments", pblock->nTime > Params().StartMasternodePayments() ? "true" : "false"));
-    result.push_back(Pair("enforce_masternode_payments", true));
+    result.pushKV("masternode_payments", pblock->nTime > Params().StartMasternodePayments() ? "true" : "false");
+    result.pushKV("enforce_masternode_payments", true);
 
     int64_t nHeight = pindexPrev->nHeight + 1;
     CAmount nReward = GetBlockSubsidy(nHeight, Params().GetConsensus());
@@ -802,12 +802,12 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     {
         nTreasuryReward = nReward * 5 / 100;
     }
-    result.push_back(Pair("founderReward", (int64_t)nFoundersReward));
-    result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
+    result.pushKV("founderReward", (int64_t)nFoundersReward);
+    result.pushKV("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight));
     if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
     {
-        result.push_back(Pair("treasuryReward", (int64_t)nTreasuryReward));
-        result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+        result.pushKV("treasuryReward", (int64_t)nTreasuryReward);
+        result.pushKV("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight));
     }
     return result;
 }
@@ -1009,15 +1009,15 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
 
     nReward -= nFoundersReward;
     nReward -= nTreasuryReward;
-    result.push_back(Pair("miner", ValueFromAmount(nReward)));
-    result.push_back(Pair("founders", ValueFromAmount(nFoundersReward)));
-    result.push_back(Pair("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight)));
+    result.pushKV("miner", ValueFromAmount(nReward));
+    result.pushKV("founders", ValueFromAmount(nFoundersReward));
+    result.pushKV("founderAddress", Params().GetFoundersRewardAddressAtHeight(nHeight));
     if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
     {
-        result.push_back(Pair("treasury", ValueFromAmount(nTreasuryReward)));
-        result.push_back(Pair("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight)));
+        result.pushKV("treasury", ValueFromAmount(nTreasuryReward));
+        result.pushKV("treasuryAddress", Params().GetTreasuryRewardAddressAtHeight(nHeight));
     }
-    result.push_back(Pair("masternode", ValueFromAmount(nMasternodeReward)));
+    result.pushKV("masternode", ValueFromAmount(nMasternodeReward));
     return result;
 }
 
