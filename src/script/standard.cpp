@@ -9,6 +9,7 @@
 #include "script/script.h"
 #include "util.h"
 #include "utilstrencodings.h"
+#include "key_io.h"
 
 #include <boost/foreach.hpp>
 
@@ -268,6 +269,20 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     }
 
     return true;
+}
+
+bool IsTransparentAddress(const std::string& address)
+{
+    CTxDestination taddr = DecodeDestination(address);
+    return  IsValidDestination(taddr);
+}
+
+bool IsTransparentAddress(const CScript& scriptPubKey)
+{
+    CTxDestination taddr;
+    if (!ExtractDestination(scriptPubKey, taddr))
+            return false;
+    return IsValidDestination(taddr);
 }
 
 namespace
