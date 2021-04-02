@@ -88,6 +88,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 1 * 60; // 1 min
+        consensus.nTimeshiftPriv = 7 * 24 * 60; // 7 days
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = boost::none;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170006;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =
@@ -278,6 +279,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 1 * 60;
+        consensus.nTimeshiftPriv = 1 * 60; // 1 hour in testnet
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = 13000;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170006;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =
@@ -412,6 +414,7 @@ public:
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
         consensus.nPowTargetSpacing = 1 * 60;
+        consensus.nTimeshiftPriv = 1 * 60; // 1 hour
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = 0;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170002;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =

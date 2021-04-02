@@ -907,6 +907,7 @@ bool ContextualCheckTransaction(
 {
     bool overwinterActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER);
     bool saplingActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING);
+    bool atlantisActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS);
     bool isSprout = !overwinterActive;
 
     // If Sprout rules apply, reject transactions which are intended for Overwinter and beyond
@@ -959,6 +960,22 @@ bool ContextualCheckTransaction(
         if (tx.fOverwintered && tx.nVersion > OVERWINTER_MAX_TX_VERSION ) {
             return state.DoS(100, error("CheckTransaction(): overwinter version too high"),
                 REJECT_INVALID, "bad-tx-overwinter-version-too-high");
+        }
+    } else if (atlantisActive) {
+        bool atlantisAllowVoutPriv = !NetworkUpgradeActive(nHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS);
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            if (!atlantisAllowVoutPriv && !IsTransparentAddress(txin.prevPubKey)) {
+                return state.DoS(100, error("CheckTransaction(): sending from private address is disallowed"),
+                                    REJECT_INVALID, "bad-txns-sending-from-private-address");
+            }
+        }
+        BOOST_FOREACH(const CTxOut& txout, tx.vout)
+        {
+            if (!IsTransparentAddress(txout.scriptPubKey)) {
+                return state.DoS(100, error("CheckTransaction(): sending to private address is disallowed"),
+                                    REJECT_INVALID, "bad-txns-sending-to-private-address");
+            }
         }
     }
 

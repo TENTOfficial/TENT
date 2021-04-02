@@ -3659,12 +3659,17 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     // Check that the from address is valid.
+    int nextBlockHeight = chainActive.Height() + 1;
     auto fromaddress = params[0].get_str();
     bool fromTaddr = false;
     bool fromSapling = false;
     CTxDestination taddr = DecodeDestination(fromaddress);
     fromTaddr = IsValidDestination(taddr);
     if (!fromTaddr) {
+        if (NetworkUpgradeActive(nextBlockHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+            throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send from private address is not allowed") + fromaddress);
+        }
+
         auto res = DecodePaymentAddress(fromaddress);
         if (!IsValidPaymentAddress(res)) {
             // invalid
@@ -3716,6 +3721,10 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
         bool isZaddr = false;
         CTxDestination taddr = DecodeDestination(address);
         if (!IsValidDestination(taddr)) {
+            if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+                throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send to private address is not allowed") + fromaddress);
+            }
+
             auto res = DecodePaymentAddress(address);
             if (IsValidPaymentAddress(res)) {
                 isZaddr = true;
@@ -3925,6 +3934,11 @@ When estimating the number of coinbase utxos we can shield in a single transacti
 
 UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
 {
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_shieldcoinbase is deprecated"));
+    }
+    
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -3996,7 +4010,6 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
         }
     }
 
-    int nextBlockHeight = chainActive.Height() + 1;
     bool overwinterActive = NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER);
     unsigned int max_tx_size = MAX_TX_SIZE_AFTER_SAPLING;
     if (!NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
@@ -4147,6 +4160,11 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
 
 UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
 {
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_mergetoaddress is deprecated"));
+    }
+
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -4269,7 +4287,6 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot specify specific zaddrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
     }
 
-    const int nextBlockHeight = chainActive.Height() + 1;
     const bool overwinterActive = NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER);
     const bool saplingActive = NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING);
 
