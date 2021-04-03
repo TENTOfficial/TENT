@@ -221,6 +221,31 @@ public:
             "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
         };
 
+        // Founders reward script expects a vector of 2-of-3 multisig addresses
+        // For our partner
+        vFoundersRewardAddress2 = {
+            "s3d27MhkBRt3ha2UuxhjXaYF4DCnttTMnL1", /* main-index: 0*/
+            "s3Wws6Mx3GHJkAe8QkNr4jhW28WU21Fp9gL", /* main-index: 1*/
+            "s3QD18CKEA9Cw4kgnssnmk4rbf9Y3rU1uWG", /* main-index: 2*/
+            "s3esoTmHdcXdDwCkoGSxC4YkfzBo1ySuher", /* main-index: 3*/
+            "s3Q8NwoBv4aq9RRvqjT3LqN9TQnZrS2RdcV", /* main-index: 4*/
+            "s3ix12RLstrzFEJKVsbLxCsPuUSjAqs3Bqp", /* main-index: 5*/
+            "s3bCvm5zDv9KYFwHxaZjz2eKecEnbdFz98f", /* main-index: 6*/
+            "s3UfvUuHahzTmYViL3KrGZeUPug69denBm3", /* main-index: 7*/
+            "s3gmzNUmttwDJbUcpmW4gxVqHf3J58fDKpp", /* main-index: 8*/
+            "s3YuWMW4Kpij7gW91WHLhjfi5Dwc7dKyPNn", /* main-index: 9*/
+            "s3k2MaTdZyFBqyndrHdCDFnET5atCdC4iod", /* main-index: 10*/
+            "s3YFHxL9euG89LMgPT5wGka4Ek8XVyw4FWG", /* main-index: 11*/
+            "s3TKKkNnvBXphdv4ce84UKePdssWLHGBe1A", /* main-index: 12*/
+            "s3PLrY7e7jzzAxnMY7A6GkjhkGc1CVkuEoi", /* main-index: 13*/
+            "s3Ug8VAGcUijwD6QMhyFcCYXQEFABaA9VFy", /* main-index: 14*/
+            "s3b4DAbbrTb4FPz3mHeyE89fUq6Liqg5vxX", /* main-index: 15*/
+            "s3cM379BTJyCe5yJC4jkPn6qJwpZaHK2kXb", /* main-index: 16*/
+            "s3TKWLar6bZEHppF4ZR1MbPuBfe33a1bHX9", /* main-index: 17*/
+            "s3UpY6Q3T3v3F7MEpNDnV3rTucLEJkkHR4q", /* main-index: 18*/
+            "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
+        };
+
         //@TODO - txid update wallet list
         // Treasury reward script expects a vector of 2-of-3 multisig addresses
         vTreasuryRewardAddress = {
@@ -381,6 +406,10 @@ public:
             "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
         };
 
+        vFoundersRewardAddress2 = {
+            "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
+        };
+
         vTreasuryRewardAddress = {
             "t2Vck95daFLBrvcgfxCT43uBsicECsn6wqe"
         };
@@ -488,6 +517,7 @@ public:
 
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
+        vFoundersRewardAddress2 = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
         vTreasuryRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
@@ -564,7 +594,15 @@ std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
 
     size_t addressChangeInterval = (maxHeight + vFoundersRewardAddress.size()) / vFoundersRewardAddress.size();
     size_t i = (nHeight / addressChangeInterval) % vFoundersRewardAddress.size();
-    return vFoundersRewardAddress[i];
+    if(!NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
+    {
+        return vFoundersRewardAddress[i];
+    }
+    else
+    {
+        return nHeight % 2 == 0 ? vFoundersRewardAddress[i] : vFoundersRewardAddress2[i];
+    }
+    
 }
 
 // Block height must be >0 and <=last founders reward block height

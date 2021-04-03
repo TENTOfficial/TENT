@@ -3786,7 +3786,6 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
         nTotalOut += nAmount;
     }
 
-    int nextBlockHeight = chainActive.Height() + 1;
     CMutableTransaction mtx;
     mtx.fOverwintered = true;
     mtx.nVersionGroupId = SAPLING_VERSION_GROUP_ID;

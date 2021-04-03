@@ -4374,9 +4374,19 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
         BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
             if (output.scriptPubKey == Params().GetTreasuryRewardScriptAtHeight(nHeight)) {
-                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 5 / 100)) {
-                    found = true;
-                    break;
+                if(!NetworkUpgradeActive(nHeight, consensusParams, Consensus::UPGRADE_ATLANTIS))
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 5 / 100)) {
+                        found = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 10 / 100)) {
+                        found = true;
+                        break;
+                    }
                 }
             }
         }

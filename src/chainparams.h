@@ -175,6 +175,7 @@ protected:
     int64_t nBudget_Fee_Confirmations;
     CCheckpointData checkpointData;
     std::vector<std::string> vFoundersRewardAddress;
+    std::vector<std::string> vFoundersRewardAddress2;
     std::vector<std::string> vTreasuryRewardAddress;
     int newTimeRule;
     int masternodeProtectionBlock;
