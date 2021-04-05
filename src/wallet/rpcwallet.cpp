@@ -3146,6 +3146,11 @@ UniValue z_getnewaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_getnewaddress is deprecated"));
+    }
+
     std::string defaultType = ADDR_TYPE_SAPLING;
 
     if (fHelp || params.size() > 1)
