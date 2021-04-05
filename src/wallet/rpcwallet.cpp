@@ -3146,11 +3146,6 @@ UniValue z_getnewaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    int nextBlockHeight = chainActive.Height() + 1;
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_getnewaddress is deprecated"));
-    }
-
     std::string defaultType = ADDR_TYPE_SAPLING;
 
     if (fHelp || params.size() > 1)
@@ -3170,6 +3165,11 @@ UniValue z_getnewaddress(const UniValue& params, bool fHelp)
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_getnewaddress is deprecated"));
+    }
 
     EnsureWalletIsUnlocked();
 
@@ -3671,9 +3671,9 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
     CTxDestination taddr = DecodeDestination(fromaddress);
     fromTaddr = IsValidDestination(taddr);
     if (!fromTaddr) {
-        if (NetworkUpgradeActive(nextBlockHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-            throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send from private address is not allowed") + fromaddress);
-        }
+        // if (NetworkUpgradeActive(nextBlockHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        //     throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send from private address is not allowed ") + fromaddress);
+        // }
 
         auto res = DecodePaymentAddress(fromaddress);
         if (!IsValidPaymentAddress(res)) {
@@ -3726,9 +3726,9 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
         bool isZaddr = false;
         CTxDestination taddr = DecodeDestination(address);
         if (!IsValidDestination(taddr)) {
-            if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-                throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send to private address is not allowed") + fromaddress);
-            }
+            // if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+            //     throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send to private address is not allowed ") + fromaddress);
+            // }
 
             auto res = DecodePaymentAddress(address);
             if (IsValidPaymentAddress(res)) {
@@ -3937,12 +3937,7 @@ When estimating the number of coinbase utxos we can shield in a single transacti
 #define SHIELD_COINBASE_DEFAULT_LIMIT 50
 
 UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
-{
-    int nextBlockHeight = chainActive.Height() + 1;
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_shieldcoinbase is deprecated"));
-    }
-    
+{  
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -3978,6 +3973,11 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_shieldcoinbase is deprecated"));
+    }
 
     // Validate the from address
     auto fromaddress = params[0].get_str();
@@ -4164,11 +4164,6 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
 
 UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
 {
-    int nextBlockHeight = chainActive.Height() + 1;
-    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_mergetoaddress is deprecated"));
-    }
-
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -4239,6 +4234,11 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
+    int nextBlockHeight = chainActive.Height() + 1;
+    if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+        throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_mergetoaddress is deprecated"));
+    }
+    
     bool useAnyUTXO = false;
     bool useAnySprout = false;
     bool useAnySapling = false;
