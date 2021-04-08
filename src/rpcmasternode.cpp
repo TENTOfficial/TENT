@@ -122,10 +122,10 @@ UniValue getpoolinfo(const UniValue& params, bool fHelp)
             HelpExampleCli("getpoolinfo", "") + HelpExampleRpc("getpoolinfo", ""));
 
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("current_masternode", mnodeman.GetCurrentMasterNode()->addr.ToString());
-    obj.pushKV("state", obfuScationPool.GetState());
-    obj.pushKV("entries", obfuScationPool.GetEntriesCount());
-    obj.pushKV("entries_accepted", obfuScationPool.GetCountEntriesAccepted());
+    obj.push_back(Pair("current_masternode", mnodeman.GetCurrentMasterNode()->addr.ToString()));
+    obj.push_back(Pair("state", obfuScationPool.GetState()));
+    obj.push_back(Pair("entries", obfuScationPool.GetEntriesCount()));
+    obj.push_back(Pair("entries_accepted", obfuScationPool.GetCountEntriesAccepted()));
     return obj;
 }
 
@@ -322,17 +322,17 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
             CNetAddr node = CNetAddr(strHost, false);
             std::string strNetwork = GetNetworkName(node.GetNetwork());
 
-            obj.pushKV("rank", (strStatus == "ENABLED" ? s.first : 0));
-            obj.pushKV("network", strNetwork);
-            obj.pushKV("ip", strHost);
-            obj.pushKV("txhash", strTxHash);
-            obj.pushKV("outidx", (uint64_t)oIdx);
-            obj.pushKV("status", strStatus);
-            obj.pushKV("addr", EncodeDestination(mn->pubKeyCollateralAddress.GetID()));
-            obj.pushKV("version", mn->protocolVersion);
-            obj.pushKV("lastseen", (int64_t)mn->lastPing.sigTime);
-            obj.pushKV("activetime", (int64_t)(mn->lastPing.sigTime - mn->sigTime));
-            obj.pushKV("lastpaid", (int64_t)mn->GetLastPaid());
+            obj.push_back(Pair("rank", (strStatus == "ENABLED" ? s.first : 0)));
+            obj.push_back(Pair("network", strNetwork));
+            obj.push_back(Pair("ip", strHost));
+            obj.push_back(Pair("txhash", strTxHash));
+            obj.push_back(Pair("outidx", (uint64_t)oIdx));
+            obj.push_back(Pair("status", strStatus));
+            obj.push_back(Pair("addr", EncodeDestination(mn->pubKeyCollateralAddress.GetID())));
+            obj.push_back(Pair("version", mn->protocolVersion));
+            obj.push_back(Pair("lastseen", (int64_t)mn->lastPing.sigTime));
+            obj.push_back(Pair("activetime", (int64_t)(mn->lastPing.sigTime - mn->sigTime)));
+            obj.push_back(Pair("lastpaid", (int64_t)mn->GetLastPaid()));
 
             ret.push_back(obj);
         }
@@ -357,7 +357,7 @@ UniValue startalias(const UniValue& params, bool fHelp)
     {
         UniValue obj(UniValue::VOBJ);
         std::string error = "Syncing masternodes list, please wait. Current status: " + masternodeSync.GetSyncStatus();
-        obj.pushKV("result", error);
+        obj.push_back(Pair("result", error));
         return obj;
     }
 
@@ -379,7 +379,7 @@ UniValue startalias(const UniValue& params, bool fHelp)
     }
     if (fSuccess) {
         UniValue obj(UniValue::VOBJ);
-        obj.pushKV("result", "Successfully started alias");
+        obj.push_back(Pair("result", "Successfully started alias"));
         return obj;
     } else {
         throw runtime_error("Failed to start alias\n");
@@ -439,14 +439,14 @@ UniValue getmasternodecount (const UniValue& params, bool fHelp)
 
     mnodeman.CountNetworks(ActiveProtocol(), ipv4, ipv6, onion);
 
-    obj.pushKV("total", mnodeman.size());
-    obj.pushKV("stable", mnodeman.stable_size());
-    obj.pushKV("obfcompat", mnodeman.CountEnabled(ActiveProtocol()));
-    obj.pushKV("enabled", mnodeman.CountEnabled());
-    obj.pushKV("inqueue", nCount);
-    obj.pushKV("ipv4", ipv4);
-    obj.pushKV("ipv6", ipv6);
-    obj.pushKV("onion", onion);
+    obj.push_back(Pair("total", mnodeman.size()));
+    obj.push_back(Pair("stable", mnodeman.stable_size()));
+    obj.push_back(Pair("obfcompat", mnodeman.CountEnabled(ActiveProtocol())));
+    obj.push_back(Pair("enabled", mnodeman.CountEnabled()));
+    obj.push_back(Pair("inqueue", nCount));
+    obj.push_back(Pair("ipv4", ipv4));
+    obj.push_back(Pair("ipv6", ipv6));
+    obj.push_back(Pair("onion", onion));
 
     return obj;
 }
@@ -473,11 +473,11 @@ UniValue masternodecurrent (const UniValue& params, bool fHelp)
     if (winner) {
         UniValue obj(UniValue::VOBJ);
 
-        obj.pushKV("protocol", (int64_t)winner->protocolVersion);
-        obj.pushKV("txhash", winner->vin.prevout.hash.ToString());
-        obj.pushKV("pubkey", EncodeDestination(winner->pubKeyCollateralAddress.GetID()));
-        obj.pushKV("lastseen", (winner->lastPing == CMasternodePing()) ? winner->sigTime : (int64_t)winner->lastPing.sigTime);
-        obj.pushKV("activeseconds", (winner->lastPing == CMasternodePing()) ? 0 : (int64_t)(winner->lastPing.sigTime - winner->sigTime));
+        obj.push_back(Pair("protocol", (int64_t)winner->protocolVersion));
+        obj.push_back(Pair("txhash", winner->vin.prevout.hash.ToString()));
+        obj.push_back(Pair("pubkey", EncodeDestination(winner->pubKeyCollateralAddress.GetID())));
+        obj.push_back(Pair("lastseen", (winner->lastPing == CMasternodePing()) ? winner->sigTime : (int64_t)winner->lastPing.sigTime));
+        obj.push_back(Pair("activeseconds", (winner->lastPing == CMasternodePing()) ? 0 : (int64_t)(winner->lastPing.sigTime - winner->sigTime)));
         return obj;
     }
 
@@ -560,20 +560,20 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
         int failed = 0;
         BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
             UniValue statusObj(UniValue::VOBJ);
-            statusObj.pushKV("alias", mne.getAlias());
-            statusObj.pushKV("result", "failed");
+            statusObj.push_back(Pair("alias", mne.getAlias()));
+            statusObj.push_back(Pair("result", "failed"));
 
             failed++;
             {
                 std::string error = "Syncing masternodes list, please wait. Current status: " + masternodeSync.GetSyncStatus();
-                statusObj.pushKV("error", error);
+                statusObj.push_back(Pair("error", error));
             }
             resultsObj.push_back(statusObj);
         }
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.pushKV("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed));
-        returnObj.pushKV("detail", resultsObj);
+        returnObj.push_back(Pair("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed)));
+        returnObj.push_back(Pair("detail", resultsObj));
 
         return returnObj;
     }
@@ -630,15 +630,15 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), errorMessage);
 
             UniValue statusObj(UniValue::VOBJ);
-            statusObj.pushKV("alias", mne.getAlias());
-            statusObj.pushKV("result", result ? "success" : "failed");
+            statusObj.push_back(Pair("alias", mne.getAlias()));
+            statusObj.push_back(Pair("result", result ? "success" : "failed"));
 
             if (result) {
                 successful++;
-                statusObj.pushKV("error", "");
+                statusObj.push_back(Pair("error", ""));
             } else {
                 failed++;
-                statusObj.pushKV("error", errorMessage);
+                statusObj.push_back(Pair("error", errorMessage));
             }
 
             resultsObj.push_back(statusObj);
@@ -647,8 +647,8 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             pwalletMain->Lock();
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.pushKV("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed));
-        returnObj.pushKV("detail", resultsObj);
+        returnObj.push_back(Pair("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed)));
+        returnObj.push_back(Pair("detail", resultsObj));
 
         return returnObj;
     }
@@ -665,7 +665,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
         UniValue resultsObj(UniValue::VARR);
         UniValue statusObj(UniValue::VOBJ);
-        statusObj.pushKV("alias", alias);
+        statusObj.push_back(Pair("alias", alias));
 
         BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
             if (mne.getAlias() == alias) {
@@ -674,14 +674,14 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
                 bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), errorMessage);
 
-                statusObj.pushKV("result", result ? "successful" : "failed");
+                statusObj.push_back(Pair("result", result ? "successful" : "failed"));
 
                 if (result) {
                     successful++;
-                    statusObj.pushKV("error", "");
+                    statusObj.push_back(Pair("error", ""));
                 } else {
                     failed++;
-                    statusObj.pushKV("error", errorMessage);
+                    statusObj.push_back(Pair("error", errorMessage));
                 }
                 break;
             }
@@ -689,8 +689,8 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
         if (!found) {
             failed++;
-            statusObj.pushKV("result", "failed");
-            statusObj.pushKV("error", "could not find alias in config. Verify with list-conf.");
+            statusObj.push_back(Pair("result", "failed"));
+            statusObj.push_back(Pair("error", "could not find alias in config. Verify with list-conf."));
         }
 
         resultsObj.push_back(statusObj);
@@ -699,8 +699,8 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             pwalletMain->Lock();
 
         UniValue returnObj(UniValue::VOBJ);
-        returnObj.pushKV("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed));
-        returnObj.pushKV("detail", resultsObj);
+        returnObj.push_back(Pair("overall", strprintf("Successfully started %d masternodes, failed to start %d, total %d", successful, failed, successful + failed)));
+        returnObj.push_back(Pair("detail", resultsObj));
 
         return returnObj;
     }
@@ -750,8 +750,8 @@ UniValue getmasternodeoutputs (const UniValue& params, bool fHelp)
     UniValue ret(UniValue::VARR);
     BOOST_FOREACH (COutput& out, possibleCoins) {
         UniValue obj(UniValue::VOBJ);
-        obj.pushKV("txhash", out.tx->GetHash().ToString());
-        obj.pushKV("outputidx", out.i);
+        obj.push_back(Pair("txhash", out.tx->GetHash().ToString()));
+        obj.push_back(Pair("outputidx", out.i));
         ret.push_back(obj);
     }
 
@@ -808,12 +808,12 @@ UniValue listmasternodeconf (const UniValue& params, bool fHelp)
             strStatus.find(strFilter) == string::npos) continue;
 
         UniValue mnObj(UniValue::VARR);
-        mnObj.pushKV("alias", mne.getAlias());
-        mnObj.pushKV("address", mne.getIp());
-        mnObj.pushKV("privateKey", mne.getPrivKey());
-        mnObj.pushKV("txHash", mne.getTxHash());
-        mnObj.pushKV("outputIndex", mne.getOutputIndex());
-        mnObj.pushKV("status", strStatus);
+        mnObj.push_back(Pair("alias", mne.getAlias()));
+        mnObj.push_back(Pair("address", mne.getIp()));
+        mnObj.push_back(Pair("privateKey", mne.getPrivKey()));
+        mnObj.push_back(Pair("txHash", mne.getTxHash()));
+        mnObj.push_back(Pair("outputIndex", mne.getOutputIndex()));
+        mnObj.push_back(Pair("status", strStatus));
         ret.push_back(mnObj);
     }
 
@@ -846,12 +846,12 @@ UniValue getmasternodestatus (const UniValue& params, bool fHelp)
 
     if (pmn) {
         UniValue mnObj(UniValue::VARR);
-        mnObj.pushKV("txhash", activeMasternode.vin.prevout.hash.ToString());
-        mnObj.pushKV("outputidx", (uint64_t)activeMasternode.vin.prevout.n);
-        mnObj.pushKV("netaddr", activeMasternode.service.ToString());
-        mnObj.pushKV("addr", EncodeDestination(pmn->pubKeyCollateralAddress.GetID()));
-        mnObj.pushKV("status", activeMasternode.status);
-        mnObj.pushKV("message", activeMasternode.GetStatus());
+        mnObj.push_back(Pair("txhash", activeMasternode.vin.prevout.hash.ToString()));
+        mnObj.push_back(Pair("outputidx", (uint64_t)activeMasternode.vin.prevout.n));
+        mnObj.push_back(Pair("netaddr", activeMasternode.service.ToString()));
+        mnObj.push_back(Pair("addr", EncodeDestination(pmn->pubKeyCollateralAddress.GetID())));
+        mnObj.push_back(Pair("status", activeMasternode.status));
+        mnObj.push_back(Pair("message", activeMasternode.GetStatus()));
         return mnObj;
     }
     throw runtime_error("Masternode not found in the list of available masternodes. Current status: "
@@ -919,7 +919,7 @@ UniValue getmasternodewinners (const UniValue& params, bool fHelp)
 
     for (int i = nHeight - nLast; i < nHeight + 20; i++) {
         UniValue obj(UniValue::VOBJ);
-        obj.pushKV("nHeight", i);
+        obj.push_back(Pair("nHeight", i));
 
         std::string strPayment = GetRequiredPaymentsString(i);
         if (strFilter != "" && strPayment.find(strFilter) == std::string::npos) continue;
@@ -934,24 +934,24 @@ UniValue getmasternodewinners (const UniValue& params, bool fHelp)
                 std::string strAddress = t.substr(0,pos);
                 uint64_t nVotes = atoi(t.substr(pos+1));
                 strAddress.erase(std::remove_if(strAddress.begin(), strAddress.end(), ::isspace), strAddress.end());
-                addr.pushKV("address", strAddress);
-                addr.pushKV("nVotes", nVotes);
+                addr.push_back(Pair("address", strAddress));
+                addr.push_back(Pair("nVotes", nVotes));
                 winner.push_back(addr);
             }
-            obj.pushKV("winner", winner);
+            obj.push_back(Pair("winner", winner));
         } else if (strPayment.find("Unknown") == std::string::npos) {
             UniValue winner(UniValue::VOBJ);
             std::size_t pos = strPayment.find(":");
             std::string strAddress = strPayment.substr(0,pos);
             uint64_t nVotes = atoi(strPayment.substr(pos+1));
-            winner.pushKV("address", strAddress);
-            winner.pushKV("nVotes", nVotes);
-            obj.pushKV("winner", winner);
+            winner.push_back(Pair("address", strAddress));
+            winner.push_back(Pair("nVotes", nVotes));
+            obj.push_back(Pair("winner", winner));
         } else {
             UniValue winner(UniValue::VOBJ);
-            winner.pushKV("address", strPayment);
-            winner.pushKV("nVotes", 0);
-            obj.pushKV("winner", winner);
+            winner.push_back(Pair("address", strPayment));
+            winner.push_back(Pair("nVotes", 0));
+            obj.push_back(Pair("winner", winner));
         }
 
             ret.push_back(obj);
@@ -1008,7 +1008,7 @@ UniValue getmasternodescores (const UniValue& params, bool fHelp)
             }
         }
         if (pBestMasternode)
-            obj.pushKV(strprintf("%d", height), pBestMasternode->vin.prevout.hash.ToString().c_str());
+            obj.push_back(Pair(strprintf("%d", height), pBestMasternode->vin.prevout.hash.ToString().c_str()));
     }
 
     return obj;

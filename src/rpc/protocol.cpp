@@ -29,9 +29,9 @@ using namespace std;
 string JSONRPCRequest(const string& strMethod, const UniValue& params, const UniValue& id)
 {
     UniValue request(UniValue::VOBJ);
-    request.pushKV("method", strMethod);
-    request.pushKV("params", params);
-    request.pushKV("id", id);
+    request.push_back(Pair("method", strMethod));
+    request.push_back(Pair("params", params));
+    request.push_back(Pair("id", id));
     return request.write() + "\n";
 }
 
@@ -39,11 +39,11 @@ UniValue JSONRPCReplyObj(const UniValue& result, const UniValue& error, const Un
 {
     UniValue reply(UniValue::VOBJ);
     if (!error.isNull())
-        reply.pushKV("result", NullUniValue);
+        reply.push_back(Pair("result", NullUniValue));
     else
-        reply.pushKV("result", result);
-    reply.pushKV("error", error);
-    reply.pushKV("id", id);
+        reply.push_back(Pair("result", result));
+    reply.push_back(Pair("error", error));
+    reply.push_back(Pair("id", id));
     return reply;
 }
 
@@ -56,8 +56,8 @@ string JSONRPCReply(const UniValue& result, const UniValue& error, const UniValu
 UniValue JSONRPCError(int code, const string& message)
 {
     UniValue error(UniValue::VOBJ);
-    error.pushKV("code", code);
-    error.pushKV("message", message);
+    error.push_back(Pair("code", code));
+    error.push_back(Pair("message", message));
     return error;
 }
 

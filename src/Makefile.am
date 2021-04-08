@@ -37,8 +37,6 @@ LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
 LIBUNIVALUE=univalue/libunivalue.la
 libzcash=libzcash.a
-LIBZENCASH=libzencash.a
-
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
 endif
@@ -84,8 +82,7 @@ EXTRA_LIBRARIES += \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_ZMQ) \
   $(LIBBITCOIN_PROTON) \
-  $(libzcash) \
-  $(LIBZENCASH)
+  $(libzcash)
 
 lib_LTLIBRARIES = $(LIBZCASH_CONSENSUS)
 
@@ -247,8 +244,6 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
 
-LIBZENCASH_H = \
-    tent/utiltls.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -301,8 +296,7 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   $(BITCOIN_CORE_H) \
-  $(libzcash_H) \
-  $(LIBZENCASH_H)
+  $(libzcash_H)
 
 if ENABLE_ZMQ
 libbitcoin_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
@@ -486,7 +480,6 @@ snowgemd_LDADD = \
   $(LIBBITCOIN_PROTON) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
@@ -524,7 +517,6 @@ snowgem_cli_LDADD = \
   $(CRYPTO_LIBS) \
   $(EVENT_LIBS) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
@@ -547,7 +539,6 @@ snowgem_tx_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBSECP256K1) \
   $(libzcash) \
-  $(LIBZENCASH) \
   $(LIBSNARK) \
   $(LIBBITCOIN_CRYPTO) \
   $(libzcash_LIBS)
@@ -612,20 +603,6 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 #
 
-# zencash-specific sources #
-libzencash_a_SOURCES = \
-    tent/utiltls.cpp\
-    tent/tlsmanager.cpp
-if HAVE_OPENMP
-libzencash_a_CPPFLAGS = -DMULTICORE -fopenmp
-endif
-libzencash_a_CPPFLAGS := $(libzencash_a_CPPFLAGS) -fPIC -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS $(HARDENED_CPPFLAGS) -pipe -O1 -g  -Wstack-protector -fstack-protector-all -fPIE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
-
-libzencash_a_CXXFLAGS = $(HARDENED_CXXFLAGS) -fwrapv -fno-strict-aliasing
-
-libzencash_a_LDFLAGS = $(HARDENED_LDFLAGS)
-
-libzencash_a_CPPFLAGS += -DMONTGOMERY_OUTPUT
 CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a *.gcda *.gcno */*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h

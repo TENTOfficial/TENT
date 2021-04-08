@@ -57,9 +57,8 @@ On Ubuntu 20.04:
 ```
 $ sudo apt-get install \
       build-essential pkg-config libc6-dev m4 g++-multilib \
-      autoconf libtool libncurses-dev ncurses-dev unzip git \
-      python-is-python2 python3-zmq zlib1g-dev wget bsdmainutils \
-      automake curl libgconf-2-4
+      autoconf libtool libncurses-dev unzip git python-is-python2 python3-zmq \ 
+	zlib1g-dev wget bsdmainutils automake curl libgconf-2-4
 ```
 
 On Fedora-based systems:
