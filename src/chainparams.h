@@ -133,6 +133,7 @@ public:
 
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    bool GetCoinbaseProtected(int height) const;
     int GetNewTimeRule() const { return newTimeRule; }
     int GetMasternodeProtectionBlock() const { return masternodeProtectionBlock; }
     int GetMasternodeCollateral() const { return masternodeCollateral; }
@@ -174,6 +175,7 @@ protected:
     int64_t nBudget_Fee_Confirmations;
     CCheckpointData checkpointData;
     std::vector<std::string> vFoundersRewardAddress;
+    std::vector<std::string> vFoundersRewardAddress2;
     std::vector<std::string> vTreasuryRewardAddress;
     int newTimeRule;
     int masternodeProtectionBlock;

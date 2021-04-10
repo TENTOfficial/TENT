@@ -551,9 +551,14 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees)
 
     if ((pindexPrev->nHeight + 1 > 0) && (pindexPrev->nHeight + 1 <= Params().GetConsensus().GetLastTreasuryRewardBlockHeight())) {
         CAmount vTreasuryReward = 0;
-        if(pindexPrev->nHeight + 1 >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+        if(pindexPrev->nHeight + 1 >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight && 
+            !NetworkUpgradeActive(pindexPrev->nHeight + 1, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
         {
             vTreasuryReward = txNew.vout[0].nValue * 5 / 100;
+        }
+        else
+        {
+            vTreasuryReward = txNew.vout[0].nValue * 10 / 100;
         }
 
         // Take some reward away from us
