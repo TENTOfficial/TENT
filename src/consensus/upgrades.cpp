@@ -48,6 +48,11 @@ const struct NUInfo NetworkUpgradeInfo[Consensus::MAX_NETWORK_UPGRADES] = {
         /*.nBranchId =*/ 0x76b809bb,
         /*.strName =*/ "Wakanda",
         /*.strInfo =*/ "Update new block consensus",
+    },
+    {
+        /*.nBranchId =*/ 0x76b809bb,
+        /*.strName =*/ "Atlantis",
+        /*.strInfo =*/ "Dropping private transactions",
     }
 };
 

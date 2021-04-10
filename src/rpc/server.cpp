@@ -279,6 +279,7 @@ static const CRPCCommand vRPCCommands[] =
     {"snowgem",             "getmasternodestatus",      &getmasternodestatus, true},
     {"snowgem",             "getmasternodewinners",     &getmasternodewinners, true},
     {"snowgem",             "getmasternodescores",      &getmasternodescores, true},
+    {"snowgem",             "getfreyjainfo",            &getfreyjainfo, true},
     {"snowgem",             "mnbudget",                 &mnbudget, true},
     {"snowgem",             "preparebudget",            &preparebudget, true},
     {"snowgem",             "submitbudget",             &submitbudget, true},

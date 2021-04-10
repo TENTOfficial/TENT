@@ -4887,9 +4887,10 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 bool fNeedCoinbaseCoins = false;
                 if (!SelectCoins(nTotalValue, setCoins, nValueIn, fOnlyCoinbaseCoins, fNeedCoinbaseCoins, coinControl, coin_type, useIX))
                 {
-                    if (fOnlyCoinbaseCoins && Params().GetConsensus().fCoinbaseMustBeProtected) {
+                    bool fProtectCoinbase = Params().GetCoinbaseProtected(chainActive.Height() + 1);
+                    if (fOnlyCoinbaseCoins && fProtectCoinbase) {
                         strFailReason = _("Coinbase funds can only be sent to a zaddr");
-                    } else if (fNeedCoinbaseCoins) {
+                    } else if (fNeedCoinbaseCoins && fProtectCoinbase) {
                         strFailReason = _("Insufficient funds, coinbase funds can only be spent after they have been sent to a zaddr");
                     } else {
                         strFailReason = _("Insufficient funds");

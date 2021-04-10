@@ -907,6 +907,7 @@ bool ContextualCheckTransaction(
 {
     bool overwinterActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER);
     bool saplingActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING);
+    bool atlantisActive = NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS);
     bool isSprout = !overwinterActive;
 
     // If Sprout rules apply, reject transactions which are intended for Overwinter and beyond
@@ -959,6 +960,26 @@ bool ContextualCheckTransaction(
         if (tx.fOverwintered && tx.nVersion > OVERWINTER_MAX_TX_VERSION ) {
             return state.DoS(100, error("CheckTransaction(): overwinter version too high"),
                 REJECT_INVALID, "bad-tx-overwinter-version-too-high");
+        }
+    } 
+
+    if (atlantisActive) {
+        bool atlantisAllowVoutPriv = !NetworkUpgradeActive(nHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS);
+        if(atlantisAllowVoutPriv)
+        {
+            if(tx.vShieldedSpend.size() == 0 && tx.vShieldedOutput.size() > 0)
+            {
+                return state.DoS(100, error("CheckTransaction(): sending to private address is disallowed"),
+                                    REJECT_INVALID, "bad-txns-sending-to-private-address");
+            }
+        }
+        else
+        {
+            if(tx.vShieldedSpend.size() > 0 || tx.vShieldedOutput.size() > 0)
+            {
+                return state.DoS(100, error("CheckTransaction(): private transaction is disallowed"),
+                    REJECT_INVALID, "bad-txns-private-transaction");
+            }
         }
     }
 
@@ -2350,7 +2371,7 @@ bool ValidOutPoint(const COutPoint out, int nHeight)
 
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams, bool fCoinbaseEnforcedProtectionEnabled)
 {
         // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
         // for an attacker to attempt to split the network.
@@ -2433,7 +2454,8 @@ bool ContextualCheckInputs(
 {
     if (!tx.IsCoinBase())
     {
-        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), consensusParams)) {
+        int height = GetSpendHeight(inputs);
+        if (!Consensus::CheckTxInputs(tx, state, inputs, height, consensusParams, Params().GetCoinbaseProtected(height))) {
             return false;
         }
 
@@ -4357,9 +4379,19 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
         BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
             if (output.scriptPubKey == Params().GetTreasuryRewardScriptAtHeight(nHeight)) {
-                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 5 / 100)) {
-                    found = true;
-                    break;
+                if(!NetworkUpgradeActive(nHeight, consensusParams, Consensus::UPGRADE_ATLANTIS))
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 5 / 100)) {
+                        found = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) * 10 / 100)) {
+                        found = true;
+                        break;
+                    }
                 }
             }
         }

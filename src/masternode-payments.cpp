@@ -321,9 +321,16 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
 
     // Treasury reward
     CAmount vTreasuryReward = 0;
-    if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight)
+    
+    
+    if(nHeight >= Params().GetConsensus().vUpgrades[Consensus::UPGRADE_KNOWHERE].nActivationHeight && 
+      !NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
     {
         vTreasuryReward = blockValue * 5 / 100;
+    }
+    else
+    {
+        vTreasuryReward = blockValue * 10 / 100;
     }
     
     CAmount masternodePayment = GetMasternodePayment(nHeight, blockValue);
