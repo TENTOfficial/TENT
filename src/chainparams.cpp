@@ -108,7 +108,7 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1545000;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
-        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = 1760000; // 2021, May 10th
         consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nProtocolVersion = 170010;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
