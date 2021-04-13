@@ -88,6 +88,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 1 * 60; // 1 min
+        consensus.nTimeshiftPriv = 7 * 24 * 60; // 7 * 1440 blocks in mainnet
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = boost::none;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170006;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =
@@ -107,6 +108,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 1545000;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = 1760000; // 2021, May 10th
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nProtocolVersion = 170010;
 
         consensus.nZawyLWMA3AveragingWindow = 60;
         // The best chain should have at least this much work.
@@ -147,7 +150,9 @@ public:
         vSeeds.push_back(CDNSSeedData("dnsseed1.snowgem.org", "dnsseed1.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed2.snowgem.org", "dnsseed2.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed3.snowgem.org", "dnsseed3.snowgem.org")); //Snowgem seed node
-        vSeeds.push_back(CDNSSeedData("abctoxyz.site", "dnsseed.abctoxyz.site")); //Snowgem seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //Tent seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed2.tent.app", "dnsseed2.tent.app")); //Tent seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed3.tent.app", "dnsseed3.tent.app")); //Tent seed node
 
         // guarantees the first 2 characters, when base58 encoded, are "s1"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0x28};
@@ -186,11 +191,12 @@ public:
             (770000, uint256S("0x0000033c44f81085a466f72d24104105caee912da72bdccc6d6f3c0d819ddc1a"))
             (874855, uint256S("0x000000cde6ea86e41c60ca32c06e7d1a0847bf533ecf0cd71b445ce81037f8cd"))
             (888888, uint256S("0x000003f40c40c23a58ca7d0255b994e7235e42a51bce730a68ef79e2157612da"))
-            (1060000, uint256S("0x0000026612d48d0f47e9d39bfea738c2378e617067bf6b9d4c3031dff31c4e91")),
-            1578108588,     // * UNIX timestamp of last checkpoint block
-            2797082,         // * total number of transactions between genesis and last checkpoint
+            (1060000, uint256S("0x0000026612d48d0f47e9d39bfea738c2378e617067bf6b9d4c3031dff31c4e91"))
+            (1720000, uint256S("0x000003dca02caa04cf1d1170e99e0ff045da3aa44fdd5f12954d060d9d0fdc2b")),
+            1618214867,     // * UNIX timestamp of last checkpoint block
+            3967568,         // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            3799            // * estimated number of transactions per day after checkpoint
+            2341            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (60 * 24))
         };
 
@@ -216,6 +222,31 @@ public:
             "s3TKWLar6bZEHppF4ZR1MbPuBfe33a1bHX9", /* main-index: 17*/
             "s3UpY6Q3T3v3F7MEpNDnV3rTucLEJkkHR4q", /* main-index: 18*/
             "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
+        };
+
+        // Founders reward script expects a vector of 2-of-3 multisig addresses
+        // For our partner
+        vFoundersRewardAddress2 = {
+            "s3an7UoVwfga6fXsTvE46MenWDu8auRrUqd", /* main-index: 0*/
+            "s3Zu8sebtKEteGETPLm69yf38PMyHWAYeQv", /* main-index: 1*/
+            "s3Qeesfn1tuWhxKZ35aSZq7oVWq2LtBjBoa", /* main-index: 2*/
+            "s3drQ1rpYKvxcEvtDnG3fP8NDLVjnes5SHN", /* main-index: 3*/
+            "s3Uio17ZNu7ZcFk3sHmerN4Tt3Pg7uYteTm", /* main-index: 4*/
+            "s3RVLe2j459YjtuAaBakMoG6dUzCU6rtfZ8", /* main-index: 5*/
+            "s3f16EZXRchBvZW1ESKUkTcLRWCERP7HBkc", /* main-index: 6*/
+            "s3PqWHjG4aLgQWBmA2aWUhv6WrH6FDSN6KG", /* main-index: 7*/
+            "s3V5NJFiPrqgXXuoWo5h4c8pbhwTupyJmMy", /* main-index: 8*/
+            "s3bc2Af4Aktxz8p25YCX63Hk8pZGMKr2r63", /* main-index: 9*/
+            "s3UuTKYhbbRK4NPKSNjnAxvJaTAgJBgM92S", /* main-index: 10*/
+            "s3MyuAGqcjUHSF7yN8apLSEWPK19CdKT6nV", /* main-index: 11*/
+            "s3XVKYBjQ9hv5NKxKrtyjFmGeFrwSsdwscz", /* main-index: 12*/
+            "s3Vjj29KCYoBFKFy11QREGGfPePAe42JX3m", /* main-index: 13*/
+            "s3YVbu8hBDVh3pJYUX76tejTg6Dgb9uXsR6", /* main-index: 14*/
+            "s3cAonYtPtumWp1c5qAhUQtYLWxe94yw6w9", /* main-index: 15*/
+            "s3RDMvMZFmVBDWQT6ooAVVd66SL6Hgs1B4G", /* main-index: 16*/
+            "s3TB2uqZpSEK7C5M9dhJYfzKoXzqXRztSMq", /* main-index: 17*/
+            "s3cZdRCGyxnzkzgkMPGXrS7YHRPNAmEb87p", /* main-index: 18*/
+            "s3fKKBm4kk8LtNhziDYET4Bg5ZxYSHE6AkP", /* main-index: 19*/
         };
 
         //@TODO - txid update wallet list
@@ -276,6 +307,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 1 * 60;
+        consensus.nTimeshiftPriv = 1 * 60; // 60 blocks in testnet
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = 13000;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170006;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =
@@ -295,6 +327,8 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_KNOWHERE].nProtocolVersion = 170009;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nActivationHeight = 22500;
         consensus.vUpgrades[Consensus::UPGRADE_WAKANDA].nProtocolVersion = 170010;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nActivationHeight = 28610;
+        consensus.vUpgrades[Consensus::UPGRADE_ATLANTIS].nProtocolVersion = 170010;
         consensus.nMasternodePaymentsStartBlock = 1500;
         consensus.nMasternodePaymentsIncreasePeriod = 200;
         consensus.nZawyLWMA3AveragingWindow = 60;
@@ -372,7 +406,13 @@ public:
 
         // Founders reward script expects a vector 900of 2-of-3 multisig addresses
         vFoundersRewardAddress = {
-            "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi"
+            "t2UNzUUx8mWBCRYPRezvA363EYXyEpHokyi",
+            "t27puhwCQgYRenkoNSFrhfeAPyfk1LpZbu9"
+        };
+
+        vFoundersRewardAddress2 = {
+            "t2DuepruJtHNZpjsaPneoRsGTBLDG5hhUmj",
+            "t27uXCcSZd1qSWhFArDbwVBHuuiGscY4DDM"
         };
 
         vTreasuryRewardAddress = {
@@ -408,6 +448,7 @@ public:
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
         consensus.nPowTargetSpacing = 1 * 60;
+        consensus.nTimeshiftPriv = 1 * 60; // 60 blocks
         consensus.nPowAllowMinDifficultyBlocksAfterHeight = 0;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nProtocolVersion = 170002;
         consensus.vUpgrades[Consensus::BASE_SPROUT].nActivationHeight =
@@ -481,6 +522,7 @@ public:
 
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
+        vFoundersRewardAddress2 = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
         vTreasuryRewardAddress = { "t2f9nkUG1Xe2TrQ4StHKcxUgLGuYszo8iS4" };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
@@ -557,7 +599,15 @@ std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
 
     size_t addressChangeInterval = (maxHeight + vFoundersRewardAddress.size()) / vFoundersRewardAddress.size();
     size_t i = (nHeight / addressChangeInterval) % vFoundersRewardAddress.size();
-    return vFoundersRewardAddress[i];
+    if(!NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
+    {
+        return vFoundersRewardAddress[i];
+    }
+    else
+    {
+        return nHeight % 2 == 0 ? vFoundersRewardAddress[i] : vFoundersRewardAddress2[i];
+    }
+    
 }
 
 // Block height must be >0 and <=last founders reward block height
@@ -603,6 +653,17 @@ CScript CChainParams::GetTreasuryRewardScriptAtHeight(int nHeight) const {
 std::string CChainParams::GetTreasuryRewardAddressAtIndex(int i) const {
     assert(i >= 0 && i < vTreasuryRewardAddress.size());
     return vTreasuryRewardAddress[i];
+}
+
+bool CChainParams::GetCoinbaseProtected(int height) const{
+    if(!NetworkUpgradeActive(height, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 int validEHparameterList(EHparameters *ehparams, unsigned int blocktime, const CChainParams& params){
