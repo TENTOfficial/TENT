@@ -80,6 +80,7 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
         consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimitTop = uint256S("0000000000000000000000000000000000000000000000000000000000000000");
         consensus.nPowAveragingWindow = 17;
         consensus.nMasternodePaymentsStartBlock = 193200;
         consensus.nMasternodePaymentsIncreasePeriod = 43200; // 1 month
