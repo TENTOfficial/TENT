@@ -278,6 +278,7 @@ UniValue getalldata(const UniValue& params, bool fHelp)
     }
 
     returnObj.push_back(Pair("listtransactions", trans));
+    returnObj.push_back(Pair("isencrypted", pwalletMain->IsCrypted()));
     return returnObj;
 }
 
