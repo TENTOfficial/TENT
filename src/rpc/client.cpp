@@ -38,6 +38,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getnetworksolps", 1 },
     { "sendtoaddress", 1 },
     { "sendtoaddress", 4 },
+    { "sendtoaddressnochange", 1 },
+    { "sendtoaddressnochange", 4 },
     { "settxfee", 0 },
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
