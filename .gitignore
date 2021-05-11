@@ -10,6 +10,7 @@ src/snowgem-cli
 src/snowgem-gtest
 src/snowgem-tx
 src/test/test_bitcoin
+src/Makefile
 
 # Snowgem utilities
 src/snowgem/GenerateParams
