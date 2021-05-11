@@ -4268,7 +4268,7 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
     fOnlyCoinbaseCoinsRet = vCoinsNoCoinbase.size() == 0 && vCoinsWithCoinbase.size() > 0;
 
     // If coinbase utxos can only be sent to zaddrs, exclude any coinbase utxos from coin selection.
-    bool fProtectCoinbase = Params().GetConsensus().fCoinbaseMustBeProtected;
+    bool fProtectCoinbase = Params().GetCoinbaseProtected(chainActive.Height() + 1);
     vector<COutput> vCoins = (fProtectCoinbase) ? vCoinsNoCoinbase : vCoinsWithCoinbase;
 
     // Output parameter fNeedCoinbaseCoinsRet is set to true if coinbase utxos need to be spent to meet target amount
