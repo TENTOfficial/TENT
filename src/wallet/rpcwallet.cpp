@@ -3671,14 +3671,15 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
     CTxDestination taddr = DecodeDestination(fromaddress);
     fromTaddr = IsValidDestination(taddr);
     if (!fromTaddr) {
-        // if (NetworkUpgradeActive(nextBlockHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-        //     throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send from private address is not allowed ") + fromaddress);
-        // }
 
         auto res = DecodePaymentAddress(fromaddress);
         if (!IsValidPaymentAddress(res)) {
             // invalid
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid from address, should be a taddr or zaddr.");
+        }
+
+        if (NetworkUpgradeActive(nextBlockHeight - Params().GetConsensus().nTimeshiftPriv, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+            throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send from private address is not allowed ") + fromaddress);
         }
 
         // Check that we have the spending key
@@ -3726,9 +3727,9 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
         bool isZaddr = false;
         CTxDestination taddr = DecodeDestination(address);
         if (!IsValidDestination(taddr)) {
-            // if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
-            //     throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send to private address is not allowed ") + fromaddress);
-            // }
+            if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
+                throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("Send to private address is not allowed ") + fromaddress);
+            }
 
             auto res = DecodePaymentAddress(address);
             if (IsValidPaymentAddress(res)) {
@@ -4238,7 +4239,7 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
     if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_ATLANTIS)) {
         throw JSONRPCError(RPC_TRANSACTION_REJECTED, std::string("z_mergetoaddress is deprecated"));
     }
-    
+
     bool useAnyUTXO = false;
     bool useAnySprout = false;
     bool useAnySapling = false;

@@ -150,7 +150,9 @@ public:
         vSeeds.push_back(CDNSSeedData("dnsseed1.snowgem.org", "dnsseed1.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed2.snowgem.org", "dnsseed2.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed3.snowgem.org", "dnsseed3.snowgem.org")); //Snowgem seed node
-        vSeeds.push_back(CDNSSeedData("abctoxyz.site", "dnsseed.abctoxyz.site")); //Snowgem seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed1.tent.app", "dnsseed1.tent.app")); //Tent seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed2.tent.app", "dnsseed2.tent.app")); //Tent seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed3.tent.app", "dnsseed3.tent.app")); //Tent seed node
 
         // guarantees the first 2 characters, when base58 encoded, are "s1"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0x28};
@@ -189,11 +191,12 @@ public:
             (770000, uint256S("0x0000033c44f81085a466f72d24104105caee912da72bdccc6d6f3c0d819ddc1a"))
             (874855, uint256S("0x000000cde6ea86e41c60ca32c06e7d1a0847bf533ecf0cd71b445ce81037f8cd"))
             (888888, uint256S("0x000003f40c40c23a58ca7d0255b994e7235e42a51bce730a68ef79e2157612da"))
-            (1060000, uint256S("0x0000026612d48d0f47e9d39bfea738c2378e617067bf6b9d4c3031dff31c4e91")),
-            1578108588,     // * UNIX timestamp of last checkpoint block
-            2797082,         // * total number of transactions between genesis and last checkpoint
+            (1060000, uint256S("0x0000026612d48d0f47e9d39bfea738c2378e617067bf6b9d4c3031dff31c4e91"))
+            (1720000, uint256S("0x000003dca02caa04cf1d1170e99e0ff045da3aa44fdd5f12954d060d9d0fdc2b")),
+            1618214867,     // * UNIX timestamp of last checkpoint block
+            3967568,         // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            3799            // * estimated number of transactions per day after checkpoint
+            2341            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (60 * 24))
         };
 
@@ -224,26 +227,26 @@ public:
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         // For our partner
         vFoundersRewardAddress2 = {
-            "s3d27MhkBRt3ha2UuxhjXaYF4DCnttTMnL1", /* main-index: 0*/
-            "s3Wws6Mx3GHJkAe8QkNr4jhW28WU21Fp9gL", /* main-index: 1*/
-            "s3QD18CKEA9Cw4kgnssnmk4rbf9Y3rU1uWG", /* main-index: 2*/
-            "s3esoTmHdcXdDwCkoGSxC4YkfzBo1ySuher", /* main-index: 3*/
-            "s3Q8NwoBv4aq9RRvqjT3LqN9TQnZrS2RdcV", /* main-index: 4*/
-            "s3ix12RLstrzFEJKVsbLxCsPuUSjAqs3Bqp", /* main-index: 5*/
-            "s3bCvm5zDv9KYFwHxaZjz2eKecEnbdFz98f", /* main-index: 6*/
-            "s3UfvUuHahzTmYViL3KrGZeUPug69denBm3", /* main-index: 7*/
-            "s3gmzNUmttwDJbUcpmW4gxVqHf3J58fDKpp", /* main-index: 8*/
-            "s3YuWMW4Kpij7gW91WHLhjfi5Dwc7dKyPNn", /* main-index: 9*/
-            "s3k2MaTdZyFBqyndrHdCDFnET5atCdC4iod", /* main-index: 10*/
-            "s3YFHxL9euG89LMgPT5wGka4Ek8XVyw4FWG", /* main-index: 11*/
-            "s3TKKkNnvBXphdv4ce84UKePdssWLHGBe1A", /* main-index: 12*/
-            "s3PLrY7e7jzzAxnMY7A6GkjhkGc1CVkuEoi", /* main-index: 13*/
-            "s3Ug8VAGcUijwD6QMhyFcCYXQEFABaA9VFy", /* main-index: 14*/
-            "s3b4DAbbrTb4FPz3mHeyE89fUq6Liqg5vxX", /* main-index: 15*/
-            "s3cM379BTJyCe5yJC4jkPn6qJwpZaHK2kXb", /* main-index: 16*/
-            "s3TKWLar6bZEHppF4ZR1MbPuBfe33a1bHX9", /* main-index: 17*/
-            "s3UpY6Q3T3v3F7MEpNDnV3rTucLEJkkHR4q", /* main-index: 18*/
-            "s3eWx3DcwLiusTBfhWu6z7zM4TffaV1Ng9r", /* main-index: 19*/
+            "s3an7UoVwfga6fXsTvE46MenWDu8auRrUqd", /* main-index: 0*/
+            "s3Zu8sebtKEteGETPLm69yf38PMyHWAYeQv", /* main-index: 1*/
+            "s3Qeesfn1tuWhxKZ35aSZq7oVWq2LtBjBoa", /* main-index: 2*/
+            "s3drQ1rpYKvxcEvtDnG3fP8NDLVjnes5SHN", /* main-index: 3*/
+            "s3Uio17ZNu7ZcFk3sHmerN4Tt3Pg7uYteTm", /* main-index: 4*/
+            "s3RVLe2j459YjtuAaBakMoG6dUzCU6rtfZ8", /* main-index: 5*/
+            "s3f16EZXRchBvZW1ESKUkTcLRWCERP7HBkc", /* main-index: 6*/
+            "s3PqWHjG4aLgQWBmA2aWUhv6WrH6FDSN6KG", /* main-index: 7*/
+            "s3V5NJFiPrqgXXuoWo5h4c8pbhwTupyJmMy", /* main-index: 8*/
+            "s3bc2Af4Aktxz8p25YCX63Hk8pZGMKr2r63", /* main-index: 9*/
+            "s3UuTKYhbbRK4NPKSNjnAxvJaTAgJBgM92S", /* main-index: 10*/
+            "s3MyuAGqcjUHSF7yN8apLSEWPK19CdKT6nV", /* main-index: 11*/
+            "s3XVKYBjQ9hv5NKxKrtyjFmGeFrwSsdwscz", /* main-index: 12*/
+            "s3Vjj29KCYoBFKFy11QREGGfPePAe42JX3m", /* main-index: 13*/
+            "s3YVbu8hBDVh3pJYUX76tejTg6Dgb9uXsR6", /* main-index: 14*/
+            "s3cAonYtPtumWp1c5qAhUQtYLWxe94yw6w9", /* main-index: 15*/
+            "s3RDMvMZFmVBDWQT6ooAVVd66SL6Hgs1B4G", /* main-index: 16*/
+            "s3TB2uqZpSEK7C5M9dhJYfzKoXzqXRztSMq", /* main-index: 17*/
+            "s3cZdRCGyxnzkzgkMPGXrS7YHRPNAmEb87p", /* main-index: 18*/
+            "s3fKKBm4kk8LtNhziDYET4Bg5ZxYSHE6AkP", /* main-index: 19*/
         };
 
         //@TODO - txid update wallet list
