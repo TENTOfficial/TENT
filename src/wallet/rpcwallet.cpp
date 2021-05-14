@@ -2284,13 +2284,13 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    string enableArg = "developerencryptwallet";
-    auto fEnableWalletEncryption = fExperimentalMode && GetBoolArg("-" + enableArg, false);
+    // string enableArg = "developerencryptwallet";
+    // auto fEnableWalletEncryption = fExperimentalMode && GetBoolArg("-" + enableArg, false);
 
     std::string strWalletEncryptionDisabledMsg = "";
-    if (!fEnableWalletEncryption) {
-        strWalletEncryptionDisabledMsg = experimentalDisabledHelpMsg("encryptwallet", enableArg);
-    }
+    // if (!fEnableWalletEncryption) {
+    //     strWalletEncryptionDisabledMsg = experimentalDisabledHelpMsg("encryptwallet", enableArg);
+    // }
 
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() != 1))
         throw runtime_error(
@@ -2321,9 +2321,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
 
     if (fHelp)
         return true;
-    if (!fEnableWalletEncryption) {
-        throw JSONRPCError(RPC_WALLET_ENCRYPTION_FAILED, "Error: wallet encryption is disabled.");
-    }
+
     if (pwalletMain->IsCrypted())
         throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: running with an encrypted wallet, but encryptwallet was called.");
 

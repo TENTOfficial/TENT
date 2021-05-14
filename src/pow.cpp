@@ -13,13 +13,35 @@
 #include "streams.h"
 #include "uint256.h"
 #include "util.h"
+#include "timedata.h"
 
 #include "sodium.h"
+
+bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+{
+    const CChainParams& chainParams = Params();
+    if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+    {
+        return false;
+    }
+    else
+    {
+        if(!pblock)
+        {
+            if (GetAdjustedTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     const CChainParams& chainParams = Params();
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+    unsigned int nProofOfWorkLimitTop = UintToArith256(params.powLimitTop).GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
@@ -44,6 +66,16 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
             if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing * 6)
                 return nProofOfWorkLimit;
         }
+    }
+
+    if(!CheckBlockTimestamp(pindexLast, pblock))
+    {
+        LogPrint("pow1", "Return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
+        return nProofOfWorkLimitTop;
+    }
+    else
+    {
+        LogPrint("pow1", "Not return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
     }
 
     // Find the first block in the averaging interval

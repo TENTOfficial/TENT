@@ -4242,15 +4242,15 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     return true;
 }
 
-bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
-{
-    const CChainParams& chainParams = Params();
-    if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
-    {
-        return false;
-    }
-    return true;
-}
+// bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+// {
+//     const CChainParams& chainParams = Params();
+//     if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+//     {
+//         return false;
+//     }
+//     return true;
+// }
 
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev)
 {
@@ -4288,14 +4288,14 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
                              REJECT_OBSOLETE, "bad-version");
 
     //check block timestamp
-    if(NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_WAKANDA))
-    {
-        if(!CheckBlockTimestamp(pindexPrev, &block))
-        {
-            return state.Invalid(error("%s: new block is too fast", __func__),
-                    REJECT_INVALID, "block-too-fast");
-        }
-    }
+    // if(NetworkUpgradeActive(nHeight, Params().GetConsensus(), Consensus::UPGRADE_WAKANDA))
+    // {
+    //     if(!CheckBlockTimestamp(pindexPrev, &block))
+    //     {
+    //         return state.Invalid(error("%s: new block is too fast", __func__),
+    //                 REJECT_INVALID, "block-too-fast");
+    //     }
+    // }
     return true;
 }
 
