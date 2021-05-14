@@ -99,6 +99,7 @@ UniValue getalldata(const UniValue& params, bool fHelp)
 
     returnObj.push_back(Pair("connectionCount", connectionCount));
     returnObj.push_back(Pair("besttime", chainActive.Tip()->GetBlockTime()));
+    returnObj.push_back(Pair("blocks", (int)chainActive.Height()));
     returnObj.push_back(Pair("bestblockhash", chainActive.Tip()->GetBlockHash().GetHex()));
     returnObj.push_back(Pair("transparentbalance", FormatMoney(nBalance)));
     returnObj.push_back(Pair("privatebalance", FormatMoney(nPrivateBalance)));
