@@ -68,15 +68,15 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         }
     }
 
-    if(!CheckBlockTimestamp(pindexLast, pblock))
-    {
-        LogPrint("pow1", "Return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
-        return nProofOfWorkLimitTop;
-    }
-    else
-    {
-        LogPrint("pow1", "Not return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
-    }
+    // if(!CheckBlockTimestamp(pindexLast, pblock))
+    // {
+    //     LogPrint("pow1", "Return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
+    //     return nProofOfWorkLimitTop;
+    // }
+    // else
+    // {
+    //     LogPrint("pow1", "Not return limit work, time = %d\n", pblock ? pblock->nTime : GetAdjustedTime());
+    // }
 
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
