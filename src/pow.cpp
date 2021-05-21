@@ -17,25 +17,25 @@
 
 #include "sodium.h"
 
-bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
-{
-    const CChainParams& chainParams = Params();
-    if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
-    {
-        return false;
-    }
-    else
-    {
-        if(!pblock)
-        {
-            if (GetAdjustedTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
-}
+// bool CheckBlockTimestamp(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
+// {
+//     const CChainParams& chainParams = Params();
+//     if (pblock && pblock->GetBlockTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+//     {
+//         return false;
+//     }
+//     else
+//     {
+//         if(!pblock)
+//         {
+//             if (GetAdjustedTime() < pindexLast->GetBlockTime() + (int64_t)(chainParams.GetConsensus().nPowTargetSpacing / 3))
+//             {
+//                 return false;
+//             }
+//         }
+//     }
+//     return true;
+// }
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
