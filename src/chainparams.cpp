@@ -148,6 +148,9 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
+        vSeeds.push_back(CDNSSeedData("dnsseed1.amitabha.xyz", "dnsseed1.amitabha.xyz")); //Amitabha seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed2.amitabha.xyz", "dnsseed2.amitabha.xyz")); //Amitabha seed node
+        vSeeds.push_back(CDNSSeedData("dnsseed3.amitabha.xyz", "dnsseed3.amitabha.xyz")); //Amitabha seed node
         vSeeds.push_back(CDNSSeedData("dnsseed1.snowgem.org", "dnsseed1.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed2.snowgem.org", "dnsseed2.snowgem.org")); //Snowgem seed node
         vSeeds.push_back(CDNSSeedData("dnsseed3.snowgem.org", "dnsseed3.snowgem.org")); //Snowgem seed node
