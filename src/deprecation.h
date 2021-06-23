@@ -10,7 +10,7 @@
 // * Shut down 100 weeks' worth of blocks after the estimated release block height.
 // * A warning is shown during the 2 weeks' worth of blocks prior to shut down.
 
-static const int APPROX_RELEASE_HEIGHT = 1760000;
+static const int APPROX_RELEASE_HEIGHT = 1825000;
 
 static const int WEEKS_UNTIL_DEPRECATION = 100;
 static const int DEPRECATION_HEIGHT = APPROX_RELEASE_HEIGHT + (WEEKS_UNTIL_DEPRECATION * 7 * 24 * 60);
