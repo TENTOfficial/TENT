@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python3
 
 import os
 import re
@@ -9,13 +9,13 @@ import subprocess
 import traceback
 import unittest
 import random
-from cStringIO import StringIO
+from io import StringIO
 from functools import wraps
 
 
 def main(args=sys.argv[1:]):
     """
-    Perform the final Snowgem release process up to the git tag.
+    Perform the final TENT release process up to the git tag.
     """
     opts = parse_args(args)
     chdir_to_repo(opts.REPO)
@@ -26,6 +26,7 @@ def main(args=sys.argv[1:]):
         main_logged(
             opts.RELEASE_VERSION,
             opts.RELEASE_PREV,
+            opts.RELEASE_FROM,
             opts.RELEASE_HEIGHT,
             opts.HOTFIX,
         )
@@ -62,17 +63,28 @@ def parse_args(args):
         help='The previously released version.',
     )
     p.add_argument(
+        'RELEASE_FROM',
+        type=Version.parse_arg,
+        help='The previously released non-beta non-RC version. May be the same as RELEASE_PREV.',
+    )
+    p.add_argument(
         'RELEASE_HEIGHT',
         type=int,
-        help='A block height approximately occuring on release day.',
+        help='A block height approximately occurring on release day.',
     )
     return p.parse_args(args)
 
 
 # Top-level flow:
-def main_logged(release, releaseprev, releaseheight, hotfix):
-    verify_releaseprev_tag(releaseprev)
+def main_logged(release, releaseprev, releasefrom, releaseheight, hotfix):
+    verify_dependencies([
+        ('help2man', None),
+        ('debchange', 'devscripts'),
+    ])
+
+    # verify_tags(releaseprev, releasefrom)
     verify_version(release, releaseprev, hotfix)
+    # verify_dependency_updates()
     initialize_git(release, hotfix)
     patch_version_in_files(release, releaseprev)
     patch_release_height(releaseheight)
@@ -82,7 +94,7 @@ def main_logged(release, releaseprev, releaseheight, hotfix):
     gen_manpages()
     commit('Updated manpages for {}.'.format(release.novtext))
 
-    gen_release_notes(release)
+    gen_release_notes(release, releasefrom)
     update_debian_changelog(release)
     commit(
         'Updated release notes and changelog for {}.'.format(
@@ -101,8 +113,28 @@ def phase(message):
     return deco
 
 
-@phase('Checking RELEASE_PREV tag.')
-def verify_releaseprev_tag(releaseprev):
+@phase('Checking release script dependencies.')
+def verify_dependencies(dependencies):
+    for (dependency, pkg) in dependencies:
+        try:
+            sh_log(dependency, '--version')
+        except OSError:
+            raise SystemExit(
+                "Missing dependency {}{}".format(
+                    dependency,
+                    " (part of {} Debian package)".format(pkg) if pkg else "",
+                ),
+            )
+
+@phase('Checking dependency updates.')
+def verify_dependency_updates():
+    try:
+        sh_log('./qa/snowgem/updatecheck.py')
+    except SystemExit:
+        raise SystemExit("Dependency update check found updates that have not been correctly postponed.")
+
+@phase('Checking tags.')
+def verify_tags(releaseprev, releasefrom):
     candidates = []
 
     # Any tag beginning with a 'v' followed by [1-9] must be a version
@@ -129,6 +161,31 @@ def verify_releaseprev_tag(releaseprev):
                 releaseprev.vtext,
             ),
         )
+
+    candidates.reverse()
+    prev_tags = []
+    for candidate in candidates:
+        if releasefrom == candidate:
+            break
+        else:
+            prev_tags.append(candidate)
+    else:
+        raise SystemExit(
+            '{} does not appear in `git tag --list`'
+            .format(
+                releasefrom.vtext,
+            ),
+        )
+
+    for tag in prev_tags:
+        if not tag.betarc:
+            raise SystemExit(
+                '{} appears to be a more recent non-beta non-RC release than {}'
+                .format(
+                    tag.vtext,
+                    releasefrom.vtext,
+                ),
+            )
 
 
 @phase('Checking version.')
@@ -186,7 +243,7 @@ def patch_version_in_files(release, releaseprev):
     patch_gitian_linux_yml(release, releaseprev)
 
 
-@phase('Patching release height for auto-senescence.')
+@phase('Patching release height for end-of-support halt.')
 def patch_release_height(releaseheight):
     rgx = re.compile(
         r'^(static const int APPROX_RELEASE_HEIGHT = )\d+(;)$',
@@ -217,10 +274,9 @@ def build():
         'Staging boost...',
         'Staging libevent...',
         'Staging zeromq...',
-        'Staging libgmp...',
         'Staging libsodium...',
         "Leaving directory '%s'" % depends_dir,
-        'config.status: creating libzcashconsensus.pc',
+        'config.status: creating libzcash_script.pc',
         "Entering directory '%s'" % src_dir,
         'httpserver.cpp',
         'torcontrol.cpp',
@@ -238,8 +294,17 @@ def gen_manpages():
 
 
 @phase('Generating release notes.')
-def gen_release_notes(release):
-    sh_log('python', './zcutil/release-notes.py', '--version', release.novtext)
+def gen_release_notes(release, releasefrom):
+    release_notes = [
+        './zcutil/release-notes.py',
+        '--version',
+        release.novtext,
+        '--prev',
+        releasefrom.vtext,
+    ]
+    if not release.betarc:
+        release_notes.append('--clear')
+    sh_log(*release_notes)
     sh_log(
         'git',
         'add',
@@ -250,8 +315,8 @@ def gen_release_notes(release):
 
 @phase('Updating debian changelog.')
 def update_debian_changelog(release):
-    os.environ['DEBEMAIL'] = 'team@snowgem.org'
-    os.environ['DEBFULLNAME'] = 'Snowgem Company'
+    os.environ['DEBEMAIL'] = 'team@electriccoin.co'
+    os.environ['DEBFULLNAME'] = 'Electric Coin Company'
     sh_log(
         'debchange',
         '--newversion', release.debversion,
@@ -278,10 +343,10 @@ def chdir_to_repo(repo):
 def patch_README(release, releaseprev):
     with PathPatcher('README.md') as (inf, outf):
         firstline = inf.readline()
-        assert firstline == 'Snowgem {}\n'.format(releaseprev.novtext), \
+        assert firstline == 'TENT {}\n'.format(releaseprev.novtext), \
             repr(firstline)
 
-        outf.write('Snowgem {}\n'.format(release.novtext))
+        outf.write('TENT {}\n'.format(release.novtext))
         outf.write(inf.read())
 
 
@@ -306,14 +371,14 @@ def patch_configure_ac(release):
 def patch_gitian_linux_yml(release, releaseprev):
     path = 'contrib/gitian-descriptors/gitian-linux.yml'
     with PathPatcher(path) as (inf, outf):
-        outf.write(inf.readline())
+        # outf.write(inf.readline())
 
-        secondline = inf.readline()
-        assert secondline == 'name: "snowgem-{}"\n'.format(
-            releaseprev.novtext
-        ), repr(secondline)
+        # secondline = inf.readline()
+        # assert secondline == 'name: "tent-{}"\n'.format(
+        #     releaseprev.novtext
+        # ), repr(secondline)
 
-        outf.write('name: "snowgem-{}"\n'.format(release.novtext))
+        outf.write('name: "tent-{}"\n'.format(release.novtext))
         outf.write(inf.read())
 
 
@@ -339,7 +404,7 @@ def _patch_build_defs(release, path, pattern):
 
 
 def initialize_logging():
-    logname = './snowgem-make-release.log'
+    logname = './tent-make-release.log'
     fmtr = logging.Formatter(
         '%(asctime)s L%(lineno)-4d %(levelname)-5s | %(message)s',
         '%Y-%m-%d %H:%M:%S'
@@ -357,12 +422,12 @@ def initialize_logging():
     root.setLevel(logging.DEBUG)
     root.addHandler(hout)
     root.addHandler(hpath)
-    logging.info('snowgem make-release.py debug log: %r', logname)
+    logging.info('tent make-release.py debug log: %r', logname)
 
 
 def sh_out(*args):
     logging.debug('Run (out): %r', args)
-    return subprocess.check_output(args)
+    return subprocess.check_output(args).decode()
 
 
 def sh_log(*args):
@@ -376,7 +441,7 @@ def sh_log(*args):
 
     logging.debug('Run (log PID %r): %r', p.pid, args)
     for line in p.stdout:
-        logging.debug('> %s', line.rstrip())
+        logging.debug('> %s', line.decode().rstrip())
     status = p.wait()
     if status != 0:
         raise SystemExit('Nonzero exit status: {!r}'.format(status))
@@ -397,11 +462,13 @@ def sh_progress(markers, *args):
         logging.error('Error launching %r...', args)
         raise
 
-    pbar = progressbar.ProgressBar(max_value=len(markers))
+    pbar = progressbar.ProgressBar(maxval=len(markers))
     marker = 0
+    pbar.start()
     pbar.update(marker)
     logging.debug('Run (log PID %r): %r', p.pid, args)
     for line in p.stdout:
+        line = line.decode()
         logging.debug('> %s', line.rstrip())
         for idx, val in enumerate(markers[marker:]):
             if val in line:
@@ -516,8 +583,11 @@ class Version (object):
             self.hotfix,
         )
 
-    def __cmp__(self, other):
-        return cmp(self._sort_tup(), other._sort_tup())
+    def __lt__(self, other):
+        return self._sort_tup() < other._sort_tup()
+
+    def __eq__(self, other):
+        return self._sort_tup() == other._sort_tup()
 
 
 class PathPatcher (object):
@@ -526,14 +596,14 @@ class PathPatcher (object):
 
     def __enter__(self):
         logging.debug('Patching %r', self._path)
-        self._inf = file(self._path, 'r')
+        self._inf = open(self._path, 'r', encoding='utf8')
         self._outf = StringIO()
         return (self._inf, self._outf)
 
     def __exit__(self, et, ev, tb):
         if (et, ev, tb) == (None, None, None):
             self._inf.close()
-            with file(self._path, 'w') as f:
+            with open(self._path, 'w', encoding='utf8') as f:
                 f.write(self._outf.getvalue())
 
 
@@ -615,7 +685,7 @@ if __name__ == '__main__':
         actualargs = sys.argv
         sys.argv = [sys.argv[0], '--verbose']
 
-        print '=== Self Test ==='
+        print('=== Self Test ===')
         try:
             unittest.main()
         except SystemExit as e:
@@ -623,5 +693,5 @@ if __name__ == '__main__':
                 raise
 
         sys.argv = actualargs
-        print '=== Running ==='
+        print('=== Running ===')
         main()
