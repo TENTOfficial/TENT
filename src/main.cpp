@@ -3677,8 +3677,10 @@ static bool ActivateBestChainStep(CValidationState &state, CBlockIndex *pindexMo
     auto reorgLength = pindexOldTip ? pindexOldTip->nHeight - (pindexFork ? pindexFork->nHeight : -1) : 0;
     static_assert(MAX_REORG_LENGTH > 0, "We must be able to reorg some distance");
     if (reorgLength > MAX_REORG_LENGTH) {
-        auto msg = strprintf(_("A block chain reorganization has been detected that would roll back %d blocks! "),
-             reorgLength) + "\n\n" +
+        auto msg = strprintf(_(
+            "A block chain reorganization has been detected that would roll back %d blocks! "
+            "This is larger than the maximum of %d blocks, and so the node is shutting down for your safety."
+            ), reorgLength, MAX_REORG_LENGTH) + "\n\n" +
             _("Reorganization details") + ":\n" +
             "- " + strprintf(_("Current tip: %s, height %d, work %s"),
                 pindexOldTip->phashBlock->GetHex(), pindexOldTip->nHeight, pindexOldTip->nChainWork.GetHex()) + "\n" +
@@ -3689,6 +3691,7 @@ static bool ActivateBestChainStep(CValidationState &state, CBlockIndex *pindexMo
             _("Please help, human!");
         LogPrintf("*** %s\n", msg);
         uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_ERROR);
+        StartShutdown();
         return false;
     }
 
