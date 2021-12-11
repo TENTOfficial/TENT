@@ -2093,6 +2093,12 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     {
         return nSubsidy;
     }
+
+    // private fork for the swap approximately on 15th Dec, 2021
+    if(nHeight >= 2073500)
+    {
+        return 0;
+    }
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
